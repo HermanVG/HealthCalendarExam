@@ -1,19 +1,59 @@
+using Microsoft.EntityFrameworkCore;
+using HealthCalendar.DAL;
+using Serilog;
+using Serilog.Events;
+using Microsoft.EntityFrameworkCore.Internal;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<DatabaseContext>(options =>
+{
+    options.UseSqlite(builder.Configuration["ConnectionStrings:DatabaseContextConnection"]);
+});
+
+builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
+// Repository Services
+//builder.Services.AddScoped<IRepo, Repo>();
+
+var loggerConfiguration = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File($"APILogs/app_{DateTime.Now:yyyyMMdd_HHmmss}.log")
+    .Filter.ByExcluding(e => e.Properties.TryGetValue("SourceContext", out var value) &&
+                             e.Level == LogEventLevel.Information &&
+                             e.MessageTemplate.Text.Contains("Executed DbCommand"));
+var logger = loggerConfiguration.CreateLogger();
+builder.Logging.AddSerilog(logger);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    DatabaseInit.Seed(app);
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseStaticFiles();
+app.UseRouting();
+app.UseCors("CorsPolicy");
+app.MapControllers();
 
+app.Run();
+
+
+// Some stuff that was generated when dotnet was initially built:
+// I don't think it is necessary
+/*
 app.UseHttpsRedirection();
 
 var summaries = new[]
@@ -36,9 +76,8 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.Run();
-
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+*/
