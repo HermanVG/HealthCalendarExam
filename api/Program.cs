@@ -15,7 +15,10 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration["ConnectionStrings:DatabaseContextConnection"]);
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
