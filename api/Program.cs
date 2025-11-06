@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using HealthCalendar.DAL;
 using Serilog;
 using Serilog.Events;
+using Newtonsoft.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
 });
 builder.Services.AddCors(options =>
 {
