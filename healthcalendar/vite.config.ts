@@ -14,5 +14,4 @@ export default defineConfig(({ command, mode}) => {
     }
   }
 })
-//  plugins: [react()],
-//})
+
