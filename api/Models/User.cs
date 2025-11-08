@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace HealthCalendar.Models
@@ -14,10 +15,11 @@ namespace HealthCalendar.Models
         public string Name { get; set; } = string.Empty;
         public enum Role { Patient, Worker, Admin }
         
-        // Foreign Key (User.Id) 
+        // Foreign Key (User.Id)
         // For Patient, Points to related Worker
-        public int? WorkerrId { get; set; } 
+        string? WorkerId { get; set; } 
         // Navigation property
+        [ForeignKey("WorkerId")]
         public virtual User? Worker { get; set; }
     }
 }

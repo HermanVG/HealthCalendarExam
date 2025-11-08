@@ -45,11 +45,11 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<HealthCalendarDbContext>(options =>
 {
-    options.UseSqlite(builder.Configuration["ConnectionStrings:HealthCalendarDbContextConnection"]);
+    options.UseSqlite(builder.Configuration["ConnectionString:HealthCalendarDbContextConnection"]);
 });
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
-    options.UseSqlite(builder.Configuration["ConnectionStrings:HealthCalendarDbContextConnection"]);
+    options.UseSqlite(builder.Configuration["ConnectionString:HealthCalendarDbContextConnection"]);
 });
 
 builder.Services.AddIdentity<User, IdentityRole>()

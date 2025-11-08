@@ -13,8 +13,8 @@ namespace HealthCalendar.Models
         public virtual Availability availability { get; set; } = default!;
 
         // Foreign Key (Assignment.AssignmentId)
-        public int AssignmentId { get; set; }
+        public int EventId { get; set; }
         // Navigation property
-        public virtual Assignment assignment { get; set; } = default!;
+        public virtual Event eventt { get; set; } = default!;
     }
 }
