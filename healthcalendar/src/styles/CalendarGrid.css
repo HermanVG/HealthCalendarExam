@@ -1,0 +1,138 @@
+/* Calendar grid styles */
+:root {
+    --primary: #5183EE;
+    --primary-strong: #2562E8;
+    --bg: #E8F9FF;
+    --slot-h: 36px; /* height of each 30-min slot */
+}
+
+.cal-grid {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* allow flex parent to control height */
+}
+
+.cal-grid__header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+.cal-grid__corner {
+    height: 56px;
+}
+
+.cal-grid__day {
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.cal-grid__dayname {
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.cal-grid__daydate {
+    color: #111827;
+    font-weight: 700;
+}
+
+.cal-grid__body {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    overflow: auto;
+    flex: 1; /* take remaining height under sticky header */
+    min-height: 0;
+}
+
+.cal-grid__times {
+    background: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+    overflow: hidden;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+.cal-grid__time {
+    height: var(--slot-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.cal-grid__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    position: relative;
+}
+
+.cal-grid__col {
+    position: relative;
+}
+
+.cal-grid__col--today {
+    background: #f6faff;
+}
+
+.cal-grid__day--today .cal-grid__dayname,
+.cal-grid__day--today .cal-grid__daydate {
+    color: var(--primary-strong);
+}
+
+.cal-grid__slot {
+    height: var(--slot-h);
+    border-bottom: 1px dashed #eef2f7;
+}
+
+.cal-grid__event {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    background: #C1DDFF;
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    padding: 6px 36px 6px 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.cal-grid__event:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.cal-grid__event-title {
+    font-weight: 800;
+    color: #1f2937;
+    font-size: 0.95rem;
+}
+
+.cal-grid__event-meta {
+    font-size: 0.8rem;
+    color: #374151;
+}
+
+.cal-grid__event-edit {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.cal-grid__event-edit img {
+    width: 16px;
+    height: 16px;
+}

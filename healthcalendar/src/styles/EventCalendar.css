@@ -1,0 +1,232 @@
+/* Event Calendar page styles */
+:root {
+    --primary: #5183EE;
+    --primary-strong: #2562E8;
+    --danger: #E4483A;
+}
+
+.event-page {
+    min-height: 100vh;
+    background: #E8F9FF;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-main {
+    flex: 1;
+    padding: 1.25rem clamp(2rem,4vw,5rem) 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.event-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: #1f2937;
+}
+
+.event-week {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.icon-btn img {
+    width: 18px;
+    height: 18px;
+}
+
+.event-week__range {
+    font-weight: 600;
+    color: #374151;
+}
+
+.add-btn {
+    background: #2562E8;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background: #5183EE;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    padding: 0.5rem .9rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.logout-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.banner {
+    background: #ffffff;
+    padding: 0.5rem .75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .06);
+}
+
+.banner--error {
+    background: #ffe9e7;
+    color: #E4483A;
+    border: 1px solid #E4483A;
+}
+
+/* Overlay shared styles */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: #fff;
+    width: 100%;
+    max-width: 560px;
+    border-radius: 20px;
+    padding: 1.5rem 1.5rem 1.75rem;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .18);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    animation: modalIn .25s ease;
+}
+
+.modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal__header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #2562E8;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form__row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.form label {
+    font-weight: 600;
+    color: #374151;
+    display: grid;
+    gap: .4rem;
+}
+
+.form input,
+.form select {
+    padding: .6rem .7rem;
+    border: 2px solid #4097F5;
+    border-radius: 8px;
+    font-size: .95rem;
+    outline: none;
+}
+
+.form input:focus,
+.form select:focus {
+    box-shadow: 0 0 0 3px #5183EE33;
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: .55rem .9rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background: #2562E8;
+    color: #fff;
+    border: none;
+}
+
+.btn--primary:hover {
+    background: #5183EE;
+}
+
+.btn--danger {
+    background: #E4483A;
+    color: #fff;
+    border: none;
+}
+
+.btn--danger:hover {
+    background: #c63c30;
+}
+
+@media (max-width:720px) {
+    .event-main {
+        padding: 1rem .75rem 2rem;
+    }
+}
+
+@keyframes modalIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
