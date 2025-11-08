@@ -14,11 +14,12 @@ namespace HealthCalendar.Models
             PasswordHash
         */
         public string Name { get; set; } = string.Empty;
-        public Role Role { get; set; }
+        // Role can be "Patient", "Worker" or "Admin"
+        public string Role { get; set; } = string.Empty;
         
         // Foreign Key (User.Id)
         // For Patient, Points to related Worker
-        string? WorkerId { get; set; } 
+        public string? WorkerId { get; set; } 
         // Navigation property
         [ForeignKey("WorkerId")]
         public virtual User? Worker { get; set; }

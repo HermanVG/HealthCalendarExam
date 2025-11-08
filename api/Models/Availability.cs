@@ -15,7 +15,7 @@ namespace HealthCalendar.Models
         public DateOnly? Date { get; set; }
 
         // Foreign Key (User.Id)
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         // Navigation Property
         public virtual User Patient { get; set; } = default!;
     }

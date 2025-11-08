@@ -13,7 +13,7 @@ namespace HealthCalendar.Models
         public string Location { get; set; } = string.Empty;
 
         // Foreign Key (User.Id)
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         // Navigation Property
         public virtual User Patient { get; set; } = default!;
     }
