@@ -1,15 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import '../styles/Toast.css'
+import { ToastContext } from './toastContext'
+import type { ToastContextType } from './toastContext'
+// Keeping context + hook in same file for simplicity; react-refresh warning will be ignored for now.
 
 type Toast = { id: number; type: 'success' | 'error' | 'info'; message: string }
 
-type ToastContextType = {
-  showSuccess: (msg: string) => void
-  showError: (msg: string) => void
-  showInfo: (msg: string) => void
-}
-
-const ToastContext = createContext<ToastContextType | null>(null)
+// Context and hook defined in toastContext.ts to satisfy react-refresh rule
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -27,9 +24,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [remove])
 
   const ctx = useMemo<ToastContextType>(() => ({
-    showSuccess: (m) => push('success', m),
-    showError: (m) => push('error', m),
-    showInfo: (m) => push('info', m),
+    showSuccess: (m: string) => push('success', m),
+    showError: (m: string) => push('error', m),
+    showInfo: (m: string) => push('info', m),
   }), [push])
 
   return (
@@ -47,8 +44,4 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function useToast() {
-  const ctx = useContext(ToastContext)
-  if (!ctx) throw new Error('useToast must be used within a ToastProvider')
-  return ctx
-}
+// useToast hook is exported from toastContext.ts

@@ -22,10 +22,20 @@ const formatTimeLabel = (mins: number) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
+const toLocalISO = (date: Date) => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 const addDays = (iso: string, days: number) => {
-  const d = new Date(iso)
-  d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
+  const y = Number(iso.slice(0, 4))
+  const m = Number(iso.slice(5, 7)) - 1
+  const d = Number(iso.slice(8, 10))
+  const date = new Date(y, m, d)
+  date.setDate(date.getDate() + days)
+  return toLocalISO(date)
 }
 
 // Weekday labels will be localized (Norwegian) per date below
@@ -45,7 +55,8 @@ export default function CalendarGrid({
   const timeLabels = Array.from({ length: totalSlots + 1 }, (_, i) => startMins + i * slotMinutes)
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStartISO, i))
-  const todayISO = new Date().toISOString().slice(0, 10)
+  const now = new Date()
+  const todayISO = toLocalISO(new Date(now.getFullYear(), now.getMonth(), now.getDate()))
 
   const eventsByDay = days.map(d => events.filter(e => e.date === d))
 
@@ -54,9 +65,12 @@ export default function CalendarGrid({
       <div className="cal-grid__header">
         <div className="cal-grid__corner" />
         {days.map((d) => {
-          const dateObj = new Date(`${d}T00:00:00Z`)
-          const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' }).format(dateObj)
-          const dayLabel = String(dateObj.getUTCDate()).padStart(2, '0')
+          const y = Number(d.slice(0, 4))
+          const m = Number(d.slice(5, 7)) - 1
+          const day = Number(d.slice(8, 10))
+          const dateObj = new Date(y, m, day)
+          const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(dateObj)
+          const dayLabel = String(dateObj.getDate()).padStart(2, '0')
           return (
             <div className={`cal-grid__day${d === todayISO ? ' cal-grid__day--today' : ''}`} key={d}>
               <div className="cal-grid__dayname">{weekday} {dayLabel}</div>

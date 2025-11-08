@@ -51,6 +51,38 @@ function maybeThrowRandom(endpoint: string): void {
 	}
 }
 
+// --- LocalStorage Sync Helpers -------------------------------------------------
+function syncFromLocalStorage() {
+	try {
+		if (typeof localStorage === 'undefined') return;
+		const stored = localStorage.getItem('hc_events');
+		if (stored) {
+			const parsed = JSON.parse(stored) as Event[];
+			if (Array.isArray(parsed)) {
+				// Replace in-memory list only if there are differences (cheap length check first)
+				if (parsed.length !== events.length) {
+					events = parsed;
+				} else {
+					// fallback deep compare of ids if lengths match
+					const mismatch = parsed.some((p, i) => p.eventId !== events[i]?.eventId);
+					if (mismatch) events = parsed;
+				}
+			}
+		}
+	} catch {
+		// ignore sync errors
+	}
+}
+
+function saveToLocalStorage() {
+	try {
+		if (typeof localStorage === 'undefined') return;
+		localStorage.setItem('hc_events', JSON.stringify(events));
+	} catch {
+		// ignore persistence errors
+	}
+}
+
 // Utility to generate a new incremental ID
 function nextEventId(): number {
 	return events.length ? Math.max(...events.map(e => e.eventId)) + 1 : 1;
@@ -60,6 +92,7 @@ function nextEventId(): number {
 export const apiService = {
 	async getEvents(): Promise<Event[]> {
 		try {
+			syncFromLocalStorage();
 			await delay();
 			maybeThrowRandom('getEvents');
 			// Return shallow copy to prevent external mutation
@@ -71,12 +104,14 @@ export const apiService = {
 
 	async createEvent(input: NewEventInput): Promise<Event> {
 		try {
+			syncFromLocalStorage();
 			await delay();
 			maybeThrowRandom('createEvent');
 			validateEventDateNotPast(input.date);
 			validateEventTimes(input.startTime, input.endTime);
 			const newEvent: Event = { eventId: nextEventId(), ...input };
 			events.push(newEvent);
+			saveToLocalStorage();
 			return newEvent;
 		} catch (err) {
 			throw normalizeError(err);
@@ -85,12 +120,14 @@ export const apiService = {
 
 	async updateEvent(update: UpdateEventInput): Promise<Event> {
 		try {
+			syncFromLocalStorage();
 			await delay();
 			maybeThrowRandom('updateEvent');
 			validateEventTimes(update.startTime, update.endTime);
 			const index = events.findIndex(e => e.eventId === update.eventId);
 			if (index === -1) throw new Error('Event not found');
 			events[index] = { ...update };
+			saveToLocalStorage();
 			return events[index];
 		} catch (err) {
 			throw normalizeError(err);
@@ -99,9 +136,11 @@ export const apiService = {
 
 	async deleteEvent(eventId: number): Promise<void> {
 		try {
+			syncFromLocalStorage();
 			await delay();
 			maybeThrowRandom('deleteEvent');
 			events = events.filter(e => e.eventId !== eventId);
+			saveToLocalStorage();
 		} catch (err) {
 			throw normalizeError(err);
 		}
@@ -163,6 +202,8 @@ function validateEventDateNotPast(date: string) {
 		throw new Error('Cannot create events in the past');
 	}
 }
+
+// Deprecated helper removed (replaced by syncFromLocalStorage)
 
 // Normalize unknown error types
 function normalizeError(err: unknown): Error {

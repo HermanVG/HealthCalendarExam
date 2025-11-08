@@ -4,27 +4,36 @@ import { apiService } from '../services/apiService'
 import CalendarGrid from '../components/CalendarGrid'
 import '../styles/EventCalendar.css'
 import NavBar from '../shared/NavBar'
-import { useToast } from '../shared/Toast'
+import { useToast } from '../shared/toastContext'
 import NewEventForm from './NewEventForm'
 import EditEventForm from './EditEventForm'
 
+function toLocalISO(date: Date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 function startOfWeekMondayISO(d: Date) {
-  const date = new Date(d)
+  const date = new Date(d.getFullYear(), d.getMonth(), d.getDate()) // local midnight
   const day = (date.getDay() + 6) % 7 // 0=Mon
   date.setDate(date.getDate() - day)
-  return date.toISOString().slice(0, 10)
+  return toLocalISO(date)
 }
 
 function addDaysISO(iso: string, days: number) {
-  const d = new Date(iso)
-  d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
+  const y = Number(iso.slice(0, 4))
+  const m = Number(iso.slice(5, 7)) - 1
+  const d = Number(iso.slice(8, 10))
+  const date = new Date(y, m, d)
+  date.setDate(date.getDate() + days)
+  return toLocalISO(date)
 }
 
 export default function EventCalendar() {
   const { showSuccess, showError } = useToast()
   const [events, setEvents] = useState<Event[]>([])
-  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
   const [showNew, setShowNew] = useState(false)
@@ -58,17 +67,17 @@ export default function EventCalendar() {
           setEvents(data)
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load events')
+        const message = err instanceof Error ? err.message : 'Failed to load events'
+        showError(message)
       } finally {
         setLoading(false)
       }
     }
     load()
-  }, [])
+  }, [showError])
 
   const onSaveNew = async (e: Omit<Event, 'eventId'>) => {
     try {
-      setError(null)
       const created = await apiService.createEvent(e)
       setEvents(prev => {
         const next = [...prev, created]
@@ -79,14 +88,13 @@ export default function EventCalendar() {
       showSuccess('Event created')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create event'
-      setError(message)
       showError(message)
+      throw err
     }
   }
 
   const onSaveEdit = async (e: Event) => {
     try {
-      setError(null)
       const updated = await apiService.updateEvent(e)
       setEvents(prev => {
         const next = prev.map(p => p.eventId === updated.eventId ? updated : p)
@@ -97,14 +105,13 @@ export default function EventCalendar() {
       showSuccess('Event updated')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update event'
-      setError(message)
       showError(message)
+      throw err
     }
   }
 
   const onDelete = async (id: number) => {
     try {
-      setError(null)
       await apiService.deleteEvent(id)
       setEvents(prev => {
         const next = prev.filter(p => p.eventId !== id)
@@ -115,8 +122,8 @@ export default function EventCalendar() {
       showSuccess('Event deleted')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete event'
-      setError(message)
       showError(message)
+      throw err
     }
   }
 
@@ -149,7 +156,6 @@ export default function EventCalendar() {
           </div>
         </header>
 
-        {error && <div className="banner banner--error">{error}</div>}
         {loading && <div className="banner">Loading…</div>}
 
         <CalendarGrid
