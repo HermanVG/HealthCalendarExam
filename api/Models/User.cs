@@ -11,18 +11,13 @@ namespace HealthCalendar.Models
             Email,
             PasswordHash
         */
-        string Name { get; set; } = string.Empty;
-        enum Role { Patient, Worker, Admin }
+        public string Name { get; set; } = string.Empty;
+        public enum Role { Patient, Worker, Admin }
         
         // Foreign Key (User.Id) 
         // For Patient, Points to related Worker
-        int? WorkerId { get; set; } 
+        public int? WorkerrId { get; set; } 
         // Navigation property
-        User? worker { get; set; }
-
-        // Navigation property 
-        Assignment? assignment { get; set; }
-        // Navigation property
-        Availability? availability { get; set; }
+        public virtual User? Worker { get; set; }
     }
 }

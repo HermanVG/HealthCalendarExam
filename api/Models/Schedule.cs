@@ -5,16 +5,16 @@ namespace HealthCalendar.Models
     public class Schedule
     {
         // Primary Key
-        int SchId { get; set; }
+        public int ScheduleId { get; set; }
         
-        // Foreign Key (Availability.AvId)
-        int AvId { get; set; }
+        // Foreign Key (Availability.AvailabilityId)
+        public int AvailabilityId { get; set; }
         // Navigation property
-        Availability availability { get; set; } = default!;
+        public virtual Availability availability { get; set; } = default!;
 
-        // Foreign Key (Assignment.AssId)
-        int AssId { get; set; }
+        // Foreign Key (Assignment.AssignmentId)
+        public int AssignmentId { get; set; }
         // Navigation property
-        Assignment assignment { get; set; } = default!;
+        public virtual Assignment assignment { get; set; } = default!;
     }
 }

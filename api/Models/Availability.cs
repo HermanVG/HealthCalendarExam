@@ -5,18 +5,18 @@ namespace HealthCalendar.Models
     public class Availability
     {
         // Primary Key
-        int AvId { get; set; }
-        TimeOnly From { get; set; }
-        TimeOnly To { get; set; }
+        public int AvailabilityId { get; set; }
+        public TimeOnly From { get; set; }
+        public TimeOnly To { get; set; }
 
         // Specifies Day of Week 
-        enum DayOfWeek { Mon, Tue, Wed, Thu, Fri, Sun, Sat }
+        public enum DayOfWeek { Mon, Tue, Wed, Thu, Fri, Sun, Sat }
         // Specifies sepcific date, used to override DayOfWeek
-        DateOnly? Date { get; set; }
+        public DateOnly? Date { get; set; }
 
         // Foreign Key (User.Id)
-        int UserId { get; set; }
+        public int UserId { get; set; }
         // Navigation Property
-        User Patient { get; set; } = default!;
+        public virtual User Patient { get; set; } = default!;
     }
 }
