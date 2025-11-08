@@ -11,6 +11,7 @@ using HealthCalendar.Shared;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.VisualBasic;
 
+// Most code here was taken from Demo-React-9-JWTAuthentication-Backend.pdf written by Baifan
 namespace HealthCalendar.Controllers
 {
     [ApiController]
@@ -61,7 +62,7 @@ namespace HealthCalendar.Controllers
                                   $"Registration failed for Patient: {patient.Name}");
                 return BadRequest(result.Errors);
             }
-            catch (Exception e) // In case of unexpected exceptions
+            catch (Exception e) // In case of unexpected exception
             {
                 _logger.LogError("[AuthController] Error from RegisterPatient(): \n" +
                                  "Something went wrong when registrating Patient, " +
@@ -70,6 +71,7 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        // method for logging in User
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
@@ -84,7 +86,7 @@ namespace HealthCalendar.Controllers
                                           $"User {user.Name} was authorized");
                     // Generates and returns JWT Token
                     var token = GenerateJwtToken(user);
-                    return Ok(new { Token = token} );
+                    return Ok(new { Token = token });
                 }
 
                 // For when login doesn't succeed
@@ -92,7 +94,7 @@ namespace HealthCalendar.Controllers
                                   $"User was unauthorized");
                 return Unauthorized(new { Message = "User was unathorized" });
             }
-            catch (Exception e)
+            catch (Exception e) // In case of unexpected exception
             {
                 _logger.LogError("[AuthController] Error from Login(): \n" +
                                 $"Error message: {e}");
@@ -100,8 +102,25 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                await _signInManager.SignOutAsync();
+                _logger.LogInformation("[AuthController] Information from Login(): \n " +
+                                       "Logout was successfull");
+                return Ok(new { Message = "Logout was successfull" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[AuthController] Error from Logout(): \n" +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
-        // Most code was taken from Demo-React-9-JWTAuthentication-Backend.pdf written by Baifan
         // method for generating JWT token for user with Patient Role
         private string GenerateJwtToken(User user)
         {
@@ -110,6 +129,7 @@ namespace HealthCalendar.Controllers
             {
                 _logger.LogError("[AuthController] Error from GenerateJwtToken(): \n" +
                                  "JWT Key is missing from configuration.");
+                // throws Exception, this WILL crash the program
                 throw new InvalidOperationException("JWT Key is missing from configuration.");
             }
             // Reads key from configuration
