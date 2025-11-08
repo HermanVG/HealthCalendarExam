@@ -28,7 +28,7 @@ const addDays = (iso: string, days: number) => {
   return d.toISOString().slice(0, 10)
 }
 
-const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+// Weekday labels will be localized (Norwegian) per date below
 
 export default function CalendarGrid({
   events,
@@ -53,12 +53,16 @@ export default function CalendarGrid({
     <div className="cal-grid">
       <div className="cal-grid__header">
         <div className="cal-grid__corner" />
-        {days.map((d, idx) => (
-          <div className={`cal-grid__day${d === todayISO ? ' cal-grid__day--today' : ''}`} key={d}>
-            <div className="cal-grid__dayname">{dayNames[idx]}</div>
-            <div className="cal-grid__daydate">{d}</div>
-          </div>
-        ))}
+        {days.map((d) => {
+          const dateObj = new Date(`${d}T00:00:00Z`)
+          const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' }).format(dateObj)
+          const dayLabel = String(dateObj.getUTCDate()).padStart(2, '0')
+          return (
+            <div className={`cal-grid__day${d === todayISO ? ' cal-grid__day--today' : ''}`} key={d}>
+              <div className="cal-grid__dayname">{weekday} {dayLabel}</div>
+            </div>
+          )
+        })}
       </div>
       <div className="cal-grid__body">
         <div className="cal-grid__times">

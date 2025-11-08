@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Event } from '../types/event'
 import '../styles/EditEventForm.css'
 
@@ -31,6 +31,16 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
   const [deleting, setDeleting] = useState(false)
 
   const endTimeOptions = useMemo(() => times.filter(t => t > startTime), [startTime])
+
+  // Keep end time valid if start time moves past it
+  useEffect(() => {
+    if (!endTimeOptions.includes(endTime)) {
+      setEndTime(endTimeOptions[0] ?? '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startTime, endTimeOptions])
+
+  // (Reserved) Date formatting helper removed to avoid unused variable lint error.
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()

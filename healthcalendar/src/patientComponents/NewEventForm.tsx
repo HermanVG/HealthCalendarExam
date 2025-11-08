@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Event } from '../types/event'
 import '../styles/NewEventForm.css'
 
@@ -30,6 +30,25 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
   const [saving, setSaving] = useState(false)
 
   const endTimeOptions = useMemo(() => times.filter(t => t > startTime), [startTime])
+
+  // Ensure end time stays valid when start time changes
+  useEffect(() => {
+    if (!endTimeOptions.includes(endTime)) {
+      setEndTime(endTimeOptions[0] ?? '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startTime, endTimeOptions])
+
+  const formatDateOption = (iso: string) => {
+    // Use English weekday and dd-MM-yyyy numeric format, timezone-safe
+    const d = new Date(`${iso}T00:00:00Z`)
+    const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' }).format(d)
+    const day = iso.slice(8, 10)
+    const month = iso.slice(5, 7)
+    const year = iso.slice(0, 4)
+    const ddMMyyyy = `${day}-${month}-${year}`
+    return `${weekday} ${ddMMyyyy}`
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,7 +91,7 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
               Date
               <select value={date} onChange={e => setDate(e.target.value)}>
                 {availableDays.map(d => (
-                  <option key={d} value={d}>{d}</option>
+                  <option key={d} value={d}>{formatDateOption(d)}</option>
                 ))}
               </select>
             </label>

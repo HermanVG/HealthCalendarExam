@@ -4,6 +4,7 @@ import { apiService } from '../services/apiService'
 import CalendarGrid from '../components/CalendarGrid'
 import '../styles/EventCalendar.css'
 import NavBar from '../shared/NavBar'
+import { useToast } from '../shared/Toast'
 import NewEventForm from './NewEventForm'
 import EditEventForm from './EditEventForm'
 
@@ -21,6 +22,7 @@ function addDaysISO(iso: string, days: number) {
 }
 
 export default function EventCalendar() {
+  const { showSuccess, showError } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -29,9 +31,14 @@ export default function EventCalendar() {
   const [editing, setEditing] = useState<Event | null>(null)
 
   const weekRangeText = useMemo(() => {
-    const start = weekStartISO
-    const end = addDaysISO(weekStartISO, 6)
-    return `${start} – ${end}`
+    const startDate = new Date(weekStartISO)
+    const endDate = new Date(addDaysISO(weekStartISO, 6))
+    const startDay = String(startDate.getDate()).padStart(2, '0')
+    const endDay = String(endDate.getDate()).padStart(2, '0')
+    const monthFormatter = new Intl.DateTimeFormat('en-GB', { month: 'long' })
+    const month = monthFormatter.format(startDate)
+    const year = startDate.getFullYear()
+    return `${startDay}–${endDay} ${month} ${year}`
   }, [weekStartISO])
 
   const availableDays = useMemo(() => (
@@ -42,8 +49,14 @@ export default function EventCalendar() {
     const load = async () => {
       try {
         setLoading(true)
-        const data = await apiService.getEvents()
-        setEvents(data)
+        // First: load from localStorage if exists
+        const stored = localStorage.getItem('hc_events')
+        if (stored) {
+          setEvents(JSON.parse(stored))
+        } else {
+          const data = await apiService.getEvents()
+          setEvents(data)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load events')
       } finally {
@@ -57,10 +70,17 @@ export default function EventCalendar() {
     try {
       setError(null)
       const created = await apiService.createEvent(e)
-      setEvents(prev => [...prev, created])
+      setEvents(prev => {
+        const next = [...prev, created]
+        localStorage.setItem('hc_events', JSON.stringify(next))
+        return next
+      })
       setShowNew(false)
+      showSuccess('Event created')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create event')
+      const message = err instanceof Error ? err.message : 'Failed to create event'
+      setError(message)
+      showError(message)
     }
   }
 
@@ -68,10 +88,17 @@ export default function EventCalendar() {
     try {
       setError(null)
       const updated = await apiService.updateEvent(e)
-      setEvents(prev => prev.map(p => p.eventId === updated.eventId ? updated : p))
+      setEvents(prev => {
+        const next = prev.map(p => p.eventId === updated.eventId ? updated : p)
+        localStorage.setItem('hc_events', JSON.stringify(next))
+        return next
+      })
       setEditing(null)
+      showSuccess('Event updated')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update event')
+      const message = err instanceof Error ? err.message : 'Failed to update event'
+      setError(message)
+      showError(message)
     }
   }
 
@@ -79,10 +106,17 @@ export default function EventCalendar() {
     try {
       setError(null)
       await apiService.deleteEvent(id)
-      setEvents(prev => prev.filter(p => p.eventId !== id))
+      setEvents(prev => {
+        const next = prev.filter(p => p.eventId !== id)
+        localStorage.setItem('hc_events', JSON.stringify(next))
+        return next
+      })
       setEditing(null)
+      showSuccess('Event deleted')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete event')
+      const message = err instanceof Error ? err.message : 'Failed to delete event'
+      setError(message)
+      showError(message)
     }
   }
 
