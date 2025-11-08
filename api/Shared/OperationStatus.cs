@@ -2,9 +2,8 @@ namespace HealthCalendar.Shared
 {
     public enum OperationStatus
     {
-        Success,
+        Ok,
         Error,
-        Unauthorized,
         NotFound,
         NotAcceptable
     }

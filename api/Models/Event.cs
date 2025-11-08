@@ -2,7 +2,7 @@ using System;
 
 namespace HealthCalendar.Models
 {
-    public class Availability
+    public class Assignment
     {
         
     }
