@@ -48,19 +48,20 @@ namespace HealthCalendar.Controllers
                 // Attempts to create new user, automatically hashes passoword
                 var result = await _userManager.CreateAsync(patient, registerDTO.Password);
 
-                // if-statement in case registration fails
-                if (!result.Succeeded)
+                // For when registration succeeds
+                if (result.Succeeded)
                 {
-                    _logger.LogWarning("[AuthController] Warning from RegisterPatient(): \n" +
-                                      $"Registration failed for Patient: {patient.Name}");
-                    return BadRequest(result.Errors);
+                    _logger.LogInformation("[AuthController] Information from RegisterPatient(): \n " +
+                                          $"Registration succeeded for Patient: {patient.Name}");
+                    return Ok(new { Message = "Patient has been registered" });
                 }
 
-                _logger.LogInformation("[AuthController] Information from RegisterPatient(): \n " +
-                                      $"Registration succeeded for Patient: {patient.Name}");
-                return Ok(new { Message = "Patient has been registered" });
+                // For when registration doesn't succeed
+                _logger.LogWarning("[AuthController] Warning from RegisterPatient(): \n" +
+                                  $"Registration failed for Patient: {patient.Name}");
+                return BadRequest(result.Errors);
             }
-            catch (Exception e)
+            catch (Exception e) // In case of unexpected exceptions
             {
                 _logger.LogError("[AuthController] Error from RegisterPatient(): \n" +
                                  "Something went wrong when registrating Patient, " +
@@ -69,7 +70,38 @@ namespace HealthCalendar.Controllers
             }
         }
 
-        // Most code taken from Demo-React-9-JWTAuthentication-Backend.pdf written by Baifan
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(loginDTO.Email);
+
+                // Checks if login succeeds
+                if (user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+                {
+                    _logger.LogInformation("[AuthController] Information from Login(): \n " +
+                                          $"User {user.Name} was authorized");
+                    // Generates and returns JWT Token
+                    var token = GenerateJwtToken(user);
+                    return Ok(new { Token = token} );
+                }
+
+                // For when login doesn't succeed
+                _logger.LogWarning("[AuthController] Warning from Login(): \n " +
+                                  $"User was unauthorized");
+                return Unauthorized(new { Message = "User was unathorized" });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("[AuthController] Error from Login(): \n" +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+        // Most code was taken from Demo-React-9-JWTAuthentication-Backend.pdf written by Baifan
         // method for generating JWT token for user with Patient Role
         private string GenerateJwtToken(User user)
         {
@@ -84,7 +116,7 @@ namespace HealthCalendar.Controllers
             var SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             // Uses HMAC SHA256 algorithm to sign the token
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
-            
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Name),     // Token's subject
