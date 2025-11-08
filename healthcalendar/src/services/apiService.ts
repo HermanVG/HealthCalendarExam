@@ -73,6 +73,7 @@ export const apiService = {
 		try {
 			await delay();
 			maybeThrowRandom('createEvent');
+			validateEventDateNotPast(input.date);
 			validateEventTimes(input.startTime, input.endTime);
 			const newEvent: Event = { eventId: nextEventId(), ...input };
 			events.push(newEvent);
@@ -146,6 +147,20 @@ function toMinutes(t: string): number {
 function validateEventTimes(start: string, end: string) {
 	if (!isTimeBefore(start, end)) {
 		throw new Error(`Event time range invalid: ${start} - ${end}`);
+	}
+}
+
+function todayLocalISO(): string {
+	const now = new Date();
+	const y = now.getFullYear();
+	const m = String(now.getMonth() + 1).padStart(2, '0');
+	const d = String(now.getDate()).padStart(2, '0');
+	return `${y}-${m}-${d}`;
+}
+
+function validateEventDateNotPast(date: string) {
+	if (date < todayLocalISO()) {
+		throw new Error('Cannot create events in the past');
 	}
 }
 

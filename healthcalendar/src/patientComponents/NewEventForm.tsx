@@ -23,7 +23,18 @@ const times = (() => {
 export default function NewEventForm({ availableDays, onClose, onSave }: Props) {
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState('')
-  const [date, setDate] = useState(availableDays[0] ?? '')
+  // Derive today's local ISO (YYYY-MM-DD) to compare with provided ISO dates safely
+  const todayISO = useMemo(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }, [])
+
+  const validDays = useMemo(() => availableDays.filter(d => d >= todayISO), [availableDays, todayISO])
+
+  const [date, setDate] = useState(validDays[0] ?? '')
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +49,14 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTimeOptions])
+
+  // Keep selected date within valid future/today range when week changes
+  useEffect(() => {
+    if (!validDays.includes(date)) {
+      setDate(validDays[0] ?? '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validDays])
 
   const formatDateOption = (iso: string) => {
     // Use English weekday and dd-MM-yyyy numeric format, timezone-safe
@@ -90,7 +109,7 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
             <label>
               Date
               <select value={date} onChange={e => setDate(e.target.value)}>
-                {availableDays.map(d => (
+                {validDays.map(d => (
                   <option key={d} value={d}>{formatDateOption(d)}</option>
                 ))}
               </select>
@@ -110,7 +129,9 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
           </div>
           <div className="form__actions">
             <button type="button" className="btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn--primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
+            <button type="submit" className="btn btn--primary" disabled={saving || validDays.length === 0}>
+              {saving ? 'Saving…' : 'Save'}
+            </button>
           </div>
         </form>
       </div>
