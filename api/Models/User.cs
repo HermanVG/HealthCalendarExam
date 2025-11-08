@@ -14,14 +14,15 @@ namespace HealthCalendar.Models
         string Name { get; set; } = string.Empty;
         enum Role { Patient, Worker, Admin }
         
+        // Foreign Key (User.Id) 
         // For Patient, Points to related Worker
         int? WorkerId { get; set; } 
         // Navigation property
         User? worker { get; set; }
 
         // Navigation property 
-        //Assignment? assignment { get; set; } (Comment back when Assignment is done)
+        Assignment? assignment { get; set; }
         // Navigation property
-        //Availability? availability { get; set; } (Comment back when Availability is done)
+        Availability? availability { get; set; }
     }
 }

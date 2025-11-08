@@ -2,17 +2,15 @@ using System;
 
 namespace HealthCalendar.Models
 {
-    public class Availability
+    public class Assignment
     {
         // Primary Key
-        int AvId { get; set; }
+        int AssId { get; set; }
         TimeOnly From { get; set; }
         TimeOnly To { get; set; }
-
-        // Specifies Day of Week 
-        enum DayOfWeek { Mon, Tue, Wed, Thu, Fri, Sun, Sat }
-        // Specifies sepcific date, used to override DayOfWeek
-        DateOnly? Date { get; set; }
+        DateOnly Date { get; set; }
+        String? Message { get; set; }
+        String Location { get; set; } = String.Empty;
 
         // Foreign Key (User.Id)
         int UserId { get; set; }
