@@ -99,7 +99,7 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
             <img src="/images/exit.png" alt="Close" />
           </button>
         </header>
-  <form className="form" onSubmit={submit}>
+  <form className="form form--new-event" onSubmit={submit}>
           <label>
             Title
             <input
