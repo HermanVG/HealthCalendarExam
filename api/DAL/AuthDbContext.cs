@@ -11,6 +11,7 @@ namespace HealthCalendar.DAL
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // Ensures User-Table has the name User so it's the same as in the Migrations-files
             base.OnModelCreating(builder);
             builder.Entity<User>().ToTable("User");
         }
