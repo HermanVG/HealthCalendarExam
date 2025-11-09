@@ -9,9 +9,10 @@ namespace HealthCalendar.DAL
     {
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            optionsBuilder.UseLazyLoadingProxies();
+            base.OnModelCreating(builder);
+            builder.Entity<User>().ToTable("User");
         }
     }
 }

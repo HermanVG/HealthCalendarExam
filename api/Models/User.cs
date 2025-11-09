@@ -10,7 +10,7 @@ namespace HealthCalendar.Models
             Inherits from IdentityUser,
             Properties from IdentityUser that User also uses are:
             Id (Primary key),
-            Email,
+            Username (Works as email, since Username is non-nullable),
             PasswordHash
         */
         public string Name { get; set; } = string.Empty;

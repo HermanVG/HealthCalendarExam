@@ -145,7 +145,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    DbInit.Seed(app);
+    await DbInit.DbSeed(app); // Seeds Users
     app.UseSwagger();
     app.UseSwaggerUI();
 }

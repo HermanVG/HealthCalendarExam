@@ -8,8 +8,7 @@ using System.Text;
 using HealthCalendar.DTOs;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.VisualBasic;
+
 
 // Most code here was taken from Demo-React-9-JWTAuthentication-Backend.pdf written by Baifan
 namespace HealthCalendar.Controllers
@@ -42,7 +41,7 @@ namespace HealthCalendar.Controllers
                 var patient = new User
                 {
                     Name = registerDTO.Name,
-                    Email = registerDTO.Email,
+                    UserName = registerDTO.Email,
                     Role = Roles.Patient
                 };
 
@@ -77,7 +76,7 @@ namespace HealthCalendar.Controllers
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(loginDTO.Email);
+                var user = await _userManager.FindByNameAsync(loginDTO.Email);
 
                 // Checks if login succeeds
                 if (user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
