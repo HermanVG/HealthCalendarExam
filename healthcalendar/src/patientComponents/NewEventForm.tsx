@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Event } from '../types/event'
-import '../styles/NewEventForm.css'
+import '../styles/EventFormsBase.css'
 
 type Props = {
   availableDays: string[]
@@ -61,15 +61,12 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
   }, [validDays])
 
   const formatDateOption = (iso: string) => {
-    // Use English weekday and dd-MM-yyyy numeric format, timezone-safe
     const d = new Date(`${iso}T00:00:00Z`)
-  // Use full weekday name for clarity
-  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'UTC' }).format(d)
-  const day = iso.slice(8, 10)
+    const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'UTC' }).format(d)
+    const day = iso.slice(8, 10)
     const month = iso.slice(5, 7)
     const year = iso.slice(0, 4)
-    const ddMMyyyy = `${day}-${month}-${year}`
-    return `${weekday} ${ddMMyyyy}`
+    return `${weekday} ${day}-${month}-${year}`
   }
 
   const submit = async (e: React.FormEvent) => {
@@ -102,7 +99,7 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
             <img src="/images/exit.png" alt="Close" />
           </button>
         </header>
-        <form className="form" onSubmit={submit}>
+  <form className="form" onSubmit={submit}>
           <label>
             Title
             <input

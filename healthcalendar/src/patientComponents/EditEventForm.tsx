@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Event } from '../types/event'
-import '../styles/EditEventForm.css'
+import '../styles/EventFormsBase.css'
 
 type Props = {
   event: Event
@@ -41,7 +41,7 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTimeOptions])
 
-  // (Reserved) Date formatting helper removed to avoid unused variable lint error.
+  // no date selector in edit form; keep times only
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,14 +75,14 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
 
   return (
     <div className="overlay" role="dialog" aria-modal="true">
-      <div className="modal">
+  <div className="modal">
         <header className="modal__header">
           <h2>Edit Event</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             <img src="/images/exit.png" alt="Close" />
           </button>
         </header>
-        <form className="form" onSubmit={submit}>
+  <form className="form" onSubmit={submit}>
           <label>
             Title
             <input

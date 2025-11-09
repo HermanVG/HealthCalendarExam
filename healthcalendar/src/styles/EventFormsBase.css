@@ -1,0 +1,150 @@
+/* Shared base styles for Event modals & forms */
+
+/* Overlay shared styles */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: #fff;
+    width: 100%;
+    max-width: 560px;
+    border-radius: 20px;
+    padding: 1.5rem 1.5rem 1.75rem;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .18);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    animation: modalIn .25s ease;
+}
+
+.modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal__header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--primary-strong);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Inline field error */
+.field-error {
+    color: var(--error);
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.form input[aria-invalid="true"],
+.form select[aria-invalid="true"] {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px #E4483A22;
+}
+
+.form__row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.form label {
+    font-weight: 600;
+    color: #374151;
+    display: grid;
+    gap: .4rem;
+}
+
+.form input,
+.form select {
+    padding: .6rem .7rem;
+    border: 2px solid #4097F5;
+    border-radius: 8px;
+    font-size: .95rem;
+    outline: none;
+}
+
+.form input:focus,
+.form select:focus {
+    box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+/* Edit form layout helpers */
+.form__actions--edit {
+    justify-content: flex-end;
+    position: relative;
+    width: 100%;
+}
+
+.form__actions--edit .btn.btn--danger {
+    order: -1;
+}
+
+.form__actions-spacer {
+    flex: 1 1 auto;
+}
+
+/* Buttons */
+.btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: .55rem .9rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background: var(--primary-strong);
+    color: #fff;
+    border: none;
+}
+
+.btn--primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn--danger {
+    background: #E4483A;
+    color: #fff;
+    border: none;
+}
+
+.btn--danger:hover {
+    background: #c63c30;
+}
+
+@keyframes modalIn {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
