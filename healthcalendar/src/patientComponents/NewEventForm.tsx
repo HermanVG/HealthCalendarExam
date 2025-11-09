@@ -37,7 +37,9 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
   const [date, setDate] = useState(validDays[0] ?? '')
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
-  const [error, setError] = useState<string | null>(null)
+  const [titleError, setTitleError] = useState<string | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
+  const [dateError, setDateError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   const endTimeOptions = useMemo(() => times.filter(t => t > startTime), [startTime])
@@ -71,16 +73,20 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    if (!title || !location || !date || !startTime || !endTime) {
-      setError('All fields are required.')
-      return
-    }
+    // Clear field errors
+    setTitleError(null)
+    setLocationError(null)
+    setDateError(null)
+    let hasError = false
+    if (!title) { setTitleError('Title is required.'); hasError = true }
+    if (!location) { setLocationError('Location is required.'); hasError = true }
+    if (!date) { setDateError('Please select a date.'); hasError = true }
+    if (hasError) return
     try {
       setSaving(true)
       await onSave({ title, location, date, startTime, endTime, patientName: 'Alice' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create event')
+      // Intentionally avoid top banners; could add a small message near the button if desired
     } finally {
       setSaving(false)
     }
@@ -95,24 +101,26 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
             <img src="/images/exit.png" alt="Close" />
           </button>
         </header>
-        {error && <div className="banner banner--error">{error}</div>}
         <form className="form" onSubmit={submit}>
           <label>
             Title
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Medication Reminder" />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Medication Reminder" aria-invalid={!!titleError} />
+            {titleError && <small className="field-error">{titleError}</small>}
           </label>
           <label>
             Location
-            <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g., Home" />
+            <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g., Home" aria-invalid={!!locationError} />
+            {locationError && <small className="field-error">{locationError}</small>}
           </label>
           <div className="form__row">
             <label>
               Date
-              <select value={date} onChange={e => setDate(e.target.value)}>
+              <select value={date} onChange={e => setDate(e.target.value)} aria-invalid={!!dateError}>
                 {validDays.map(d => (
                   <option key={d} value={d}>{formatDateOption(d)}</option>
                 ))}
               </select>
+              {dateError && <small className="field-error">{dateError}</small>}
             </label>
             <label>
               Start Time

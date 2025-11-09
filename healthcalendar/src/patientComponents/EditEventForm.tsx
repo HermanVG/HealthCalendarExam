@@ -26,7 +26,8 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
   const [location, setLocation] = useState(event.location)
   const [startTime, setStartTime] = useState(event.startTime)
   const [endTime, setEndTime] = useState(event.endTime)
-  const [error, setError] = useState<string | null>(null)
+  const [titleError, setTitleError] = useState<string | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -44,28 +45,29 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    if (!title || !location || !startTime || !endTime) {
-      setError('All fields are required.')
-      return
-    }
+    // Inline validation only
+    setTitleError(null)
+    setLocationError(null)
+    let hasError = false
+    if (!title) { setTitleError('Title is required.'); hasError = true }
+    if (!location) { setLocationError('Location is required.'); hasError = true }
+    if (hasError) return
     try {
       setSaving(true)
       await onSave({ ...event, title, location, startTime, endTime })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update event')
+      // Keep silent; avoid top banner for validation UX consistency
     } finally {
       setSaving(false)
     }
   }
 
   const remove = async () => {
-    setError(null)
     try {
       setDeleting(true)
       await onDelete(event.eventId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete event')
+      // Keep silent; avoid top banner
     } finally {
       setDeleting(false)
     }
@@ -80,15 +82,16 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
             <img src="/images/exit.png" alt="Close" />
           </button>
         </header>
-        {error && <div className="banner banner--error">{error}</div>}
         <form className="form" onSubmit={submit}>
           <label>
             Title
-            <input value={title} onChange={e => setTitle(e.target.value)} />
+            <input value={title} onChange={e => setTitle(e.target.value)} aria-invalid={!!titleError} />
+            {titleError && <small className="field-error">{titleError}</small>}
           </label>
           <label>
             Location
-            <input value={location} onChange={e => setLocation(e.target.value)} />
+            <input value={location} onChange={e => setLocation(e.target.value)} aria-invalid={!!locationError} />
+            {locationError && <small className="field-error">{locationError}</small>}
           </label>
           <div className="form__row">
             <label>
