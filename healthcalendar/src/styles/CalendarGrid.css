@@ -41,10 +41,6 @@
     font-weight: 700;
 }
 
-.cal-grid__daydate {
-    color: #111827;
-    font-weight: 700;
-}
 
 .cal-grid__body {
     display: grid;

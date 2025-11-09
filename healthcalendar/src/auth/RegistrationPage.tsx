@@ -31,6 +31,8 @@ const RegistrationPage: React.FC = () => {
       await new Promise(res => setTimeout(res, 500))
       navigate('/patient/events')
     } catch (err) {
+      // Silent failure; log for debugging without user disruption
+      console.debug('Registration failed (suppressed UI error)', err)
     } finally {
       setLoading(false)
     }

@@ -84,7 +84,8 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
       setSaving(true)
       await onSave({ title, location, date, startTime, endTime, patientName: 'Alice' })
     } catch (err) {
-      // Intentionally avoid top banners; could add a small message near the button if desired
+      // Log silently; top banners avoided for inline validation focus
+      console.debug('Create failed (suppressed UI error)', err)
     } finally {
       setSaving(false)
     }

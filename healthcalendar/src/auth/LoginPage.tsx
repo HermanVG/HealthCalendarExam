@@ -26,7 +26,8 @@ const LoginPage: React.FC = () => {
 			// Navigate to patient events view
 			navigate('/patient/events')
 		} catch (err) {
-			// Keep silent (no top banner); could show a generic small message near button if desired
+			// Surface silently in dev console for diagnostics; keep UX clean
+			console.debug('Login failed (suppressed UI error)', err)
 		} finally {
 			setLoading(false)
 		}

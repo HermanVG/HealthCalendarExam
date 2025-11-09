@@ -27,7 +27,8 @@
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 20rem;
+    /* Large gap trimmed to responsive clamp for better medium-width layouts */
+    gap: clamp(2rem, 6vw, 6rem);
 }
 
 .event-header__right {
@@ -111,11 +112,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, .06);
 }
 
-.banner--error {
-    background: #ffe9e7;
-    color: var(--error);
-    border: 1px solid var(--error);
-}
+
 
 @media (max-width:720px) {
     .event-main {

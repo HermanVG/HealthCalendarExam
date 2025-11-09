@@ -58,7 +58,8 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
       setSaving(true)
       await onSave({ ...event, title, location, startTime, endTime })
     } catch (err) {
-      // Keep silent; avoid top banner for validation UX consistency
+      // Log silently to dev console; keep validation UX clean
+      console.debug('Edit save failed (suppressed UI error)', err)
     } finally {
       setSaving(false)
     }
@@ -69,7 +70,8 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
       setDeleting(true)
       await onDelete(event.eventId)
     } catch (err) {
-      // Keep silent; avoid top banner
+      // Log silently to dev console; keep modal UX clean
+      console.debug('Delete failed (suppressed UI error)', err)
     } finally {
       setDeleting(false)
       setShowConfirm(false)
