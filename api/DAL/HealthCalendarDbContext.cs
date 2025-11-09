@@ -6,10 +6,11 @@ namespace HealthCalendar.DAL;
 
 public class HealthCalendarDbContext : DbContext
 {
-    public HealthCalendarDbContext(DbContextOptions<HealthCalendarDbContext> options) : base(options)
-    {
-        Database.EnsureCreated();
-    }
+    public HealthCalendarDbContext(DbContextOptions<HealthCalendarDbContext> options) : base(options) { }
+
+    public DbSet<Availability> Availability { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Schedule> Schedules { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

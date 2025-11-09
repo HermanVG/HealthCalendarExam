@@ -2,17 +2,15 @@ using System;
 
 namespace HealthCalendar.Models
 {
-    public class Availability
+    public class Event
     {
         // Primary Key
-        public int AvailabilityId { get; set; }
+        public int EventId { get; set; }
         public TimeOnly From { get; set; }
         public TimeOnly To { get; set; }
-
-        // Specifies Day of Week 
-        public DayOfWeek DayOfWeek { get; set; }
-        // Specifies sepcific date, overrides corresponding DayOfWeek
-        public DateOnly? Date { get; set; }
+        public DateOnly Date { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
 
         // Foreign Key (User.Id)
         public string UserId { get; set; } = string.Empty;
