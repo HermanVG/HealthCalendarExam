@@ -40,8 +40,7 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
     if (!endTimeOptions.includes(endTime)) {
       setEndTime(endTimeOptions[0] ?? '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTime, endTimeOptions])
+  }, [startTime, endTimeOptions, endTime])
 
   // no date selector in edit form; keep times only
 
@@ -58,7 +57,6 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
       setSaving(true)
       await onSave({ ...event, title, location, startTime, endTime })
     } catch (err) {
-      // Log silently to dev console; keep validation UX clean
       console.debug('Edit save failed (suppressed UI error)', err)
     } finally {
       setSaving(false)
@@ -70,7 +68,6 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
       setDeleting(true)
       await onDelete(event.eventId)
     } catch (err) {
-      // Log silently to dev console; keep modal UX clean
       console.debug('Delete failed (suppressed UI error)', err)
     } finally {
       setDeleting(false)
@@ -150,7 +147,7 @@ export default function EditEventForm({ event, onClose, onSave, onDelete }: Prop
       </div>
     )}
     {showConfirm && (
-      <div className="overlay confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title" aria-describedby="confirm-delete-desc">
+      <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title" aria-describedby="confirm-delete-desc">
         <div className="modal confirm-modal">
           <header className="modal__header">
             <h2 id="confirm-delete-title">Confirm Delete</h2>

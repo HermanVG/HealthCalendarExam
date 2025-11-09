@@ -19,7 +19,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const push = useCallback((type: Toast['type'], message: string) => {
     const id = idRef.current++
     setToasts(ts => [...ts, { id, type, message }])
-    // auto-dismiss
     window.setTimeout(() => remove(id), 2500)
   }, [remove])
 

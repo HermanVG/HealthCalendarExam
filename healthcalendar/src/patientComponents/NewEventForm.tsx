@@ -49,16 +49,14 @@ export default function NewEventForm({ availableDays, onClose, onSave }: Props) 
     if (!endTimeOptions.includes(endTime)) {
       setEndTime(endTimeOptions[0] ?? '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTime, endTimeOptions])
+  }, [startTime, endTimeOptions, endTime])
 
   // Keep selected date within valid future/today range when week changes
   useEffect(() => {
     if (!validDays.includes(date)) {
       setDate(validDays[0] ?? '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validDays])
+  }, [validDays, date])
 
   const formatDateOption = (iso: string) => {
     const d = new Date(`${iso}T00:00:00Z`)

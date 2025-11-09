@@ -1,9 +1,5 @@
 /* Confirmation dialog specific styles */
 
-.confirm-overlay {
-  z-index: 120;
-}
-
 .confirm-modal {
   max-width: 500px;
 }

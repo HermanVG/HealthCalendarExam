@@ -1,6 +1,5 @@
 /* Calendar grid styles */
 :root {
-    /* Use global primary tokens from index.css */
     --bg: #E8F9FF;
     --slot-h: clamp(42px, 5.2vh, 56px);
 }
@@ -46,8 +45,6 @@
     display: grid;
     grid-template-columns: 80px 1fr;
 }
-
-/* Remove extra padding that was used to ensure scroll reach */
 
 .cal-grid__times {
     background: #f9fafb;

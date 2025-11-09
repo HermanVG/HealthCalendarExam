@@ -24,7 +24,6 @@ const WorkerLoginPage: React.FC = () => {
       await new Promise(res => setTimeout(res, 400))
       navigate('/worker')
     } catch (err) {
-      // Silent failure; log for debugging
       console.debug('Worker login failed (suppressed UI error)', err)
     } finally {
       setLoading(false)

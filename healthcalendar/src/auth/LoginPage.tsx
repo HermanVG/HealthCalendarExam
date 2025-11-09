@@ -26,7 +26,6 @@ const LoginPage: React.FC = () => {
 			// Navigate to patient events view
 			navigate('/patient/events')
 		} catch (err) {
-			// Surface silently in dev console for diagnostics; keep UX clean
 			console.debug('Login failed (suppressed UI error)', err)
 		} finally {
 			setLoading(false)
@@ -52,7 +51,6 @@ const LoginPage: React.FC = () => {
 								onChange={e => {
 									const v = e.target.value
 									setEmail(v)
-									// Clear error immediately once valid
 									if (emailError && v.trim()) setEmailError(null)
 								}}
 								className="auth-input"

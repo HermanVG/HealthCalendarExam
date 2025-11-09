@@ -38,8 +38,8 @@ html, body, #root {
   margin: 0;
   padding: 0;
   background-color: var(--bg);
-  overflow-x: hidden; /* prevent horizontal drag whitespace */
-  overscroll-behavior: none; /* reduce rubber-band/scroll chaining */
+  overflow-x: hidden; 
+  overscroll-behavior: none;
 }
 
 body {

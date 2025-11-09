@@ -1,5 +1,4 @@
 /* Event Calendar page styles */
-/* Page-level styles only; color tokens come from global index.css */
 
 .event-page {
     min-height: 100vh;
@@ -27,7 +26,6 @@
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    /* Large gap trimmed to responsive clamp for better medium-width layouts */
     gap: clamp(2rem, 6vw, 6rem);
 }
 

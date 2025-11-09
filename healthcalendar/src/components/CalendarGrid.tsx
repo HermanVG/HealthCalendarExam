@@ -69,7 +69,6 @@ export default function CalendarGrid({
           const m = Number(d.slice(5, 7)) - 1
           const day = Number(d.slice(8, 10))
           const dateObj = new Date(y, m, day)
-          // Full weekday name (e.g., Monday instead of Mon)
           const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(dateObj)
           const dayLabel = String(dateObj.getDate()).padStart(2, '0')
           return (
