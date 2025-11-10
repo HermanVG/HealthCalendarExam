@@ -148,8 +148,8 @@ namespace HealthCalendar.Controllers
             // Related Worker's Id (For Patients only)
             if (user.Role == Roles.Patient) 
             {
-                if (!Patient.WorkerId == null) claims.Append(new Claim("WorkerId", user.WorkerId!))
-                else claims.Append(new Claim("WorkerId", "-1")) // "-1" means Patient does not have related worker
+                if (user.WorkerId != null) claims.Append(new Claim("WorkerId", user.WorkerId!));
+                else claims.Append(new Claim("WorkerId", "-1")); // "-1" means Patient does not have related worker
             }
 
             var token = new JwtSecurityToken(
