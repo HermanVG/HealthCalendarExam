@@ -137,8 +137,8 @@ namespace HealthCalendar.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Name),          // Token's subject
-                new Claim(JwtRegisteredClaimNames.UserName, user.UserName), // User's Email
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),      // Token's subject (User's email)
+                new Claim(JwtRegisteredClaimNames.Name, user.Name),         // User's Name
                 new Claim(ClaimTypes.NameIdentifier, user.Id),              // User's unique Id
                 new Claim(ClaimTypes.Role, user.Role),                      // User's Role
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Token's unique Id
