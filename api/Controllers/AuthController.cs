@@ -137,19 +137,19 @@ namespace HealthCalendar.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Name),     // Token's subject
-                // Use UserName as email identifier to avoid null Email property
-                new Claim(JwtRegisteredClaimNames.Email, user.UserName ?? string.Empty), // Email (from UserName)
-                new Claim(ClaimTypes.NameIdentifier, user.Id),         // User's unique Id
-                new Claim(ClaimTypes.Role, user.Role),                 // User's Role
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName!),     // Token's subject (User's email)
+                new Claim(JwtRegisteredClaimNames.Name, user.Name),         // User's Name
+                new Claim(ClaimTypes.NameIdentifier, user.Id),              // User's unique Id
+                new Claim(ClaimTypes.Role, user.Role),                      // User's Role
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Token's unique Id
                 new Claim(JwtRegisteredClaimNames.Iat,
                           DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())    // Timestamp token was Issued at
             };
             // Related Worker's Id (For Patients only)
-            if (user.Role == Roles.Patient && !string.IsNullOrEmpty(user.WorkerId))
+            if (user.Role == Roles.Patient) 
             {
-                claims.Add(new Claim("WorkerId", user.WorkerId));
+                if (user.WorkerId != null) claims.Append(new Claim("WorkerId", user.WorkerId!));
+                else claims.Append(new Claim("WorkerId", "-1")); // "-1" means Patient does not have related worker
             }
 
             var token = new JwtSecurityToken(
