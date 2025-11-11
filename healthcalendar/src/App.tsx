@@ -19,9 +19,17 @@ const App: React.FC = () => {
         <Routes>
           <Route path='/' element={<HomePage />} />
           <Route
+            path='/patient'
+            element={
+              <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
+                <EventCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path='/patient/EventCalendar'
             element={
-              <ProtectedRoute allowedRoles={['Patient']}>
+              <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
                 <EventCalendar />
               </ProtectedRoute>
             }
@@ -30,18 +38,18 @@ const App: React.FC = () => {
           <Route
             path='/patient/events'
             element={
-              <ProtectedRoute allowedRoles={['Patient']}>
+              <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
                 <EventCalendar />
               </ProtectedRoute>
             }
           />
-          <Route path='/login' element={<LoginPage />} />
+          <Route path='/patient/login' element={<LoginPage />} />
           <Route path='/register' element={<RegistrationPage />} />
           <Route path='/worker/login' element={<WorkerLoginPage />} />
           <Route
             path='/worker/WorkerCalendar'
             element={
-              <ProtectedRoute allowedRoles={['Worker', 'Admin']}>
+              <ProtectedRoute allowedRoles={['Worker', 'Admin']} redirectPrefix='/worker'>
                 <WorkerCalendar />
               </ProtectedRoute>
             }
@@ -50,7 +58,7 @@ const App: React.FC = () => {
           <Route
             path='/worker'
             element={
-              <ProtectedRoute allowedRoles={['Worker', 'Admin']}>
+              <ProtectedRoute allowedRoles={['Worker', 'Admin']} redirectPrefix='/worker'>
                 <WorkerCalendar />
               </ProtectedRoute>
             }
@@ -59,7 +67,7 @@ const App: React.FC = () => {
           <Route
             path='/admin/Dashboard'
             element={
-              <ProtectedRoute allowedRoles={['Admin']}>
+              <ProtectedRoute allowedRoles={['Admin']} redirectPrefix='/worker'>
                 <WorkerCalendar />
               </ProtectedRoute>
             }

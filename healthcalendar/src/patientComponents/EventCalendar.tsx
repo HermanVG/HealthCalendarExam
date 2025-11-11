@@ -154,7 +154,7 @@ export default function EventCalendar() {
               className="logout-btn"
               onClick={() => {
                 logout();
-                navigate('/login', { replace: true });
+                navigate('/patient/login', { replace: true });
               }}
             >
               <img src="/images/logout.png" alt="Logout" />

@@ -36,7 +36,7 @@ const LoginPage: React.FC = () => {
 					navigate('/worker/WorkerCalendar', { replace: true })
 				} else {
 					// Fallback if role missing
-					navigate('/login', { replace: true })
+					navigate('/patient/login', { replace: true })
 				}
 			} catch (err: any) {
 				console.debug('Login failed', err)

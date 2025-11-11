@@ -29,7 +29,7 @@ const RegistrationPage: React.FC = () => {
     try {
       setLoading(true)
       await registerPatient({ name, email, password })
-      navigate('/login')
+      navigate('/patient/login')
     } catch (err: any) {
       console.debug('Registration failed', err)
       setPasswordError(err?.message || 'Registration failed')
@@ -108,7 +108,7 @@ const RegistrationPage: React.FC = () => {
             <button className="auth-btn" type="submit" disabled={loading}>Sign Up</button>
           </form>
           <p className="auth-alt">
-            Have an account? <Link to="/login">Log in here</Link>
+            Have an account? <Link to="/patient/login">Log in here</Link>
           </p>
         </section>
       </main>

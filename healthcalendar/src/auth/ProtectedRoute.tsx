@@ -5,21 +5,22 @@ import type { Role } from '../types/user'
 
 interface Props {
   allowedRoles?: Role[]
-  redirectTo?: string
+  redirectPrefix: string
+  redirectSuffix?: string
   children: React.ReactNode
 }
 
-const ProtectedRoute: React.FC<Props> = ({ allowedRoles, redirectTo = '/login', children }) => {
+const ProtectedRoute: React.FC<Props> = ({ allowedRoles, redirectPrefix, redirectSuffix = '/login', children }) => {
   const { user, token, isLoading } = useAuth()
 
   if (isLoading) return null
 
   // Not authenticated
-  if (!token || !user) return <Navigate to={redirectTo} replace />
+  if (!token || !user) return <Navigate to={redirectPrefix + redirectSuffix} replace />
 
   // Role check if provided
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={redirectTo} replace />
+    return <Navigate to={redirectPrefix + redirectSuffix} replace />
   }
 
   return <>{children}</>

@@ -88,7 +88,7 @@ const WorkerLoginPage: React.FC = () => {
             <button className="auth-btn" type="submit" disabled={loading}>Log In</button>
           </form>
           <p className="auth-alt">
-            Are you a private person? <Link to="/login">Log in here</Link>
+            Are you a private person? <Link to="/patient/login">Log in here</Link>
           </p>
         </section>
       </main>
