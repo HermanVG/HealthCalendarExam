@@ -92,7 +92,7 @@ namespace HealthCalendar.Controllers
                 // For when login doesn't succeed
                 _logger.LogWarning("[AuthController] Warning from Login(): \n " +
                                   $"User was unauthorized");
-                return Unauthorized(new { Message = "User was unathorized" });
+                return Unauthorized(new { Message = "User was unauthorized" });
             }
             catch (Exception e) // In case of unexpected exception
             {
@@ -109,9 +109,9 @@ namespace HealthCalendar.Controllers
             try
             {
                 await _signInManager.SignOutAsync();
-                _logger.LogInformation("[AuthController] Information from Login(): \n " +
-                                       "Logout was successfull");
-                return Ok(new { Message = "Logout was successfull" });
+                _logger.LogInformation("[AuthController] Information from Logout(): \n " +
+                                       "Logout was successful");
+                return Ok(new { Message = "Logout was successful" });
             }
             catch (Exception e) // In case of unexpected exception
             {
@@ -157,7 +157,7 @@ namespace HealthCalendar.Controllers
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),  // Expiration time set to 1 hour
+                expires: DateTime.UtcNow.AddHours(1),  // Expiration time set to 1 hour (UTC)
                 signingCredentials: credentials);   // Token is signed with specified credentials
 
             _logger.LogInformation("[AuthController] Information from GenerateJwtToken(): \n " +
