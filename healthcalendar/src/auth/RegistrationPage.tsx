@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { registerPatient } from './AuthService'
 import '../styles/RegistrationPage.css'
 import NavBar from '../shared/NavBar'
 
@@ -23,15 +24,15 @@ const RegistrationPage: React.FC = () => {
     if (!email) { setEmailError('Email is required.'); hasError = true }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Enter a valid email address (e.g., name@example.com).'); hasError = true }
     if (!password) { setPasswordError('Password is required.'); hasError = true }
-  else if (password.length < 6) { setPasswordError('Password must be at least 6 characters.'); hasError = true }
+  else if (password.length < 6) { setPasswordError('Password must be at least 6 characters long.'); hasError = true }
     if (hasError) return
     try {
       setLoading(true)
-      // Mock async sign up
-      await new Promise(res => setTimeout(res, 500))
-      navigate('/patient/events')
-    } catch (err) {
-      console.debug('Registration failed (suppressed UI error)', err)
+      await registerPatient({ name, email, password })
+      navigate('/login')
+    } catch (err: any) {
+      console.debug('Registration failed', err)
+      setPasswordError(err?.message || 'Registration failed')
     } finally {
       setLoading(false)
     }

@@ -7,6 +7,7 @@ import '../styles/EventCalendar.css'
 import { useToast } from '../shared/toastContext'
 import NewEventForm from './NewEventForm'
 import EditEventForm from './EditEventForm'
+import { useAuth } from '../auth/AuthContext'
 
 function toLocalISO(date: Date) {
   const y = date.getFullYear()
@@ -33,6 +34,7 @@ function addDaysISO(iso: string, days: number) {
 
 export default function EventCalendar() {
   const { showSuccess, showError } = useToast()
+  const { logout } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(false)
   const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
@@ -148,7 +150,13 @@ export default function EventCalendar() {
             </div>
           </div>
           <div className="event-header__right">
-            <button className="logout-btn" onClick={() => navigate('/login')}>
+            <button
+              className="logout-btn"
+              onClick={() => {
+                logout();
+                navigate('/login', { replace: true });
+              }}
+            >
               <img src="/images/logout.png" alt="Logout" />
               <span>Log Out</span>
             </button>

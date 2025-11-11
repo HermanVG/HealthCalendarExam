@@ -1,30 +1,39 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from './AuthContext'
 import '../styles/WorkerLoginPage.css'
 import NavBar from '../shared/NavBar'
 
 const WorkerLoginPage: React.FC = () => {
   const navigate = useNavigate()
+  const { loginWorker } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)
     setPasswordError(null)
     let hasError = false
-  if (!email) { setEmailError('Email is required.'); hasError = true }
-  if (!password) { setPasswordError('Password is required.'); hasError = true }
+    if (!email) { setEmailError('Email is required.'); hasError = true }
+    if (!password) { setPasswordError('Password is required.'); hasError = true }
     if (hasError) return
     try {
       setLoading(true)
-      await new Promise(res => setTimeout(res, 400))
-      navigate('/worker')
-    } catch (err) {
-      console.debug('Worker login failed (suppressed UI error)', err)
+      setFormError(null)
+      const decoded = await loginWorker({ email, password })
+      const role = decoded?.role
+  if (role === 'Admin') navigate('/worker/WorkerCalendar', { replace: true })
+  else if (role === 'Worker') navigate('/worker/WorkerCalendar', { replace: true })
+      else if (role === 'Patient') navigate('/patient/EventCalendar', { replace: true })
+      else navigate('/worker/login', { replace: true })
+    } catch (err: any) {
+      console.debug('Worker login failed', err)
+      setFormError(err?.message || 'Invalid email or password.')
     } finally {
       setLoading(false)
     }
@@ -39,6 +48,7 @@ const WorkerLoginPage: React.FC = () => {
         </section>
         <section className="auth-right">
           <h1 className="auth-title">Personnel Login</h1>
+          {formError && <div role="alert" className="form-error-banner">{formError}</div>}
           <form className="auth-form" onSubmit={onSubmit} noValidate>
             <label>
               Email

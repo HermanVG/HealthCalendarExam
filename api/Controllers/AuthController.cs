@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Collections.Generic;
 using HealthCalendar.DTOs;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
@@ -135,7 +136,7 @@ namespace HealthCalendar.Controllers
             // Uses HMAC SHA256 algorithm to sign the token
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName!),     // Token's subject (User's email)
                 new Claim(JwtRegisteredClaimNames.Name, user.Name),         // User's Name
@@ -146,10 +147,10 @@ namespace HealthCalendar.Controllers
                           DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())    // Timestamp token was Issued at
             };
             // Related Worker's Id (For Patients only)
-            if (user.Role == Roles.Patient) 
+            if (user.Role == Roles.Patient)
             {
-                if (user.WorkerId != null) claims.Append(new Claim("WorkerId", user.WorkerId!));
-                else claims.Append(new Claim("WorkerId", "-1")); // "-1" means Patient does not have related worker
+                var workerId = user.WorkerId ?? "-1"; // "-1" means Patient does not have related worker
+                claims.Add(new Claim("WorkerId", workerId));
             }
 
             var token = new JwtSecurityToken(

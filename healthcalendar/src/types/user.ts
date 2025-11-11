@@ -2,15 +2,14 @@ export type Role = 'Patient' | 'Worker' | 'Admin';
 
 /**
  * Common fields for all user types.
- * These match your backend's JWT token claims.
  */
 export interface BaseUser {
-  sub: string;        // Name of the user
-  email: string;      // Email of the user
-  nameid: string;     // User ID
-  role: Role;         // Role claim
+  sub: string;        // UserName/email (from backend JwtRegisteredClaimNames.Sub)
+  name: string;       // Display name (from JwtRegisteredClaimNames.Name)
+  nameid: string;     // User ID (ClaimTypes.NameIdentifier)
+  role: Role;         // Role claim (ClaimTypes.Role normalized)
   jti: string;        // Token ID
-  iat: number;        // Issued-at timestamp
+  iat: number;        // Issued-at timestamp (Unix seconds)
   exp?: number;       // Optional: expiration timestamp if backend includes it
 }
 
@@ -19,7 +18,7 @@ export interface BaseUser {
  */
 export interface PatientUser extends BaseUser {
   role: 'Patient';
-  WorkerId: string;   // Related worker's ID
+  WorkerId: string;   // Related worker's ID ("-1" if none)
 }
 
 /**

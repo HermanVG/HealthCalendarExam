@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from './AuthContext'
 import '../styles/LoginPage.css'
 import NavBar from '../shared/NavBar'
 
 const LoginPage: React.FC = () => {
 	const navigate = useNavigate()
+	const { loginPatient } = useAuth()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [emailError, setEmailError] = useState<string | null>(null)
 	const [passwordError, setPasswordError] = useState<string | null>(null)
+	const [formError, setFormError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 
 	const onSubmit = async (e: React.FormEvent) => {
@@ -19,15 +22,26 @@ const LoginPage: React.FC = () => {
 		if (!email) { setEmailError('Email is required.'); hasError = true }
 		if (!password) { setPasswordError('Password is required.'); hasError = true }
 		if (hasError) return
-		try {
-			setLoading(true)
-			// Mock async login
-			await new Promise(res => setTimeout(res, 400))
-			// Navigate to patient events view
-			navigate('/patient/events')
-		} catch (err) {
-			console.debug('Login failed (suppressed UI error)', err)
-		} finally {
+			try {
+				setLoading(true)
+				setFormError(null)
+				const decoded = await loginPatient({ email, password })
+				// After login, route based on role (Patient -> patient/events; Worker/Admin -> worker calendar in case user misused form)
+				const role = decoded?.role
+				if (role === 'Patient') {
+					navigate('/patient/EventCalendar', { replace: true })
+				} else if (role === 'Admin') {
+					navigate('/worker/WorkerCalendar', { replace: true })
+				} else if (role === 'Worker') {
+					navigate('/worker/WorkerCalendar', { replace: true })
+				} else {
+					// Fallback if role missing
+					navigate('/login', { replace: true })
+				}
+			} catch (err: any) {
+				console.debug('Login failed', err)
+				setFormError(err?.message || 'Invalid email or password.')
+			} finally {
 			setLoading(false)
 		}
 	}
@@ -41,6 +55,7 @@ const LoginPage: React.FC = () => {
 				</section>
 				<section className="auth-right">
 					<h1 className="auth-title">Welcome back</h1>
+					{formError && <div role="alert" className="form-error-banner">{formError}</div>}
 					<form className="auth-form" onSubmit={onSubmit} noValidate>
 						<label>
 							Email
