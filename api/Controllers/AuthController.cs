@@ -102,7 +102,7 @@ namespace HealthCalendar.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Patient")]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

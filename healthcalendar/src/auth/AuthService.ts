@@ -46,6 +46,26 @@ export const registerPatient = async (userData: RegisterPatientDto): Promise<any
 };
 
 // Note: Logout is handled in AuthContext by clearing localStorage (hc_token)
+export const logout = async () => {
+    const token = localStorage.getItem('hc_token')
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json', 
+        'Accept': 'application/json'
+    }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
+    const response = await fetch(`${API_URL}/api/Auth/logout`, {
+        method: 'POST',
+        headers: headers
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+            if (Array.isArray(errorData)) {
+                const messages = errorData.map((e: any) => e?.description || e?.Description || String(e)).join(', ');
+                throw new Error(messages || 'Registration failed');
+            }
+    }
+}
 
 // Decode helper separated so context can reuse without re-implementing logic.
 export function decodeUser(token: string): JwtUser {

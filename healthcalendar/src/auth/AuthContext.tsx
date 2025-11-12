@@ -83,6 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const logout = () => {
         // Option A: keep mock events across logouts
+        authService.logout()
         localStorage.removeItem('hc_token');
         setUser(null);
         setToken(null);
