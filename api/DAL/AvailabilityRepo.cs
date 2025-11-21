@@ -60,7 +60,8 @@ public class AvailabilityRepo : IAvailabilityRepo
         {
             // retreives list of availability between given dates for monday and sunday
             var availability = await _db.Availability
-                .Where(a => a.UserId == userId && a.Date >= monday && a.Date <= sunday)
+                .Where(a => a.UserId == userId && a .Date != null && 
+                       a.Date >= monday && a.Date <= sunday)
                 .ToListAsync();
             return (availability, OperationStatus.Ok);
         }

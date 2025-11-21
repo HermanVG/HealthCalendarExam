@@ -85,7 +85,7 @@ builder.Services.AddCors(options =>
 });
 
 // Repository Services
-//builder.Services.AddScoped<IRepo, Repo>();
+builder.Services.AddScoped<IAvailabilityRepo, AvailabilityRepo>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
