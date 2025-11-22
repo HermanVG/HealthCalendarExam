@@ -86,6 +86,8 @@ builder.Services.AddCors(options =>
 
 // Repository Services
 builder.Services.AddScoped<IAvailabilityRepo, AvailabilityRepo>();
+builder.Services.AddScoped<IEventRepo, EventRepo>();
+builder.Services.AddScoped<IScheduleRepo, ScheduleRepo>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

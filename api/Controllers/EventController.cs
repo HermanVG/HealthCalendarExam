@@ -68,6 +68,7 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        // method that deletes range of Events from table with list of EventIds
         [HttpDelete("deleteEventsByIds")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> deleteEventsByIds([FromQuery] int[] eventIds)
@@ -88,7 +89,7 @@ namespace HealthCalendar.Controllers
 
                 // deletes events from table
                 var deleteStatus = await _eventRepo.deleteEvents(events);
-                // In case deleteAvailabilityRange() did not succeed
+                // In case deleteEvents() did not succeed
                 if (deleteStatus == OperationStatus.Error)
                 {
                     _logger.LogError("[EventController] Error from deleteEventsByIds(): \n" +
@@ -110,7 +111,6 @@ namespace HealthCalendar.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
 
     }
 }
