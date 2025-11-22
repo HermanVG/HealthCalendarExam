@@ -178,7 +178,7 @@ namespace HealthCalendar.Controllers
 
         // HTTP DELETE FUNCTIONS
 
-        // method that deletes Availability from table
+        // method that deletes Availability from table by AvailabilityId
         [HttpPost("deleteAvailability/{availabilityId}")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> deleteAvailability(int availabilityId)
@@ -218,6 +218,49 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        // method that deletes range of Availability from table with list of AvailabilityId
+        [HttpDelete("deleteAvailabilityByIds")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> deleteAvailabilityByIds([FromQuery] int[] availabilityIds)
+        {
+            try
+            {
+                // retreives range of Availability that should be deleted
+                var (availabilityRange, getStatus) = 
+                    await _availabilityRepo.getAvailabilityByIds(availabilityIds);
+                // In case getAvailabilityByIds() did not succeed
+                if (getStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from deleteAvailabilityByIds(): \n" +
+                                     "Could not retreive Availability with getAvailabilityByIds() " + 
+                                     "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Availability");
+                }
+
+                // deletes availabilityRange from table
+                var deleteStatus = await _availabilityRepo.deleteAvailabilityRange(availabilityRange);
+                // In case deleteAvailabilityRange() did not succeed
+                if (deleteStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from deleteAvailabilityByIds(): \n" +
+                                     "Could not delete Availability with deleteAvailabilityRange() " + 
+                                     "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when deleting Availability");
+                }
+                
+                return Ok(new { Message = "Availability has been deleted" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all AvailabilityIds
+                var availabilityIdsString = String.Join(", ", availabilityIds);
+
+                _logger.LogError("[AvailabilityController] Error from deleteAvailabilityByIds(): \n" +
+                                 "Something went wrong when trying to delete range of Availability " +
+                                $"with AvailabilityIds {availabilityIdsString}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
     }
 }
