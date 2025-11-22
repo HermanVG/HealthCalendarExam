@@ -6,6 +6,8 @@ namespace HealthCalendar.DTOs
     // DTO representing Availability model
     public class AvailabilityDTO
     {
+        // Primary Key
+        public int AvailabilityId { get; set; }
         [Required]
         public TimeOnly From { get; set; }
         [Required]

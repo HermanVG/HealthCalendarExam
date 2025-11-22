@@ -35,7 +35,7 @@ namespace HealthCalendar.Controllers
         {
             try {
                 // list of week's Availability
-                var weeksAvailability = new List<Availability>();
+                var weeksAvailabilityDTOs = new List<AvailabilityDTO>();
                 
                 // retreives list of Worker's availability where Date = null
                 var (doWAvailability, getDoWStatus) = await _availabilityRepo.getWeeksDoWAvailability(userId);
@@ -61,9 +61,26 @@ namespace HealthCalendar.Controllers
                     return StatusCode(500, "Something went wrong when retreiving Week's Date Availability");
                 }
 
-                weeksAvailability.AddRange(doWAvailability);
-                weeksAvailability.AddRange(dateAvailability);
-                return Ok(weeksAvailability);
+                // converts retreived Availability to AvaillibilityDTOs and adds them into weeksAvailability
+                weeksAvailabilityDTOs.AddRange(doWAvailability.Select(a => new AvailabilityDTO
+                {
+                    AvailabilityId = a.AvailabilityId,
+                    From = a.From,
+                    To = a.To,
+                    DayOfWeek = a.DayOfWeek,
+                    Date = a.Date,
+                    UserId = userId,
+                }));
+                weeksAvailabilityDTOs.AddRange(dateAvailability.Select(a => new AvailabilityDTO
+                {
+                    AvailabilityId = a.AvailabilityId,
+                    From = a.From,
+                    To = a.To,
+                    DayOfWeek = a.DayOfWeek,
+                    Date = a.Date,
+                    UserId = userId
+                }));
+                return Ok(weeksAvailabilityDTOs);
             }
             catch (Exception e) // In case of unexpected exception
             {

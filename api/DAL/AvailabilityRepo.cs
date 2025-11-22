@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +27,7 @@ public class AvailabilityRepo : IAvailabilityRepo
         }
         catch (Exception e) // In case of unexpected exception
         {
-            _logger.LogError("[AvailabilityRepo] Error from getAvailabilityByI(): \n" +
+            _logger.LogError("[AvailabilityRepo] Error from getAvailabilityById(): \n" +
                              "Something went wrong when retreiving Availability where " +
                             $"AvailabilityId = {availabilityId}, Error message: {e}");
             return (null, OperationStatus.Error);
