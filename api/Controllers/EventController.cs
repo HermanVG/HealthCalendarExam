@@ -68,5 +68,49 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        [HttpDelete("deleteEventsByIds")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> deleteEventsByIds([FromQuery] int[] eventIds)
+        {
+            try
+            {
+                // retreives range of Events that should be deleted
+                var (events, getStatus) = 
+                    await _eventRepo.getEventsByIds(eventIds);
+                // In case getEventsByIds() did not succeed
+                if (getStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[EventController] Error from deleteEventsByIds(): \n" +
+                                     "Could not retreive Events with getEventByIds() " + 
+                                     "from EventRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Events");
+                }
+
+                // deletes events from table
+                var deleteStatus = await _eventRepo.deleteEvents(events);
+                // In case deleteAvailabilityRange() did not succeed
+                if (deleteStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[EventController] Error from deleteEventsByIds(): \n" +
+                                     "Could not delete Events with deleteEvents() " + 
+                                     "from EventRepo.");
+                    return StatusCode(500, "Something went wrong when deleting Availability");
+                }
+                
+                return Ok(new { Message = "Events have been deleted" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all EventIds
+                var eventIdsString = String.Join(", ", eventIds);
+
+                _logger.LogError("[EventController] Error from deleteEventsByIds(): \n" +
+                                 "Something went wrong when trying to delete range of Events " +
+                                $"with EventIds {eventIdsString}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
     }
 }
