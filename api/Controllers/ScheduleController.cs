@@ -110,6 +110,9 @@ namespace HealthCalendar.Controllers
         }
 
 
+        // HTTP PUT functions
+        
+
         // HTTP DELETE functions
 
         // method that deletes Schedules with given EventId from table

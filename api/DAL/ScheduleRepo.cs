@@ -36,6 +36,28 @@ public class ScheduleRepo : IScheduleRepo
         }
     }
 
+    // method that returns all Schedules with AvailabilityId in list of AvailabilityIds
+    public async Task<(List<Schedule>, OperationStatus)> getSchedulesByAvailabilityIds(int[] availabilityIds)
+    {
+        try
+        {
+            var schedules = await _db.Schedule
+                .Where(s => availabilityIds.Contains(s.AvailabilityId))
+                .ToListAsync();
+            return (schedules, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            // makes string listign all AvailabilityIds
+            var AvailabilityIdsString = String.Join(", ", availabilityIds);
+
+            _logger.LogError("[ScheduleRepo] Error from getSchedulesByAvailabilityIds(): \n" +
+                             "Something went wrong when retreiving Schedules with list of" +
+                            $"AvailabilityIds {AvailabilityIdsString}, Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
     // method that returns all Schedules with given eventId
     public async Task<(List<Schedule>, OperationStatus)> getSchedulesByEventId(int eventId)
     {
@@ -56,6 +78,31 @@ public class ScheduleRepo : IScheduleRepo
     }
 
 
+    // UPDATE FUNCTIONS:
+
+    // Updates table with given range of Schedules
+    public async Task<OperationStatus> updateSchedules(List<Schedule> schedules)
+    {
+        try 
+        {
+            _db.UpdateRange(schedules);
+            await _db.SaveChangesAsync();
+            return OperationStatus.Ok;
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            // makes string listing all schedules
+            var scheduleStrings = schedules.ConvertAll(s => $"{@s}");
+            var schedulesString = String.Join(", ", scheduleStrings);
+            
+            _logger.LogError("[ScheduleRepo] Error from updateSchedules(): \n" +
+                             "Something went wrong when updating range of Schedules " +
+                            $"{schedulesString}, Error message: {e}");
+            return OperationStatus.Error;
+        }
+    }
+
+
     // DELETE FUNCTIONS:
 
     // method that deletes list of Schedules from table
@@ -69,7 +116,7 @@ public class ScheduleRepo : IScheduleRepo
         }
         catch (Exception e) // In case of unexpected exception
         {
-            // converts schedules to string listing all schedules
+            // makes string listing all schedules
             var scheduleStrings = schedules.ConvertAll(s => $"{@s}");
             var schedulesString = String.Join(", ", scheduleStrings);
             
