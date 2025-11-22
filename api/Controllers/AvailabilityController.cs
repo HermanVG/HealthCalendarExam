@@ -28,6 +28,43 @@ namespace HealthCalendar.Controllers
 
         // HTTP GET functions
 
+         // method for retreiving AvailabilityIds from range of Availability 
+         // The range of Availability is retreived using given DayOfWeek and From properties
+        [HttpPost("getAvailabilityIdsByDoW")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> 
+            getAvailabilityIdsByDoW([FromQuery] DayOfWeek dayOfWeek,[FromQuery] TimeOnly from)
+        {
+            try
+            {
+                // retreives list of Availability
+                var (availabilityRange, status) = await _availabilityRepo
+                    .getAvailabilityByDoW(dayOfWeek, from);
+                // In case getAvailabilityByDoW() did not succeed
+                if (status == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from getAvailabilityByDoW(): \n" +
+                                    "Could not retreive Availability with getAvailabilityByDoW() " + 
+                                    "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Availability");
+                }
+
+                // retreives all AvailabilityIds from availabilityRange
+                var availabilityIds = availabilityRange.Select(a => a.AvailabilityId);
+
+                return Ok(availabilityIds);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[AvailabilityController] Error from getAvailabilityIdsByDoW(): \n" +
+                                 "Something went wrong when trying to retreive AvailabilityIds from " + 
+                                $"range of Availability where DayOfWeek = {dayOfWeek} and From = {from}, " +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
         // method that retreives Worker's availability for a week
         [HttpGet("getWeeksAvailability")]
         [Authorize(Roles="Worker")]

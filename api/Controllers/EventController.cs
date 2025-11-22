@@ -14,7 +14,7 @@ namespace HealthCalendar.Controllers
     {
         private readonly IEventRepo _eventRepo;
         
-        // userManager used to retreive Users related to Availability upon creation
+        // userManager used to retreive Users related to Event upon creation
         private readonly UserManager<User> _userManager;
         private readonly ILogger<EventController> _logger;
 
