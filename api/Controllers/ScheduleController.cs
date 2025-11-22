@@ -33,7 +33,7 @@ namespace HealthCalendar.Controllers
 
         // HTTP GET functions
 
-        // method that retreives finds Event's EventId 
+        // method that retreives and Event's EventId 
         // The Event is from Schedule with given AvailabilityId
         [HttpGet("getScheduledEventId")]
         [Authorize(Roles="Worker")]
@@ -41,7 +41,7 @@ namespace HealthCalendar.Controllers
         {
             try
             {
-                // retreives list of schedules where AvailabilityId == availabilityId
+                // retreives list of Schedules where AvailabilityId == availabilityId
                 var (schedules, status) = await _scheduleRepo
                     .getSchedulesByAvailabilityId(availabilityId);
                 // In case getSchedulesByAvailabilityId() did not succeed
@@ -67,6 +67,42 @@ namespace HealthCalendar.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        // method that retreives and EventIds from list of Events
+        // The Events are from Schedules with given AvailabilityId
+        [HttpGet("getScheduledEventIds")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> getScheduledEventIds([FromQuery] int availabilityId)
+        {
+            try
+            {
+                // retreives list of Schedules where AvailabilityId == availabilityId
+                var (schedules, status) = await _scheduleRepo
+                    .getSchedulesByAvailabilityId(availabilityId);
+                // In case getSchedulesByAvailabilityId() did not succeed
+                if (status == OperationStatus.Error)
+                {
+                    _logger.LogError("[ScheduleController] Error from getScheduledEventIds(): \n" +
+                                    "Could not retreive Schedules with getSchedulesByAvailabilityId() " + 
+                                    "from ScheduleRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Schedules");
+                }
+                
+                // retreives list of distinct eventIds from schedules
+                var eventIds = schedules.Select(s => s.EventId).Distinct();
+                
+                return Ok(eventIds);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[scheduleController] Error from getScheduledEventId(): \n" +
+                                 "Something went wrong when trying to find an Event " + 
+                                $"from Schedule with AvailabilityId = {availabilityId}, " +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
 
         // method that finds Event's EventId 
