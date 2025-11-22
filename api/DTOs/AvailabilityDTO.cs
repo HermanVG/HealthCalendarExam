@@ -1,13 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using HealthCalendar.Models;
 
 namespace HealthCalendar.DTOs
 {
     // DTO representing Availability model
     public class AvailabilityDTO
     {
-        // Primary Key
-        [Required]
-        public int AvailabilityId { get; set; }
         [Required]
         public TimeOnly From { get; set; }
         [Required]

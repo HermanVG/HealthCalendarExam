@@ -29,9 +29,9 @@ namespace HealthCalendar.Controllers
         // HTTP GET functions
 
         // method that retreives Worker's availability for a week
-        [HttpGet("getAvailabilityForWeek")]
+        [HttpGet("getWeeksAvailability")]
         [Authorize(Roles="Worker")]
-        public async Task<IActionResult> getWeeksAvailability(string userId, DateOnly monday)
+        public async Task<IActionResult> getWeeksAvailability([FromQuery] string userId, [FromQuery] DateOnly monday)
         {
             try {
                 // list of week's Availability
@@ -82,17 +82,16 @@ namespace HealthCalendar.Controllers
         // method that creates new Availability and calls function to add it into database
         [HttpPost("createAvailability")]
         [Authorize(Roles="Worker")]
-        public async Task<IActionResult> createAvailability(AvailabilityDTO availabilityDTO)
+        public async Task<IActionResult> createAvailability([FromBody] AvailabilityDTO availabilityDTO)
         {
             try {
-                // retreives Worker related to new Availability
+                // retreives Worker and adds it into availabilityDTO
                 var userId = availabilityDTO.UserId;
                 var worker = await _userManager.FindByIdAsync(userId);
                 
                 // creates new Availability using availabilityDTO and worker
                 var availability = new Availability
                 {
-                    AvailabilityId = availabilityDTO.AvailabilityId,
                     From = availabilityDTO.From,
                     To = availabilityDTO.To,
                     DayOfWeek = availabilityDTO.DayOfWeek,
@@ -121,6 +120,16 @@ namespace HealthCalendar.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        // HTTP DELETE FUNCTIONS
+
+        [HttpPost("deleteAvailability/{availabilityId}")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> deleteAvailability(int availabilityId)
+        {
+            return Ok();
+        }
+
 
     }
 }
