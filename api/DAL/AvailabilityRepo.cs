@@ -18,7 +18,7 @@ public class AvailabilityRepo : IAvailabilityRepo
     // GET FUNCTIONS:
 
     // method for retreiving Availability by AvailabilityId
-    public async Task<(Availability? availability, OperationStatus)> getAvailabilityById(int availabilityId)
+    public async Task<(Availability?, OperationStatus)> getAvailabilityById(int availabilityId)
     {
         try
         {
@@ -33,6 +33,31 @@ public class AvailabilityRepo : IAvailabilityRepo
             return (null, OperationStatus.Error);
         }
     }
+
+    // method for retreiving range of Availability with list of AvailabilityIds
+    public async 
+        Task<(List<Availability>, OperationStatus)> getAvailabilityByIds(int[] availabilityIds)
+    {
+        try
+        {
+            var availabilityRange = await _db.Availability
+                .Where(a => availabilityIds.Contains(a.AvailabilityId))
+                .ToListAsync();
+            return (availabilityRange, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            // makes string listing all AvailabilityIds
+            var availabilityIdsString = String.Join(", ", availabilityIds);
+
+            _logger.LogError("[AvailabilityRepo] Error from getAvailabilityByIds(): \n" +
+                             "Something went wrong when retreiving range of Availability " +
+                            $"with list of AvailabilityIds {availabilityIdsString}, " + 
+                            $"Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
 
     // method for retreiving Availability by DayOfWeek and From properties
     public async Task<(List<Availability>, OperationStatus)> 
@@ -134,6 +159,28 @@ public class AvailabilityRepo : IAvailabilityRepo
             _logger.LogError("[AvailabilityRepo] Error from deleteAvailability(): \n" +
                              "Something went wrong when deleting Availability " +
                             $"{@availability}, Error message: {e}");
+            return OperationStatus.Error;
+        }
+    }
+
+    // method for deleting range of Availability from table
+    public async Task<OperationStatus> deleteAvailabilityRange(List<Availability> availabilityRange)
+    {
+        try 
+        {
+            _db.RemoveRange(availabilityRange);
+            await _db.SaveChangesAsync();
+            return OperationStatus.Ok;
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            // makes string listing all availability
+            var availabilityStrings = availabilityRange.ConvertAll(a => $"{@a}");
+            var availabilityRangeString = String.Join(", ", availabilityStrings);
+            
+            _logger.LogError("[AvailabilityRepo] Error from deleteAvailabilityRange(): \n" +
+                             "Something went wrong when deleting range of Availability " +
+                            $"{availabilityRangeString}, Error message: {e}");
             return OperationStatus.Error;
         }
     }

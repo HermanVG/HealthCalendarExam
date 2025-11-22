@@ -175,6 +175,7 @@ namespace HealthCalendar.Controllers
             }
         }
 
+
         // HTTP DELETE FUNCTIONS
 
         // method that deletes Availability from table
