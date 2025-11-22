@@ -257,5 +257,49 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        // method that deletes Schedules where their EventId is in givent list of EventIds from table
+        [HttpDelete("deleteSchedulesByEventIds")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> deleteSchedulesByEventIds([FromQuery] int[] eventIds)
+        {
+            try
+            {
+                // retreives list of Schedules to be deleted
+                var (schedules, getStatus) = await _scheduleRepo.getSchedulesByEventIds(eventIds);
+                // In case getSchedulesByEventIds() did not succeed
+                if (getStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[ScheduleController] Error from deleteSchedulesByEventIds(): \n" +
+                                     "Could not retreive Schedules with getSchedulesByEventIds() " + 
+                                     "from ScheduleRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Schedules");
+                }
+
+                // deletes schedules from table
+                var deleteStatus = await _scheduleRepo.deleteSchedules(schedules);
+                // In case deleteSchedules() did not succeed
+                if (deleteStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[ScheduleController] Error from deleteSchedulesByEventIds(): \n" +
+                                     "Could not delete Schedules with deleteSchedules() " + 
+                                     "from ScheduleRepo.");
+                    return StatusCode(500, "Something went wrong when deleting Schedules");
+                }
+                
+                return Ok(new { Message = "Schedules have been deleted" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all EventIds
+                var eventIdsString = String.Join(", ", eventIds);
+                
+                _logger.LogError("[ScheduleController] Error from deleteSchedulesByEventIds(): \n" +
+                                 "Something went wrong when trying to delete range Schedules " +
+                                $"with EventIds {eventIdsString}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
     }
 }
