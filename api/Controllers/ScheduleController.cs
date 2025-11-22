@@ -20,10 +20,10 @@ namespace HealthCalendar.Controllers
         // eventRepo used to retreive Event related to Schedule for creation and uptades
         private readonly IEventRepo _eventRepo;
 
-        private readonly ILogger<AuthController> _logger;
+        private readonly ILogger<ScheduleController> _logger;
 
         public ScheduleController(IScheduleRepo scheduleRepo, IAvailabilityRepo availabilityRepo, 
-                                  IEventRepo eventRepo, ILogger<AuthController> logger)
+                                  IEventRepo eventRepo, ILogger<ScheduleController> logger)
         {
             _eventRepo = eventRepo;
             _scheduleRepo = scheduleRepo;

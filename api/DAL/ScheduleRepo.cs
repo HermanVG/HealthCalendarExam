@@ -8,8 +8,8 @@ namespace HealthCalendar.DAL;
 public class ScheduleRepo : IScheduleRepo
 {
     private readonly HealthCalendarDbContext _db;
-    private readonly ILogger<AvailabilityRepo> _logger;
-    public ScheduleRepo(HealthCalendarDbContext db, ILogger<AvailabilityRepo> logger)
+    private readonly ILogger<ScheduleRepo> _logger;
+    public ScheduleRepo(HealthCalendarDbContext db, ILogger<ScheduleRepo> logger)
     {
         _db = db;
         _logger = logger;

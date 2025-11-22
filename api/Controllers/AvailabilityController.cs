@@ -16,10 +16,10 @@ namespace HealthCalendar.Controllers
         
         // userManager used to retreive Users related to Availability upon creation
         private readonly UserManager<User> _userManager;
-        private readonly ILogger<AuthController> _logger;
+        private readonly ILogger<AvailabilityController> _logger;
 
         public AvailabilityController(IAvailabilityRepo availabilityRepo, UserManager<User> userManager, 
-                                      ILogger<AuthController> logger)
+                                      ILogger<AvailabilityController> logger)
         {
             _availabilityRepo = availabilityRepo;
             _userManager = userManager;

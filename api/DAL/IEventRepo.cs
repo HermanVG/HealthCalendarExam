@@ -5,5 +5,6 @@ namespace HealthCalendar.DAL;
 
 public interface IEventRepo
 {
-    
+    Task<(Event?, OperationStatus)> getEventById(int eventId);
+    Task<OperationStatus> deleteEvent(Event eventt);
 }
