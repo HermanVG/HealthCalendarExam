@@ -47,13 +47,13 @@ public class AvailabilityRepo : IAvailabilityRepo
         {
             _logger.LogError("[AvailabilityRepo] Error from getWeeksDoWAvailability(): \n" +
                              "Something went wrong when retreiving Availability where " +
-                            $"workerId = {userId} and Date = null, Error message: {e}");
+                            $"UserId = {userId} and Date = null, Error message: {e}");
             return ([], OperationStatus.Error);
         }
     }
 
     // method for retreiving a Worker's Availability for the week where Date is not null
-    public async Task<(List<Availability>?, OperationStatus)> 
+    public async Task<(List<Availability>, OperationStatus)> 
         getWeeksDateAvailability(string userId, DateOnly monday, DateOnly sunday)
     {
         try
@@ -69,7 +69,8 @@ public class AvailabilityRepo : IAvailabilityRepo
         {
             _logger.LogError("[AvailabilityRepo] Error from getWeeksDateAvailability(): \n" +
                              "Something went wrong when retreiving Availability where " +
-                            $"workerId = {userId} and Date = null, Error message: {e}");
+                            $"UserId = {userId}, and Date is between {monday} and {sunday}, " +
+                             "Error message: {e}");
             return ([], OperationStatus.Error);
         }
     }

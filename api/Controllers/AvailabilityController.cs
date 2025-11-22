@@ -26,6 +26,60 @@ namespace HealthCalendar.Controllers
             _logger = logger;
         }
 
+        // HTTP GET functions
+
+        // method that retreives Worker's availability for a week
+        [HttpGet("getAvailabilityForWeek")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> getWeeksAvailability(string userId, DateOnly monday)
+        {
+            try {
+                // list of week's Availability
+                var weeksAvailability = new List<Availability>();
+                
+                // retreives list of Worker's availability where Date = null
+                var (doWAvailability, status1) = await _availabilityRepo.getWeeksDoWAvailability(userId);
+                // In case getWeeksDoWAvailability() did not succeed
+                if (status1 == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from createAvailability(): \n" +
+                                    "Something went wrong with getWeeksDoWAvailability() " + 
+                                    "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Week's DoW Availability");
+                }
+
+                var sunday = monday.AddDays(6);
+                // retreives list of Worker's availability where Date != null and between monday and sunday
+                var (dateAvailability, status2) = await _availabilityRepo
+                    .getWeeksDateAvailability(userId, monday, sunday);
+                // In case getWeeksDateAvailability() did not succeed
+                if (status2 == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from createAvailability(): \n" +
+                                    "Something went wrong with getWeeksDateAvailability() " + 
+                                    "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Week's Date Availability");
+                }
+
+                weeksAvailability.AddRange(doWAvailability);
+                weeksAvailability.AddRange(dateAvailability);
+                return Ok(weeksAvailability);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[AvailabilityController] Error from getWeeksAvailability(): \n" +
+                                 "Something went wrong when trying to retreive week's availability from " + 
+                                $"Worker with UserId = {userId} where monday is on the {monday}, " +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+
+        // HTTP POST functions
+
+        // method that creates new Availability and calls function to add it into database
         [HttpPost("createAvailability")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> createAvailability(AvailabilityDTO availabilityDTO)
@@ -52,7 +106,7 @@ namespace HealthCalendar.Controllers
                 if (status == OperationStatus.Error)
                 {
                     _logger.LogError("[AvailabilityController] Error from createAvailability(): \n" +
-                                     "Something went wrong when calling createAvailability() " + 
+                                     "Something went wrong with createAvailability() " + 
                                      "from AvailabilityRepo.");
                     return StatusCode(500, "Something went wrong when creating Availability");
                 }
