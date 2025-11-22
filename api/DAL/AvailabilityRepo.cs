@@ -34,6 +34,26 @@ public class AvailabilityRepo : IAvailabilityRepo
         }
     }
 
+    // method for retreiving Availability by DayOfWeek and From properties
+    public async Task<(List<Availability>, OperationStatus)> 
+        getAvailabilityByDoW(DayOfWeek dayOfWeek, TimeOnly from)
+    {
+        try
+        {
+            var availability = await _db.Availability
+                .Where(a => a.DayOfWeek == dayOfWeek && a.From == from)
+                .ToListAsync();
+            return (availability, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            _logger.LogError("[AvailabilityRepo] Error from getAvailabilityByDoW(): \n" +
+                             "Something went wrong when retreiving Availability where " +
+                            $"DayOfWeek = {dayOfWeek} and From = {from}, Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
     // method for retreiving a Worker's Availability where Date is null
     public async Task<(List<Availability>, OperationStatus)> getWeeksDoWAvailability(string userId)
     {

@@ -37,7 +37,7 @@ namespace HealthCalendar.Controllers
         // The Event is from Schedule with given AvailabilityId
         [HttpGet("getScheduledEventId")]
         [Authorize(Roles="Worker")]
-        public async Task<IActionResult> getScheduledEventId(int availabilityId)
+        public async Task<IActionResult> getScheduledEventId([FromQuery] int availabilityId)
         {
             try
             {
