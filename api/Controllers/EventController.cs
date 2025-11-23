@@ -45,7 +45,7 @@ namespace HealthCalendar.Controllers
                                      "from EventRepo.");
                     return StatusCode(500, "Something went wrong when retreiving Event");
                 }
-
+                
                 // deletes eventt from table
                 var deleteStatus = await _eventRepo.deleteEvent(eventt);
                 // In case deleteAvailability() did not succeed
