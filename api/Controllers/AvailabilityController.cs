@@ -88,7 +88,7 @@ namespace HealthCalendar.Controllers
 
         // method for retreiving AvailabilityIds from range of Availability 
         // The range of Availability is retreived using given DayOfWeek and From properties
-        [HttpPost("getAvailabilityIdsByDoW")]
+        [HttpGet("getAvailabilityIdsByDoW")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> 
             getAvailabilityIdsByDoW([FromQuery] DayOfWeek dayOfWeek,[FromQuery] TimeOnly from)
@@ -128,7 +128,7 @@ namespace HealthCalendar.Controllers
 
         // method that creates new Availability and calls function to add it into table
         [HttpPost("createAvailability")]
-        [Authorize(Roles="Worker")]
+        [Authorize(Roles="Patient,Worker")]
         public async Task<IActionResult> createAvailability([FromBody] AvailabilityDTO availabilityDTO)
         {
             try {
@@ -172,7 +172,7 @@ namespace HealthCalendar.Controllers
         // HTTP DELETE FUNCTIONS
 
         // method that deletes Availability from table by AvailabilityId
-        [HttpPost("deleteAvailability/{availabilityId}")]
+        [HttpDelete("deleteAvailability/{availabilityId}")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> deleteAvailability(int availabilityId)
         {

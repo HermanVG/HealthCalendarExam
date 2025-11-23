@@ -57,6 +57,28 @@ public class EventRepo : IEventRepo
         }
     }
 
+    // method for retreiving a Patient's Events for the week
+    public async Task<(List<Event>, OperationStatus)> 
+        getWeeksEventsForPatient(string userId, DateOnly monday, DateOnly sunday)
+    {
+        try
+        {
+            // retreives events between given dates for monday and sunday
+            var events = await _db.Events
+                .Where(e => e.UserId == userId && e.Date >= monday && e.Date <= sunday)
+                .ToListAsync();
+            return (events, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            _logger.LogError("[EventRepo] Error from getWeeksEventsForPatient(): \n" +
+                             "Something went wrong when retreiving Events where " +
+                            $"UserId = {userId}, and Date is between {monday} and {sunday}, " +
+                            $"Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
 
     // DELETE FUNCTIONS:
 
