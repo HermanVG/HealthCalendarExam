@@ -5,6 +5,7 @@ using HealthCalendar.DAL;
 using HealthCalendar.DTOs;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
+using System.Net;
 
 namespace HealthCalendar.Controllers
 {
@@ -28,10 +29,10 @@ namespace HealthCalendar.Controllers
 
         // HTTP GET functions
 
-        // method that retreives Worker's availability for a week
-        [HttpGet("getWeeksAvailability")]
+        // method that retreives all Worker's availability for a week
+        [HttpGet("getAllWeeksAvailability")]
         [Authorize(Roles="Worker")]
-        public async Task<IActionResult> getWeeksAvailability([FromQuery] string userId, [FromQuery] DateOnly monday)
+        public async Task<IActionResult> getAllWeeksAvailability([FromQuery] string userId, [FromQuery] DateOnly monday)
         {
             try {
                 // list of week's Availability
@@ -42,7 +43,7 @@ namespace HealthCalendar.Controllers
                 // In case getWeeksDoWAvailability() did not succeed
                 if (getDoWStatus == OperationStatus.Error)
                 {
-                    _logger.LogError("[AvailabilityController] Error from getWeeksAvailability(): \n" +
+                    _logger.LogError("[AvailabilityController] Error from getAllWeeksAvailability(): \n" +
                                     "Could not retreive Availability with getWeeksDoWAvailability() " + 
                                     "from AvailabilityRepo.");
                     return StatusCode(500, "Something went wrong when retreiving Week's DoW Availability");
@@ -55,8 +56,8 @@ namespace HealthCalendar.Controllers
                 // In case getWeeksDateAvailability() did not succeed
                 if (getDateStatus == OperationStatus.Error)
                 {
-                    _logger.LogError("[AvailabilityController] Error from getWeeksAvailability(): \n" +
-                                    "Could not retreive Availability with getWeeksDateAvailability() " + 
+                    _logger.LogError("[AvailabilityController] Error from getAllWeeksAvailability(): \n" +
+                                    "Could not retreive Availability with getAllWeeksDateAvailability() " + 
                                     "from AvailabilityRepo.");
                     return StatusCode(500, "Something went wrong when retreiving Week's Date Availability");
                 }
@@ -78,8 +79,83 @@ namespace HealthCalendar.Controllers
             }
             catch (Exception e) // In case of unexpected exception
             {
-                _logger.LogError("[AvailabilityController] Error from getWeeksAvailability(): \n" +
+                _logger.LogError("[AvailabilityController] Error from getAllWeeksAvailability(): \n" +
                                  "Something went wrong when trying to retreive week's availability from " + 
+                                $"Worker with UserId = {userId} where monday is on the {monday}, " +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // method that retreives all Worker's Availability for a week, excluding overlapping ones
+        [HttpGet("getWeeksAvailabilityProper")]
+        [Authorize(Roles="Patient,Worker")]
+        public async Task<IActionResult> 
+            getWeeksAvailabilityProper([FromQuery] string userId, [FromQuery] DateOnly monday)
+        {
+            try {
+                // list of week's Availability
+                var weeksAvailability = new List<Availability>();
+                
+                // retreives list of Worker's availability where Date = null
+                var (doWAvailability, getDoWStatus) = await _availabilityRepo.getWeeksDoWAvailability(userId);
+                // In case getWeeksDoWAvailability() did not succeed
+                if (getDoWStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from getWeeksAvailabilityProper(): \n" +
+                                     "Could not retreive Availability with getWeeksDoWAvailability() " + 
+                                     "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Week's DoW Availability");
+                }
+
+                var sunday = monday.AddDays(6);
+                // retreives list of Worker's availability where Date != null and between monday and sunday
+                var (dateAvailability, getDateStatus) = await _availabilityRepo
+                    .getWeeksDateAvailability(userId, monday, sunday);
+                // In case getWeeksDateAvailability() did not succeed
+                if (getDateStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from getWeeksAvailabilityProper(): \n" +
+                                     "Could not retreive Availability with getWeeksDateAvailability() " + 
+                                     "from AvailabilityRepo.");
+                    return StatusCode(500, "Something went wrong when retreiving Week's Date Availability");
+                }
+
+                // Iterates through dateAvailability and doWAvailability
+                dateAvailability.ForEach(dA => {
+                    var from = dA.From;
+                    var dayOfWeek = dA.DayOfWeek;
+                    doWAvailability.ForEach(doWA =>
+                    {
+                        // Removes Availability that overlap with eachother
+                        if (from == doWA.From && dayOfWeek == doWA.DayOfWeek)
+                        {
+                            dateAvailability.Remove(dA);
+                            doWAvailability.Remove(doWA);
+                            return;
+                        }
+                    });
+                });
+                
+                // converts retreived Availability to AvaillibilityDTOs
+                weeksAvailability.AddRange(doWAvailability);
+                weeksAvailability.AddRange(dateAvailability);
+                var weeksAvailabilityDTOs = weeksAvailability.Select(a => new AvailabilityDTO
+                {
+                    AvailabilityId = a.AvailabilityId,
+                    From = a.From,
+                    To = a.To,
+                    DayOfWeek = a.DayOfWeek,
+                    Date = a.Date,
+                    UserId = userId,
+                });
+
+                return Ok(weeksAvailabilityDTOs);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[AvailabilityController] Error from getWeeksAvailabilityProper(): \n" +
+                                 "Something went wrong when trying to retreive week's proper availability from " + 
                                 $"Worker with UserId = {userId} where monday is on the {monday}, " +
                                 $"Error message: {e}");
                 return StatusCode(500, "Internal server error");
