@@ -1,19 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
 
-namespace HealthCalendar.Models
+namespace HealthCalendar.DTOs
 {
     public class UserDTO
     {
-        /* 
-            Inherits from IdentityUser,
-            Properties from IdentityUser that User also uses are:
-            Id (Primary key),
-            Username (Works as email, since Username is non-nullable),
-            PasswordHash
-        */
-
         // Primary Key
         public string Id {get; set;} = string.Empty;
         
@@ -21,7 +11,7 @@ namespace HealthCalendar.Models
         [Required]
         [EmailAddress]
         public string UserName {get; set;} = string.Empty;
-        
+
         [Required]
         public string Name { get; set; } = string.Empty;
         

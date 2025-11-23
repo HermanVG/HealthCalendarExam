@@ -26,6 +26,69 @@ namespace HealthCalendar.Controllers
             _logger = logger;
         }
 
+        // HTTP GET functions
+
+        // method for retreiving Events of Worker's Patients for the week
+        [HttpDelete("getWeeksEventsForWorker")]
+        [Authorize(Roles="Worker")]
+        public async Task<IActionResult> getWeeksEventsForWorker([FromBody] List<UserDTO> patients, 
+                                                                 [FromQuery] DateOnly monday)
+        {
+            try {
+                var weeksEventsWithOwners = new List<EventWithOwnerDTO>();
+                var sunday = monday.AddDays(6);
+
+                foreach (var patient in patients)
+                {
+                    // retreives list of Events for Patient
+                    var userId = patient.Id;
+                    var (events, status) = 
+                        await _eventRepo.getWeeksEventsForPatient(userId, monday, sunday);
+                    // In case getWeeksEventsForPatient() did not succeed
+                    if (status == OperationStatus.Error)
+                    {
+                        _logger.LogError("[EventController] Error from " + 
+                                         "getWeeksEventsForWorker(): \n" +
+                                         "Could not retreive Events with " + 
+                                         "getWeeksEventsForPatient() from EventRepo.");
+                        return StatusCode(500, "Something went wrong when retreiving " + 
+                                               "Events for the week");
+                    }
+
+                    // makes list of EventWithOwnerDTOs from events
+                    var eventsWithOwners = events.Select(e => new EventWithOwnerDTO
+                    {
+                        EventId = e.EventId,
+                        From = e.From,
+                        To = e.To,
+                        Date = e.Date,
+                        Title = e.Title,
+                        Location = e.Title,
+                        UserId = userId,
+                        OwnerName = patient.Name
+                    });
+
+                    weeksEventsWithOwners.AddRange(eventsWithOwners);
+                }
+
+                return Ok(weeksEventsWithOwners);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all patients
+                var patientStrings = patients.ConvertAll(u => $"{@u}");
+                var patientsString = String.Join(", ", patientStrings);
+                
+                _logger.LogError("[EventController] Error from getWeeksEventsForWorker(): \n" +
+                                 "Something went wrong when trying to retreive week's events for " + 
+                                $"Patients {patientsString} where monday is on the date {monday}, " +
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+        
         // HTTP DELETE functions
 
         // method that deletes Event from table
