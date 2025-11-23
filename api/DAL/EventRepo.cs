@@ -57,6 +57,26 @@ public class EventRepo : IEventRepo
         }
     }
 
+    // method for retreiving Patient's Events for specific date
+    public async Task<(List<Event>, OperationStatus)> getEventsByDate(string userId, DateOnly date)
+    {
+        try
+        {
+            var events = await _db.Events
+                .Where(e => e.UserId == userId && e.Date == date)
+                .ToListAsync();
+            return (events, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            _logger.LogError("[EventRepo] Error from getEventsByDate(): \n" +
+                             "Something went wrong when retreiving Events where " +
+                            $"UserId = {userId}, and Date == {date}, " +
+                            $"Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
     // method for retreiving a Patient's Events for the week
     public async Task<(List<Event>, OperationStatus)> 
         getWeeksEventsForPatient(string userId, DateOnly monday, DateOnly sunday)
