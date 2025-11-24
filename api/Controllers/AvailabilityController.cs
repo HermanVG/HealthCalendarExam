@@ -198,15 +198,18 @@ namespace HealthCalendar.Controllers
             }
         }
 
-        // method for checking if Worker's Availability for given Date is continuous, is for a Create function
+        // method for checking if Worker's Availability for given Date is continuous for Create Event function
         [HttpGet("checkAvailabilityForCreate")]
         [Authorize(Roles="Patient")]
-        public async Task<IActionResult> 
-            checkAvailabilityForCreate([FromQuery] string userId, [FromQuery] DateOnly date, 
-                                       [FromQuery] TimeOnly from, [FromQuery] TimeOnly to)
+        public async Task<IActionResult> checkAvailabilityForCreate([FromBody] Event eventDTO)
         {
             try
             {
+                var userId = eventDTO.UserId;
+                var date = eventDTO.Date;
+                var from = eventDTO.From;
+                var to = eventDTO.To;
+
                 // retreives relevant Availability where date is null
                 var dayOfWeek = date.DayOfWeek;
                 var (doWAvailabilityRange, getDoWStatus) = await _availabilityRepo
@@ -252,9 +255,9 @@ namespace HealthCalendar.Controllers
             catch (Exception e) // In case of unexpected exception
             {   
                 _logger.LogError("[AvailabilityController] Error from checkAvailabilityForCreate(): \n" +
-                                 "Something went wrong when trying to check if User with UserId == " + 
-                                $"{userId}, had continuous Availability for date {date} " + 
-                                $"from {from} to {to}, Error message: {e}");
+                                 "Something went wrong when trying to check if there" + 
+                                $"was continuous Availability so Event {eventDTO} " + 
+                                $"can be created, Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
         }
