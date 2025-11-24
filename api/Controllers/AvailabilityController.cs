@@ -241,7 +241,8 @@ namespace HealthCalendar.Controllers
         [HttpGet("checkAvailabilityForUpdate")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> 
-            checkAvailabilityForUpdate([FromBody] EventDTO updatedEventDTO, [FromBody] EventDTO oldEventDTO)
+            checkAvailabilityForUpdate([FromBody] EventDTO updatedEventDTO, [FromQuery] DateOnly oldDate,
+                                       [FromQuery] TimeOnly oldFrom, [FromQuery] TimeOnly oldTo)
         {
             try
             {
@@ -256,9 +257,6 @@ namespace HealthCalendar.Controllers
                 var updatedDate = updatedEventDTO.Date;
                 var updatedFrom = updatedEventDTO.From;
                 var updatedTo = updatedEventDTO.To;
-                var oldDate = oldEventDTO.Date;
-                var oldFrom = oldEventDTO.From;
-                var oldTo = oldEventDTO.To;
 
                 // Used to get AvailabilityIds for Schedules that need to be updated
                 var updateFrom = updatedFrom;
@@ -410,7 +408,8 @@ namespace HealthCalendar.Controllers
                 _logger.LogError("[AvailabilityController] Error from checkAvailabilityForCreate(): \n" +
                                  "Something went wrong when trying to check if there " + 
                                  "was continuous Availability so table can be updated with " + 
-                                $"Event could be updated from {@oldEventDTO} to {@updatedEventDTO}, " + 
+                                $"Event {@updatedEventDTO} by checking it against old Event's " + 
+                                $"Date {oldDate}, From {oldFrom} and To {oldTo} properties, " + 
                                 $"Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
