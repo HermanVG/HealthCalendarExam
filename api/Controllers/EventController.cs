@@ -177,6 +177,52 @@ namespace HealthCalendar.Controllers
         }
 
 
+        // HTTP POST functions
+
+        // method that adds new Event into table
+        [HttpPost("createEvent")]
+        [Authorize(Roles="Patient")]
+        public async Task<IActionResult> createEvent([FromBody] EventDTO eventDTO)
+        {
+            try {
+                // retreives Worker and adds it into availabilityDTO
+                var userId = eventDTO.UserId;
+                var patient = await _userManager.FindByIdAsync(userId);
+                
+                // creates new Event using eventDTO and worker
+                var eventt = new Event
+                {
+                    From = eventDTO.From,
+                    To = eventDTO.To,
+                    Date = eventDTO.Date,
+                    Title = eventDTO.Title,
+                    Location = eventDTO.Location,
+                    UserId = userId,
+                    Patient = patient!
+                };
+                var status = await _eventRepo.createEvent(eventt);
+
+                // In case createEvent() did not succeed
+                if (status == OperationStatus.Error)
+                {
+                    _logger.LogError("[EventController] Error from createEvent(): \n" +
+                                     "Could not create Event with createEvent() " + 
+                                     "from EventRepo.");
+                    return StatusCode(500, "Something went wrong when creating Event");
+                }
+                return Ok(new { Message = "Event has been created" });
+
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[EventController] Error from createEvent(): \n" +
+                                 "Something went wrong when trying to create new Event " +
+                                $"with eventDTO {@eventDTO}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
         
         // HTTP DELETE functions
 
