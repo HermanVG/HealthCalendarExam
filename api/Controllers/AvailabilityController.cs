@@ -414,10 +414,49 @@ namespace HealthCalendar.Controllers
 
         // PRIVATE functions
 
-        // method for checking if Worker's Availability is continuous for certain timeslot
-        // If it is continuous list of relevant AvailabilityIds is returned
+        // method that retreives list of continuous Availability's AvailabilityIds
         private async Task<(int[], OperationStatus)> 
-            getAndCheckAvailability(string userId, DateOnly date, TimeOnly from, TimeOnly to) {
+            getContinuousAvailabilityIds(string userId, DateOnly date, TimeOnly from, TimeOnly to)
+        {
+            try
+            {
+                // retreives relevant Availability
+                var (doWAvailabilityRange, dateAvailabilityRange, getStatus) = 
+                    await getTimeslotsAvailability(userId, date, from, to);
+                // In case getTimeslotsAvailability() did not succeed
+                if (getStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AvailabilityController] Error from getAndCheckAvailability(): \n" +
+                                     "Could not retreive Availability with getTimeslotsAvailability() " + 
+                                     "from AvailabilityController.");
+                    return ([], getStatus);
+                }
+
+                
+                // Converts lists of continuous Availability to list of AvailabilityIds
+                var continuousAvailability = new List<Availability>();
+                continuousAvailability.AddRange(doWAvailabilityRange);
+                continuousAvailability.AddRange(dateAvailabilityRange);
+                var continuousAvailabilityIds = 
+                    continuousAvailability.Select(a => a.AvailabilityId).ToArray(); 
+                    
+                return (continuousAvailabilityIds, OperationStatus.Ok);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {   
+                _logger.LogError("[AvailabilityController] Error from getContinuousAvailabilityIds(): \n" +
+                                 "Something went wrong when trying to get list of continuous " + 
+                                 "Availability's AvailabilityIds for Worker with UserId == " + 
+                                $"{userId} on date {date} from {from} to {to}, Error message: {e}");
+                return ([], OperationStatus.Error);
+            }
+        }
+        
+        // method for checking if Worker's Availability is continuous for certain timeslot
+        // If it is list of continuous Availability's AvailabilityIds is returned
+        private async Task<(int[], OperationStatus)> 
+            getAndCheckAvailability(string userId, DateOnly date, TimeOnly from, TimeOnly to) 
+        {
             try
             {
                 // retreives relevant Availability
@@ -508,7 +547,6 @@ namespace HealthCalendar.Controllers
         {
             try
             {
-                var continuousAvailability = new List<Availability>();
                 // calculates factor of difference between to and from, divided by 30 min
                 var timeDifference = to.ToTimeSpan() - from.ToTimeSpan();
                 var wantedSize = timeDifference.Divide(TimeSpan.FromMinutes(30));
@@ -540,7 +578,8 @@ namespace HealthCalendar.Controllers
                     }
                 }
 
-                // Converts lists of Availability to list of AvailabilityIds
+                // Converts lists of continuous Availability to list of AvailabilityIds
+                var continuousAvailability = new List<Availability>();
                 continuousAvailability.AddRange(doWAvailabilityRange);
                 continuousAvailability.AddRange(dateAvailabilityRange);
                 var continuousAvailabilityIds = 
