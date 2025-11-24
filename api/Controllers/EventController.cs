@@ -228,7 +228,7 @@ namespace HealthCalendar.Controllers
 
         // method that deletes Event from table
         [HttpDelete("deleteEvent/{eventId}")]
-        [Authorize(Roles="Worker")]
+        [Authorize(Roles="Patient,Worker")]
         public async Task<IActionResult> deleteEvent(int eventId)
         {
             try
