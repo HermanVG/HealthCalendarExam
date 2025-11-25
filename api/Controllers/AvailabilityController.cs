@@ -236,7 +236,7 @@ namespace HealthCalendar.Controllers
         // method for checking if Worker's Availability for given Date is continuous for Create Event function
         [HttpPost("checkAvailabilityForCreate")]
         [Authorize(Roles="Patient")]
-        public async Task<IActionResult> checkAvailabilityForCreate([FromBody] EventDTO eventDTO, string userId)
+        public async Task<IActionResult> checkAvailabilityForCreate([FromBody] EventDTO eventDTO, [FromQuery] string userId)
         {
             try
             {
