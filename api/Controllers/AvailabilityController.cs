@@ -236,11 +236,10 @@ namespace HealthCalendar.Controllers
         // method for checking if Worker's Availability for given Date is continuous for Create Event function
         [HttpPost("checkAvailabilityForCreate")]
         [Authorize(Roles="Patient")]
-        public async Task<IActionResult> checkAvailabilityForCreate([FromBody] EventDTO eventDTO)
+        public async Task<IActionResult> checkAvailabilityForCreate([FromBody] EventDTO eventDTO, string userId)
         {
             try
             {
-                var userId = eventDTO.UserId;
                 var date = eventDTO.Date;
                 var from = eventDTO.From;
                 var to = eventDTO.To;
@@ -277,7 +276,8 @@ namespace HealthCalendar.Controllers
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> 
             checkAvailabilityForUpdate([FromBody] EventDTO updatedEventDTO, [FromQuery] DateOnly oldDate,
-                                       [FromQuery] TimeOnly oldFrom, [FromQuery] TimeOnly oldTo)
+                                       [FromQuery] TimeOnly oldFrom, [FromQuery] TimeOnly oldTo, 
+                                       [FromQuery] string userId)
         {
             try
             {
@@ -287,8 +287,7 @@ namespace HealthCalendar.Controllers
                 int[] forDeleteSchedules = {};
                 // list of AvailabilityIds that existing Schedules need to be updated for
                 int[] forUpdateSchedules = {};
-                
-                var userId = updatedEventDTO.UserId;
+
                 var updatedDate = updatedEventDTO.Date;
                 var updatedFrom = updatedEventDTO.From;
                 var updatedTo = updatedEventDTO.To;
