@@ -199,7 +199,7 @@ namespace HealthCalendar.Controllers
         }
 
         // method for checking if Worker's Availability for given Date is continuous for Create Event function
-        [HttpGet("checkAvailabilityForCreate")]
+        [HttpPost("checkAvailabilityForCreate")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> checkAvailabilityForCreate([FromBody] EventDTO eventDTO)
         {
@@ -238,7 +238,7 @@ namespace HealthCalendar.Controllers
         }
 
         // method for checking if Worker's Availability for given Date is continuous for Update Event function
-        [HttpGet("checkAvailabilityForUpdate")]
+        [HttpPost("checkAvailabilityForUpdate")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> 
             checkAvailabilityForUpdate([FromBody] EventDTO updatedEventDTO, [FromQuery] DateOnly oldDate,

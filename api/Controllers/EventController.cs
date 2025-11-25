@@ -170,7 +170,7 @@ namespace HealthCalendar.Controllers
         }
 
         // method that validates Event for a Create Event method
-        [HttpGet("validateEventForCreate")]
+        [HttpPost("validateEventForCreate")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> validateEventForCreate([FromBody] EventDTO eventDTO)
         {
@@ -214,7 +214,7 @@ namespace HealthCalendar.Controllers
         }
 
         // method that validates Event for an Update Event method
-        [HttpGet("validateEventForUpdate")]
+        [HttpPost("validateEventForUpdate")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> validateEventForUpdate([FromBody] EventDTO eventDTO)
         {

@@ -76,11 +76,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:4000")
-            .AllowAnyOrigin()
+        builder.WithOrigins("http://localhost:4000", "http://localhost:6969", "http://localhost:5173")
             .AllowAnyMethod()
-            .AllowAnyHeader();
-
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
