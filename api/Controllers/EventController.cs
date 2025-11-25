@@ -13,16 +13,11 @@ namespace HealthCalendar.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventRepo _eventRepo;
-        
-        // userManager used to retreive Users related to Event upon creation
-        private readonly UserManager<User> _userManager;
         private readonly ILogger<EventController> _logger;
 
-        public EventController(IEventRepo eventRepo, UserManager<User> userManager, 
-                               ILogger<EventController> logger)
+        public EventController(IEventRepo eventRepo, ILogger<EventController> logger)
         {
             _eventRepo = eventRepo;
-            _userManager = userManager;
             _logger = logger;
         }
 
@@ -178,10 +173,6 @@ namespace HealthCalendar.Controllers
         public async Task<IActionResult> createEvent([FromBody] EventDTO eventDTO)
         {
             try {
-                // retreives Worker and adds it into availabilityDTO
-                var userId = eventDTO.UserId;
-                var patient = await _userManager.FindByIdAsync(userId);
-                
                 // creates new Event using eventDTO and patient
                 var eventt = new Event
                 {
@@ -190,8 +181,7 @@ namespace HealthCalendar.Controllers
                     Date = eventDTO.Date,
                     Title = eventDTO.Title,
                     Location = eventDTO.Location,
-                    UserId = userId,
-                    Patient = patient!
+                    UserId = eventDTO.UserId
                 };
                 var status = await _eventRepo.createEvent(eventt);
 
@@ -222,10 +212,6 @@ namespace HealthCalendar.Controllers
         public async Task<IActionResult> updateEvent([FromBody] EventDTO eventDTO)
         {
             try {
-                // retreives Worker and adds it into availabilityDTO
-                var userId = eventDTO.UserId;
-                var patient = await _userManager.FindByIdAsync(userId);
-                
                 // updates new Event using eventDTO and patient
                 var eventt = new Event
                 {
@@ -235,8 +221,7 @@ namespace HealthCalendar.Controllers
                     Date = eventDTO.Date,
                     Title = eventDTO.Title,
                     Location = eventDTO.Location,
-                    UserId = userId,
-                    Patient = patient!
+                    UserId = eventDTO.UserId
                 };
                 var status = await _eventRepo.updateEvent(eventt);
 
