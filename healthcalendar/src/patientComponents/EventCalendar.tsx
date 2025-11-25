@@ -69,28 +69,7 @@ export default function EventCalendar() {
         
         // Step 1: Call getWeeksEventsForPatient() to retrieve patient's events
         const eventsData = await apiService.getWeeksEventsForPatient(user.nameid, weekStartISO)
-        
-        // MOCK DATA: Add test events for testing edit/delete functionality
-        const mockEvents: Event[] = [
-          {
-            eventId: 9999,
-            title: 'Mock Appointment 1',
-            location: 'Test Location',
-            date: weekStartISO, // Monday of current week
-            startTime: '10:00',
-            endTime: '11:00'
-          },
-          {
-            eventId: 9998,
-            title: 'Mock Appointment 2',
-            location: 'Office',
-            date: new Date(new Date(weekStartISO).getTime() + 86400000).toISOString().split('T')[0], // Tuesday
-            startTime: '14:00',
-            endTime: '15:30'
-          }
-        ]
-        
-        setEvents([...eventsData, ...mockEvents])
+        setEvents(eventsData)
         
         // Step 2: Call getWeeksAvailabilityProper() to retrieve worker's availability
         // Get workerId from patient's JWT token (WorkerId field)
@@ -155,14 +134,6 @@ export default function EventCalendar() {
       return
     }
 
-    // MOCK EVENT HANDLING: Skip API calls for mock events (ID >= 9998)
-    if (updatedEvent.eventId >= 9998) {
-      setEvents(events.map(e => e.eventId === updatedEvent.eventId ? updatedEvent : e))
-      setEditing(null)
-      showSuccess('Mock event updated (UI only - no backend call)')
-      return
-    }
-
     try {
       // Step 1: Call validateEventForUpdate()
       await apiService.validateEventForUpdate(updatedEvent, user.nameid)
@@ -221,14 +192,6 @@ export default function EventCalendar() {
   const onDelete = async (id: number) => {
     if (!user?.nameid) {
       showError('User not authenticated')
-      return
-    }
-
-    // MOCK EVENT HANDLING: Skip API calls for mock events (ID >= 9998)
-    if (id >= 9998) {
-      setEvents(events.filter(e => e.eventId !== id))
-      setEditing(null)
-      showSuccess('Mock event deleted (UI only - no backend call)')
       return
     }
 
