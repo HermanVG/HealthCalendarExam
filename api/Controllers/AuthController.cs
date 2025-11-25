@@ -154,58 +154,6 @@ namespace HealthCalendar.Controllers
         }
 
 
-        // method for changing User's Password
-        [Authorize]
-        [HttpPost("changePassword")]
-        public async Task<IActionResult> changePassword([FromBody] ChangePasswordDTO changePasswordDTO)
-        {
-            try
-            {
-                var newPassword = changePasswordDTO.NewPassword;
-                var newPasswordRepeated = changePasswordDTO.NewPasswordRepeated;
-                if (newPassword != newPasswordRepeated)
-                {
-                    _logger.LogWarning("[AuthController] Warning from changePassword(): \n " +
-                                       "Password change was unauthorized.");
-                    return Unauthorized(new { Message = "Password change was unauthorized" });
-                }
-
-                // Retreives User with UserID in changePasswordDTO
-                var userId = changePasswordDTO.UserId;
-                var user = await _userManager.FindByIdAsync(changePasswordDTO.UserId);
-                // In case User was not retreived
-                if (user == null)
-                {
-                    _logger.LogError("[AuthController] Error from changePassword(): \n" +
-                                     "Could not retreive User.");
-                    return StatusCode(500, "Could not retreive User");
-                }
-
-                // Attempts to change the password
-                var currentPassword = changePasswordDTO.CurrentPassword;
-                var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
-                
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("[AuthController] Information from changePassword(): \n " +
-                                          $"Password change succeeded for User: {user.Name}");
-                    return Ok(new { Message = "Password was changed" });
-                }
-                
-                // For when password change doesn't succeed
-                _logger.LogWarning("[AuthController] Warning from changePassword(): \n " +
-                                   "Password change was unauthorized.");
-                return Unauthorized(new { Message = "Password change was unauthorized" });
-            }
-            catch (Exception e) // In case of unexpected exception
-            {
-                _logger.LogError("[AuthController] Error from changePassword(): \n" +
-                                $"Error message: {e}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> logout()
