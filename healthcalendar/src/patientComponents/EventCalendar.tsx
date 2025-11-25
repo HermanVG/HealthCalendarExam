@@ -100,6 +100,9 @@ export default function EventCalendar() {
       // Step 3: Call createEvent()
       const created = await apiService.createEvent(e, user.nameid)
       
+      // Close form immediately to prevent double-submits
+      setShowNew(false)
+      
       // Step 4: Call createSchedules() with eventId and availabilityIds (if any)
       if (availabilityIds.length > 0) {
         await apiService.createSchedules(created.eventId, e.date, availabilityIds)
@@ -109,7 +112,6 @@ export default function EventCalendar() {
       const eventsData = await apiService.getWeeksEventsForPatient(user.nameid, weekStartISO)
       setEvents(eventsData)
       
-      setShowNew(false)
       showSuccess('Event created successfully')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create event'
