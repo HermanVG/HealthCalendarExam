@@ -197,10 +197,11 @@ export const apiService = {
 					body: JSON.stringify(eventDTO)
 				}
 			);
-			const result = await handleResponse<{ eventId: number }>(response);
+			// Backend returns { EventId: number } with capital E
+			const result = await handleResponse<{ EventId: number }>(response);
 			// Backend returns the created event's ID
 			return {
-				eventId: result.eventId,
+				eventId: result.EventId,
 				...input
 			};
 		} catch (err) {
@@ -212,9 +213,9 @@ export const apiService = {
 	async createSchedules(eventId: number, date: string, availabilityIds: number[]): Promise<void> {
 		try {
 			const queryParams = new URLSearchParams();
-			availabilityIds.forEach(id => queryParams.append('availabilityIds', id.toString()));
-			queryParams.append('eventId', eventId.toString());
-			queryParams.append('date', date);
+			availabilityIds.filter(id => id != null).forEach(id => queryParams.append('availabilityIds', String(id)));
+			queryParams.append('eventId', String(eventId));
+			queryParams.append('date', String(date));
 
 			const response = await fetch(
 				`${API_BASE_URL}/Schedule/createSchedules?${queryParams.toString()}`,
