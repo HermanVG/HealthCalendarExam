@@ -207,7 +207,7 @@ namespace HealthCalendar.Controllers
 
 
         // HTTP PUT functions
-        [HttpPost("updateEvent")]
+        [HttpPut("updateEvent")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> updateEvent([FromBody] EventDTO eventDTO)
         {
