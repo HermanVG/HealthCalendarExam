@@ -724,6 +724,22 @@ namespace HealthCalendar.Controllers
          {
             try
             {
+                // Check for overlaps between date-specific and day-of-week availability
+                // If they have the same times, it's a conflict (unavailable)
+                foreach (var dateAvail in dateAvailabilityRange)
+                {
+                    foreach (var doWAvail in doWAvailabilityRange)
+                    {
+                        // Check if the time slots overlap
+                        if (dateAvail.From == doWAvail.From && dateAvail.To == doWAvail.To)
+                        {
+                            _logger.LogInformation($"[AvailabilityController] checkAvailability: Conflict - " +
+                                $"date-specific and DoW availability both exist for {dateAvail.From}-{dateAvail.To}");
+                            return ([], OperationStatus.NotAcceptable);
+                        }
+                    }
+                }
+                
                 // Build a dictionary of time slots to availability IDs
                 // Date-specific availability overrides day-of-week availability
                 var availabilityMap = new Dictionary<TimeOnly, int>();
