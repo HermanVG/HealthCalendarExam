@@ -12,18 +12,6 @@ type Props = {
   onDelete: (id: number) => void | Promise<void>
 }
 
-const times = (() => {
-  const arr: string[] = []
-  for (let h = 8; h <= 20; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      const hh = String(h).padStart(2, '0')
-      const mm = String(m).padStart(2, '0')
-      arr.push(`${hh}:${mm}`)
-    }
-  }
-  return arr
-})()
-
 export default function EditEventForm({ event, availableDays, availability, onClose, onSave, onDelete }: Props) {
   const [title, setTitle] = useState(event.title)
   const [location, setLocation] = useState(event.location)
@@ -37,13 +25,64 @@ export default function EditEventForm({ event, availableDays, availability, onCl
   const [deleting, setDeleting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
-  const endTimeOptions = useMemo(() => times.filter(t => t > startTime), [startTime])
+  // Get available start times for the selected date
+  const startTimeOptions = useMemo(() => {
+    if (!date) return []
+    
+    // Get day of week for the selected date
+    const selectedDate = new Date(`${date}T12:00:00`)
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' })
+    
+    // Filter availability slots for this day
+    const daySlots = availability.filter(a => a.day === dayName)
+    
+    // Get unique start times and sort them
+    const startTimes = [...new Set(daySlots.map(a => a.startTime))].sort()
+    return startTimes
+  }, [date, availability])
 
-  useEffect(() => {
-    if (!endTimeOptions.includes(endTime)) {
-      setEndTime(endTimeOptions[0] ?? '')
+  // Get available end times based on selected start time
+  const endTimeOptions = useMemo(() => {
+    if (!date || !startTime) return []
+    
+    const selectedDate = new Date(`${date}T12:00:00`)
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' })
+    
+    // Get all slots for this day, sorted by start time
+    const daySlots = availability
+      .filter(a => a.day === dayName)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime))
+    
+    // Build contiguous end times starting from selected start time
+    const endTimes: string[] = []
+    let currentTime = startTime
+    
+    for (const slot of daySlots) {
+      if (slot.startTime === currentTime) {
+        endTimes.push(slot.endTime)
+        currentTime = slot.endTime
+      } else if (slot.startTime > currentTime) {
+        // Gap in availability
+        break
+      }
     }
-  }, [startTime, endTimeOptions, endTime])
+    
+    return endTimes
+  }, [date, startTime, availability])
+
+  // Update start time when options change
+  useEffect(() => {
+    if (startTimeOptions.length > 0 && !startTimeOptions.includes(startTime)) {
+      setStartTime(startTimeOptions[0])
+    }
+  }, [startTimeOptions, startTime])
+
+  // Update end time when options change
+  useEffect(() => {
+    if (endTimeOptions.length > 0 && !endTimeOptions.includes(endTime)) {
+      setEndTime(endTimeOptions[0])
+    }
+  }, [endTimeOptions, endTime])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -143,14 +182,22 @@ export default function EditEventForm({ event, availableDays, availability, onCl
               </label>
               <label>
                 Start Time
-                <select value={startTime} onChange={e => setStartTime(e.target.value)}>
-                  {times.map(t => (<option key={t} value={t}>{t}</option>))}
+                <select value={startTime} onChange={e => setStartTime(e.target.value)} disabled={startTimeOptions.length === 0}>
+                  {startTimeOptions.length === 0 ? (
+                    <option value="">-</option>
+                  ) : (
+                    startTimeOptions.map(t => (<option key={t} value={t}>{t}</option>))
+                  )}
                 </select>
               </label>
               <label>
                 End Time
-                <select value={endTime} onChange={e => setEndTime(e.target.value)}>
-                  {endTimeOptions.map(t => (<option key={t} value={t}>{t}</option>))}
+                <select value={endTime} onChange={e => setEndTime(e.target.value)} disabled={endTimeOptions.length === 0}>
+                  {endTimeOptions.length === 0 ? (
+                    <option value="">-</option>
+                  ) : (
+                    endTimeOptions.map(t => (<option key={t} value={t}>{t}</option>))
+                  )}
                 </select>
               </label>
             </div>
