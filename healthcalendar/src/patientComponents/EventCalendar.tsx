@@ -118,7 +118,7 @@ export default function EventCalendar() {
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('Not Acceptable') || err.message.includes('not acceptable')) {
-          message = 'This time slot is not available. Please choose a different time.'
+          setEditFormError('This time slot is not available. Please choose a different time.')
         } else {
           showError(err.message)
         }
@@ -188,7 +188,7 @@ export default function EventCalendar() {
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('Not Acceptable') || err.message.includes('not acceptable')) {
-          setEditFormError('This time slot is already taken. Please choose a different time.')
+          setEditFormError('This time slot is not available. Please choose a different time.')
         } else {
           showError(err.message)
         }
