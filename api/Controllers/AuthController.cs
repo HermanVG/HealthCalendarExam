@@ -104,7 +104,7 @@ namespace HealthCalendar.Controllers
 
         // method for changing User's Password
         [Authorize]
-        [HttpPost("changePassword")]
+        [HttpPut("changePassword")]
         public async Task<IActionResult> changePassword([FromBody] ChangePasswordDTO changePasswordDTO)
         {
             try

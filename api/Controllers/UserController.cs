@@ -81,12 +81,37 @@ namespace HealthCalendar.Controllers
             }
             catch (Exception e) // In case of unexpected exception
             {
+                _logger.LogError("[UserController] Error from getUsersByWorkerId(): \n" +
+                                 "Something went wrong when trying to retreive Users " + 
+                                $"where WorkerId = {workerId}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Retrieves Ids of Users related to Worker with given Id
+        [HttpGet("getIdsByWorkerId")]
+        [Authorize(Roles="Patient")]
+        public async Task<IActionResult> getIdsByWorkerId([FromQuery] string workerId)
+        {
+            try
+            {
+                // retreives list of Users with "Patient" role
+                // converts list into Ids
+                var userIdss = await _userManager.Users
+                    .Where(u => u.WorkerId == workerId)
+                    .Select(u => u.Id)
+                    .ToListAsync();
+                return Ok(userIdss);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
                 _logger.LogError("[UserController] Error from getIdsByWorkerId(): \n" +
                                  "Something went wrong when trying to retreive Users " + 
                                 $"where WorkerId = {workerId}, Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
         }
+
 
 
     }

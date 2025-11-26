@@ -754,10 +754,10 @@ namespace HealthCalendar.Controllers
                     foreach (var doWAvail in doWAvailabilityRange)
                     {
                         // Check if the time slots overlap
-                        if (dateAvail.From == doWAvail.From)
+                        if (dateAvail.From == doWAvail.From && dateAvail.To == doWAvail.To)
                         {
                             _logger.LogInformation($"[AvailabilityController] checkAvailability: Conflict - " +
-                                $"date-specific and DoW availability both exist for {dateAvail.From}");
+                                $"date-specific and DoW availability both exist for {dateAvail.From}-{dateAvail.To}");
                             return ([], OperationStatus.NotAcceptable);
                         }
                     }
@@ -790,7 +790,6 @@ namespace HealthCalendar.Controllers
                         _logger.LogInformation($"[AvailabilityController] checkAvailability: Missing slot at {currentTime}");
                         return ([], OperationStatus.NotAcceptable);
                     }
-                    if (availabilityMap.ContainsKey(currentTime))
                     
                     availabilityIds.Add(availabilityMap[currentTime]);
                     currentTime = currentTime.AddMinutes(30);

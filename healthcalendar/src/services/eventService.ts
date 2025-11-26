@@ -220,7 +220,7 @@ export const apiService = {
 			const response = await fetch(
 				`${API_BASE_URL}/Schedule/createSchedules?${queryParams.toString()}`,
 				{
-					method: 'PUT',
+					method: 'POST',
 					headers: getHeaders()
 				}
 			);
@@ -286,7 +286,7 @@ export const apiService = {
 			const response = await fetch(
 				`${API_BASE_URL}/Event/updateEvent`,
 				{
-					method: 'POST',
+					method: 'PUT',
 					headers: getHeaders(),
 					body: JSON.stringify(eventDTO)
 				}

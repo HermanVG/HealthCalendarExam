@@ -115,7 +115,7 @@ export default function EventCalendar() {
       let message = 'Failed to create event'
       if (err instanceof Error) {
         if (err.message.includes('Not Acceptable') || err.message.includes('not acceptable')) {
-          message = 'This time slot is already taken. Please choose a different time.'
+          message = 'This time slot is not available. Please choose a different time.'
         } else {
           message = err.message
         }

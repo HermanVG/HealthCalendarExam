@@ -208,12 +208,14 @@ namespace HealthCalendar.Controllers
         // method that validates Event for a Create Event method
         [HttpPost("validateEventForCreate")]
         [Authorize(Roles="Patient")]
-        public async Task<IActionResult> validateEventForCreate([FromBody] EventDTO eventDTO)
+        public async Task<IActionResult> 
+        validateEventForCreate([FromBody] EventDTO eventDTO, [FromQuery] string[] userIds)
         {
             try
             {
+                // iterates through 
                 var (datesEvents, getStatus) = 
-                    await _eventRepo.getEventsByDate(eventDTO.UserId, eventDTO.Date);
+                    await _eventRepo.getDatesEvents(userIds, eventDTO.Date);
                 // In case getEventsByDate() did not succeed
                 if (getStatus == OperationStatus.Error)
                 {
@@ -252,12 +254,13 @@ namespace HealthCalendar.Controllers
         // method that validates Event for an Update Event method
         [HttpPost("validateEventForUpdate")]
         [Authorize(Roles="Patient")]
-        public async Task<IActionResult> validateEventForUpdate([FromBody] EventDTO eventDTO)
+        public async Task<IActionResult> 
+            validateEventForUpdate([FromBody] EventDTO eventDTO, [FromQuery] string[] userIds)
         {
             try
             {
                 var (datesEvents, getStatus) = 
-                    await _eventRepo.getEventsByDate(eventDTO.UserId, eventDTO.Date);
+                    await _eventRepo.getDatesEvents(userIds, eventDTO.Date);;
                 // In case getEventsByDate() did not succeed
                 if (getStatus == OperationStatus.Error)
                 {
@@ -444,9 +447,9 @@ namespace HealthCalendar.Controllers
                 if (from >= to || date < DateOnly.FromDateTime(DateTime.Today) || 
                     timeDifferenceFactor != Math.Round(timeDifferenceFactor))
                 {
-                    _logger.LogInformation("[EventController] Information from " + 
-                                           "validateEvent(): \n" +
-                                          $"Event {@eventDTO} was not acceptable.");
+                    _logger.LogWarning("[EventController] Information from " + 
+                                       "validateEvent(): \n" +
+                                      $"Event {@eventDTO} was not acceptable.");
                     return OperationStatus.NotAcceptable;
                 }
 
@@ -456,9 +459,9 @@ namespace HealthCalendar.Controllers
                     // checks if eventDTO and eventt overlaps
                     if (from < eventt.To && eventt.From < to)
                     {
-                        _logger.LogInformation("[EventController] Information from " + 
-                                               "validateEvent(): \n" +
-                                              $"Event {@eventDTO} was not acceptable.");
+                        _logger.LogWarning("[EventController] Information from " + 
+                                           "validateEvent(): \n" +
+                                          $"Event {@eventDTO} was not acceptable.");
                         return OperationStatus.NotAcceptable;
                     }
                 }

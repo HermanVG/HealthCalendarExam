@@ -148,7 +148,7 @@ namespace HealthCalendar.Controllers
         // HTTP POST functions
 
         // method that creates range of Schedules from given parameters and adds them into table
-        [HttpPut("createSchedules")]
+        [HttpPost("createSchedules")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> createSchedules([FromQuery] int[] availabilityIds, 
                                                          [FromQuery] int eventId, [FromQuery] DateOnly date)
