@@ -241,7 +241,76 @@ namespace HealthCalendar.Controllers
 
         // HTTP PUT functions
 
-        // Assigns worker with given Username to Patients
+        // Assigns Patient to Worker
+        [HttpPut("assignPatientToWorker")]
+        [Authorize(Roles="Usermanager")]
+        public async Task<IActionResult> 
+            assignPatientsToWorker([FromQuery] string patientId, [FromQuery] string workerId)
+        {
+            try
+            {
+                var worker = await _userManager.FindByIdAsync(workerId);
+                var patient = await _userManager.FindByIdAsync(patientId);
+                // Adds Worker to Patient's Worker related parameters
+                patient!.WorkerId = workerId;
+                patient.Worker = worker;
+                // Update table with patient
+                var result = await _userManager.UpdateAsync(patient);
+                // In case update did not succeed
+                if (!result.Succeeded)
+                {
+                    _logger.LogError("[UserController] Error from assignPatientToWorker(): \n" +
+                                    $"User {@patient} was not updated");
+                    return StatusCode(500, "Something went wrong when assigning Patient to Worker");
+                }
+
+                return Ok(new { Message = "Patient has been assigned" });
+
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[UserController] Error from assignPatientToWorker(): \n" +
+                                 "Something went wrong when trying to assign User " + 
+                                $"with Id = {patientId} to User with Id = {workerId}," + 
+                                $"Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Unassigns Patient from their Worker
+        [HttpPut("unassignPatientFromWorker/{userId}")]
+        [Authorize(Roles="Usermanager")]
+        public async Task<IActionResult> 
+            unassignPatientFromWorker(string userId)
+        {
+            try
+            {
+                var patient = await _userManager.FindByIdAsync(userId);
+                // Nulls out Patient's Worker related parameters
+                patient!.WorkerId = null;
+                patient.Worker = null;
+                // Update table with patient
+                var result = await _userManager.UpdateAsync(patient);
+                // In case update did not succeed
+                if (!result.Succeeded)
+                {
+                    _logger.LogError("[UserController] Error from unassignPatientFromWorker(): \n" +
+                                    $"User {@patient} was not updated");
+                    return StatusCode(500, "Something went wrong when assigning Patient to Worker");
+                }
+
+                return Ok(new { Message = "Patient has been unassigned" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                _logger.LogError("[UserController] Error from unassignPatientFromWorker(): \n" +
+                                 "Something went wrong when trying to unassign User " + 
+                                $"with Id = {userId} from their Worker, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Assigns Patients to Worker with given Username
         [HttpPut("assignPatientsToWorker")]
         [Authorize(Roles="Usermanager")]
         public async Task<IActionResult> 
@@ -307,7 +376,7 @@ namespace HealthCalendar.Controllers
                 {
                     _logger.LogError("[UserController] Error from deleteUser(): \n" +
                                     $"User {@user} was not deleted");
-                    return StatusCode(500, "Something went wrong");
+                    return StatusCode(500, "Something went wrong when deleting user");
                 }
                 
                 return Ok(new { Message = "User has been deleted" });
