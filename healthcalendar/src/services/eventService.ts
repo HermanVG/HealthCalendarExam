@@ -96,10 +96,10 @@ function fromAvailabilityDTO(dto: any): Availability {
 // Public API surface
 export const apiService = {
 	// Get patient's events for a specific week
-	async getWeeksEventsForPatient(userId: string, monday: string): Promise<Event[]> {
+	async getPatientsEventsForWeek(userId: string, monday: string): Promise<Event[]> {
 		try {
 			const response = await fetch(
-				`${API_BASE_URL}/Event/getWeeksEventsForPatient?userId=${encodeURIComponent(userId)}&monday=${monday}`,
+				`${API_BASE_URL}/Event/getPatientsEventsForWeek?userId=${encodeURIComponent(userId)}&monday=${monday}`,
 				{
 					method: 'GET',
 					headers: getHeaders()
@@ -394,8 +394,8 @@ export const apiService = {
 
 	// Legacy mock methods for backward compatibility
 	async getEvents(): Promise<Event[]> {
-		// This is deprecated - use getWeeksEventsForPatient instead
-		console.warn('getEvents() is deprecated. Use getWeeksEventsForPatient() instead.');
+		// This is deprecated - use getPatientsEventsForWeek instead
+		console.warn('getEvents() is deprecated. Use getPatientsEventsForWeek() instead.');
 		return [];
 	},
 

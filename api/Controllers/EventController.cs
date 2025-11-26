@@ -61,21 +61,21 @@ namespace HealthCalendar.Controllers
         }
 
         // method for retreiving Patient's Events for the week
-        [HttpGet("getWeeksEventsForPatient")]
+        [HttpGet("getPatientsEventsForWeek")]
         [Authorize(Roles="Patient")]
         public async Task<IActionResult> 
-            getWeeksEventsForPatient([FromQuery] string userId, [FromQuery] DateOnly monday)
+            getPatientsEventsForWeek([FromQuery] string userId, [FromQuery] DateOnly monday)
         {
             try {
                 // retreives list of Patient's Events
                 var sunday = monday.AddDays(6);
                 var (weeksEvents, status) = 
-                        await _eventRepo.getWeeksEventsForPatient(userId, monday, sunday);
+                        await _eventRepo.getWeeksEventsByUserId(userId, monday, sunday);
                 // In case getWeeksEventsForPatient() did not succeed
                 if (status == OperationStatus.Error)
                 {
-                    _logger.LogError("[EventController] Error from getWeeksEventsForWorker(): \n" +
-                                         "Could not retreive Events with getWeeksEventsForPatient() " + 
+                    _logger.LogError("[EventController] Error from getPatientsEventsForWeek(): \n" +
+                                         "Could not retreive Events with getWeeksEventsByUserId() " + 
                                          "from EventRepo.");
                         return StatusCode(500, "Something went wrong when retreiving Events for the week");
                 }
@@ -96,13 +96,65 @@ namespace HealthCalendar.Controllers
             }
             catch (Exception e) // In case of unexpected exception
             {   
-                _logger.LogError("[EventController] Error from getWeeksEventsForPatient(): \n" +
+                _logger.LogError("[EventController] Error from getPatientsEventsForWeek(): \n" +
                                  "Something went wrong when trying to retreive week's events where " + 
                                 $"UserId == {userId} and monday is on the date {monday}, " +
                                 $"Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        // method for retreiving Events for the week from Users other than specific Patient
+        [HttpGet("getOthersEventsForWeek")]
+        [Authorize(Roles="Patient")]
+        public async Task<IActionResult> 
+            getOthersEventsForWeek([FromQuery] string[] userIds, [FromQuery] string userId, 
+                                   [FromQuery] DateOnly monday)
+        {
+            try {
+                // retreives list of Patient's Events
+                var sunday = monday.AddDays(6);
+                var (weeksEvents, status) = 
+                        await _eventRepo.getWeeksEventsByUserIds(userIds, monday, sunday);
+                // In case getWeeksEventsForPatient() did not succeed
+                if (status == OperationStatus.Error)
+                {
+                    _logger.LogError("[EventController] Error from getOthersEventsForWeek(): \n" +
+                                         "Could not retreive Events with getWeeksEventsByUserIds() " + 
+                                         "from EventRepo.");
+                        return StatusCode(500, "Something went wrong when retreiving Events for the week");
+                }
+
+                // makes list of EventDTOs from weeksEvents
+                // Events from Patient with UserId = userId are excluded
+                var weeksEventDTOs = weeksEvents
+                    .Where(e => e.UserId != userId)
+                    .Select(e => new EventDTO
+                {
+                    EventId = e.EventId,
+                    From = e.From,
+                    To = e.To,
+                    Date = e.Date,
+                    Title = e.Title,
+                    Location = e.Title,
+                    UserId = userId
+                });
+
+                return Ok(weeksEventDTOs);
+            }
+            catch (Exception e) // In case of unexpected exception
+            {   
+                // makes string listing all UserIds
+                var userIdsString = String.Join(", ", userIds);
+                
+                _logger.LogError("[EventController] Error from getOthersEventsForWeek(): \n" +
+                                 "Something went wrong when trying to retreive week's events where " + 
+                                $"UserId is in {userIdsString} and monday is on the date {monday}, " +
+                                $"excluding Events where UserId = {userId}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
 
         // method for retreiving Events of Worker's Patients for the week
@@ -120,14 +172,14 @@ namespace HealthCalendar.Controllers
                     // retreives list of Events for Patient
                     var userId = patient.Id;
                     var (events, status) = 
-                        await _eventRepo.getWeeksEventsForPatient(userId, monday, sunday);
+                        await _eventRepo.getWeeksEventsByUserId(userId, monday, sunday);
                     // In case getWeeksEventsForPatient() did not succeed
                     if (status == OperationStatus.Error)
                     {
                         _logger.LogError("[EventController] Error from " + 
                                          "getWeeksEventsForWorker(): \n" +
                                          "Could not retreive Events with " + 
-                                         "getWeeksEventsForPatient() from EventRepo.");
+                                         "getWeeksEventsByUserId() from EventRepo.");
                         return StatusCode(500, "Something went wrong when retreiving " + 
                                                "Events for the week");
                     }

@@ -80,9 +80,34 @@ public class EventRepo : IEventRepo
         }
     }
 
-    // method for retreiving a Patient's Events for the week
+    // method for retreiving all Events assigned for specific week
     public async Task<(List<Event>, OperationStatus)> 
-        getWeeksEventsForPatient(string userId, DateOnly monday, DateOnly sunday)
+        getWeeksEventsByUserIds(string[] userIds, DateOnly monday, DateOnly sunday)
+    {
+        try
+        {
+            // retreives events between given dates for monday and sunday
+            var events = await _db.Events
+                .Where(e => userIds.Contains(e.UserId) && e.Date >= monday && e.Date <= sunday)
+                .ToListAsync();
+            return (events, OperationStatus.Ok);
+        }
+        catch (Exception e) // In case of unexpected exception
+        {
+            // makes string listing all UserIds
+            var userIdsString = String.Join(", ", userIds);
+            
+            _logger.LogError("[EventRepo] Error from getWeeksEventsByUserIds(): \n" +
+                             "Something went wrong when retreiving Events where UserId is " +
+                            $"in {userIdsString}, and Date is between {monday} and {sunday}, " +
+                            $"Error message: {e}");
+            return ([], OperationStatus.Error);
+        }
+    }
+
+    // method for retreiving a singular Patient's Events for the week
+    public async Task<(List<Event>, OperationStatus)> 
+        getWeeksEventsByUserId(string userId, DateOnly monday, DateOnly sunday)
     {
         try
         {
@@ -94,7 +119,7 @@ public class EventRepo : IEventRepo
         }
         catch (Exception e) // In case of unexpected exception
         {
-            _logger.LogError("[EventRepo] Error from getWeeksEventsForPatient(): \n" +
+            _logger.LogError("[EventRepo] Error from getWeeksEventsByUserId(): \n" +
                              "Something went wrong when retreiving Events where " +
                             $"UserId = {userId}, and Date is between {monday} and {sunday}, " +
                             $"Error message: {e}");

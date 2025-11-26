@@ -68,8 +68,8 @@ export default function EventCalendar() {
       if (!user?.nameid) return
       
       try {
-        // Step 1: Call getWeeksEventsForPatient() to retrieve patient's events
-        const eventsData = await apiService.getWeeksEventsForPatient(user.nameid, weekStartISO)
+        // Step 1: Call getPatientsEventsForWeek() to retrieve patient's events
+        const eventsData = await apiService.getPatientsEventsForWeek(user.nameid, weekStartISO)
         setEvents(eventsData)
         // Step 2: Call getWeeksAvailabilityProper() to retrieve worker's availability
         // Get workerId from patient's JWT token (WorkerId field)
