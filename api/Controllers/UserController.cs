@@ -144,6 +144,43 @@ namespace HealthCalendar.Controllers
         }
 
 
+        // HTTP PUT functions
+
+        // Assigns worker with given Username to Patients
+        [HttpPut("assignWorkerByUsername")]
+        [Authorize(Roles="Usermanager")]
+        public async Task<IActionResult> assignWorkerByUsername([FromQuery] string[] userIds, [FromQuery] string username)
+        {
+            try
+            {
+                // retreives Worker and Patients
+                var worker = await _userManager.FindByNameAsync(username);
+                var patients = await _userManager.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToListAsync();
+                // Adds Worker to Patients Worker related parameters
+                patients.ForEach(u =>
+                {
+                    u.WorkerId = worker!.Id;
+                    u.Worker = worker;
+                });
+
+                return Ok(new { Message = "Worker has been assigned" });
+
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all UserIds
+                var userIdsString = String.Join(", ", userIds);
+
+                _logger.LogError("[UserController] Error from assignWorkerByUsername(): \n" +
+                                 "Something went wrong when trying to assign User " + 
+                                $"with Username = {username} to Patients with Ids " + 
+                                $"{userIdsString}, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
     }
 }
