@@ -10,6 +10,8 @@ export type CalendarGridProps = {
   endHour?: number // default 20
   slotMinutes?: number // default 30
   onEdit?: (e: Event) => void
+  onSlotClick?: (dateISO: string, timeMins: number, dayName: string) => void
+  isAvailabilityMode?: boolean
 }
 
 const toMinutes = (t: string) => {
@@ -46,7 +48,9 @@ export default function CalendarGrid({
   startHour = 8,
   endHour = 20,
   slotMinutes = 30,
-  onEdit
+  onEdit,
+  onSlotClick,
+  isAvailabilityMode = false
 }: CalendarGridProps) {
   const startMins = startHour * 60;
   const endMins = endHour * 60;
@@ -77,7 +81,6 @@ export default function CalendarGrid({
 
   // refs
   const columnContainerRef = useRef<HTMLDivElement | null>(null);
-  const firstSlotRef = useRef<HTMLDivElement | null>(null);
 
   // event positions map: eventId -> { topPx, heightPx }
   const [eventRects, setEventRects] = useState<Record<string, { top: number; height: number }>>({});
@@ -178,11 +181,10 @@ export default function CalendarGrid({
 
       <div className="cal-grid__body">
         <div className="cal-grid__times">
-          {timeLabels.map((m, i) => (
+          {timeLabels.map((m) => (
             <div
               className="cal-grid__time"
               key={m}
-              ref={i === 0 ? firstSlotRef : undefined}
             >
               {formatTimeLabel(m)}
             </div>
@@ -193,6 +195,9 @@ export default function CalendarGrid({
           {days.map((d, idx) => {
             const evs = eventsByDay[idx];
             const colClasses = `cal-grid__col${d === todayISO ? ' cal-grid__col--today' : ''}`;
+            const dateObj = new Date(d + 'T00:00:00');
+            const dayName = dayNamesMap[dateObj.getDay()];
+
             return (
               <div className={colClasses} key={d}>
                 {/* slots background */}
@@ -201,9 +206,26 @@ export default function CalendarGrid({
                   const slotStart = m;
                   const slotEnd = m + slotMinutes;
                   const isAvailable = isSlotAvailable(d, slotStart, slotEnd);
-                  const slotClasses = `cal-grid__slot${!isAvailable ? ' cal-grid__slot--unavailable' : ''}`;
+
+                  let slotClasses = 'cal-grid__slot';
+                  if (!isAvailable) {
+                    // Use different class based on mode
+                    slotClasses += isAvailabilityMode
+                      ? ' cal-grid__slot-worker--unavailable'
+                      : ' cal-grid__slot--unavailable';
+                  }
+
+                  // Add interactive class if in availability mode
+                  if (isAvailabilityMode) {
+                    slotClasses += ' cal-grid__slot--interactive';
+                  }
+
                   return (
-                    <div className={slotClasses} key={m + d} />
+                    <div
+                      className={slotClasses}
+                      key={m + d}
+                      onClick={() => onSlotClick?.(d, slotStart, dayName)}
+                    />
                   );
                 })}
 
@@ -215,7 +237,7 @@ export default function CalendarGrid({
                   return (
                     <div
                       key={e.eventId}
-                      className="cal-grid__event"
+                      className={`cal-grid__event${isAvailabilityMode ? ' cal-grid__event--passthrough' : ''}`}
                       style={{ top: `${safeTop}px`, height: `${safeHeight}px` }}
                       onClick={() => onEdit?.(e)}
                       title={`${e.title} @ ${e.location}\n${e.startTime} - ${e.endTime}`}

@@ -4,7 +4,7 @@ import type { Event, Availability } from '../types/event'
 import type { WorkerUser } from '../types/user'
 import { workerService } from '../services/workerService.ts'
 import WorkerCalendarGrid from './WorkerCalendarGrid'
-import '../styles/EventCalendarPage.css'
+import '../styles/WorkerCalendar.css'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import ViewEvent from './ViewEvent'
@@ -41,6 +41,7 @@ export default function EventCalendar() {
 	const [loading, setLoading] = useState(false)
 	const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
 	const [viewing, setViewing] = useState<Event | null>(null)
+	const [isAvailabilityMode, setIsAvailabilityMode] = useState(false)
 	const navigate = useNavigate()
 
 	const weekRangeText = useMemo(() => {
@@ -83,12 +84,16 @@ export default function EventCalendar() {
 	const gotoPrevWeek = () => setWeekStartISO(addDaysISO(weekStartISO, -7))
 	const gotoNextWeek = () => setWeekStartISO(addDaysISO(weekStartISO, 7))
 
+	const handleAvailabilityToggle = () => {
+		setIsAvailabilityMode(!isAvailabilityMode)
+	}
+
 	return (
 		<div className="event-page">
 			<main className="event-main">
 				<header className="event-header">
 					<div className="event-header__left">
-						<h1 className="event-title">{user?.name ? `${user.name}'s Event Calendar` : 'Event Calendar'}</h1>
+						<h1 className="event-title">{user?.name ? `${user.name}'s Work Calendar` : 'Event Calendar'}</h1>
 						<div className="event-week">
 							<button className="icon-btn" onClick={gotoPrevWeek} aria-label="Previous week">
 								<img src="/images/backarrow.png" alt="Previous week" />
@@ -101,7 +106,7 @@ export default function EventCalendar() {
 					</div>
 					<div className="event-header__right">
 						<button
-							className="logout-btn"
+							className="btn-logout"
 							onClick={() => {
 								logout();
 								navigate('/worker/login', { replace: true });
@@ -110,7 +115,16 @@ export default function EventCalendar() {
 							<img src="/images/logout.png" alt="Logout" />
 							<span>Log Out</span>
 						</button>
-						<button className="add-btn" onClick={() => showError('Unfinished')}>Change Availability</button>
+
+						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+							<button
+								className={isAvailabilityMode ? 'btn-static-g' : 'btn-static'}
+								onClick={handleAvailabilityToggle}
+							>
+								{isAvailabilityMode ? 'Done' : 'Change Availability'}
+							</button>
+						</div>
+
 					</div>
 				</header>
 
@@ -120,7 +134,14 @@ export default function EventCalendar() {
 					events={events}
 					availability={availability}
 					weekStartISO={weekStartISO}
+					isAvailabilityMode={isAvailabilityMode}
 					onEdit={(e) => setViewing(e)}
+					onSlotClick={isAvailabilityMode ? (date, time, dayName) => {
+						const h = Math.floor(time / 60)
+						const m = time % 60
+						const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+						alert(`Clicked: ${dayName}, ${date} ${timeStr}`)
+					} : undefined}
 				/>
 			</main>
 
@@ -130,6 +151,12 @@ export default function EventCalendar() {
 					event={viewing}
 					onClose={() => setViewing(null)}
 				/>
+			)}
+
+			{isAvailabilityMode && (
+				<div className="availability-notification">
+					Press time-boxes to mark yourself as unavailable
+				</div>
 			)}
 		</div>
 	)

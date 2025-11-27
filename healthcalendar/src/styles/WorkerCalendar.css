@@ -1,0 +1,62 @@
+/* Additional classes to the EventCalendar.css for the worker page */
+
+.btn-static {
+    background: var(--primary-strong);
+    width: 190px;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.3rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-static-g {
+    background: #3cb53c;
+    width: 190px;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.3rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 140px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.btn-logout img {
+    width: 18px;
+    height: 18px;
+    padding-right: 8px;
+}
+
+.availability-notification {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #3a3f48;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
