@@ -18,7 +18,6 @@ const PatientLoginPage: React.FC = () => {
 	const [passwordError, setPasswordError] = useState<string | null>(null)
 	const [formError, setFormError] = useState<string | null>(null)
 	
-	// UI state
 	const [loading, setLoading] = useState(false)
 
 	// Handle form submission and patient authentication
