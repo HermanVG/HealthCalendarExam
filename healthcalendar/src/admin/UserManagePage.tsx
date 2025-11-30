@@ -133,7 +133,7 @@ const UserManagePage: React.FC = () => {
       setShowDeleteConfirm(false)
       
       await userService.deleteUser(workerToDelete.Id)
-      showSuccess(`Healthcare worker ${workerToDelete.Name} has been removed`)
+      showSuccess(`Worker ${workerToDelete.Name} has been removed`)
       
       // Clear selection if the deleted worker was selected
       if (selectedWorker?.Id === workerToDelete.Id) {

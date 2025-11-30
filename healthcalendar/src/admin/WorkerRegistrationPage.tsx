@@ -37,21 +37,28 @@ const WorkerRegistrationPage: React.FC = () => {
       setPasswordError('Password must be at least 6 characters long.'); 
       hasError = true 
     }
-    if (hasError) return
     
-    try {
-      setLoading(true)
-      await userService.registerWorker({ Name: name, Email: email, Password: password })
-      showSuccess('Healthcare worker registered successfully!')
-      // Clear form
-      setName('')
-      setEmail('')
-      setPassword('')
-    } catch (err: any) {
-      console.debug('Worker registration failed', err)
-      showError(err?.message || 'Failed to register healthcare worker')
-    } finally {
-      setLoading(false)
+    // Check backend for duplicate email if email is structurally valid
+    const emailIsValid = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    if (emailIsValid) {
+      try {
+        setLoading(true)
+        await userService.registerWorker({ Name: name, Email: email, Password: password })
+        if (!hasError) {
+          showSuccess('Healthcare worker registered successfully!')
+          setName('')
+          setEmail('')
+          setPassword('')
+        }
+      } catch (err: any) {
+        console.debug('Worker registration failed', err)
+        const errorMessage = err?.message || ''
+        if (errorMessage.includes('DuplicateUserName') || errorMessage.includes('already taken')) {
+          setEmailError('This email is already in use.')
+        }
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
