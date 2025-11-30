@@ -6,7 +6,7 @@ import { useAuth } from '../auth/AuthContext'
 import '../styles/ManageHealthcareWorkers.css'
 import '../styles/EventCalendar.css'
 
-const ManageHealthcareWorkers: React.FC = () => {
+const UserManagePage: React.FC = () => {
   const navigate = useNavigate()
   const { showSuccess, showError } = useToast()
   const { user, logout } = useAuth()
@@ -262,4 +262,4 @@ const ManageHealthcareWorkers: React.FC = () => {
   )
 }
 
-export default ManageHealthcareWorkers
+export default UserManagePage

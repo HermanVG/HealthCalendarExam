@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from './AuthContext'
-import '../styles/LoginPage.css'
+import '../styles/PatientLoginPage.css'
 import NavBar from '../shared/NavBar'
 
-const LoginPage: React.FC = () => {
+const PatientLoginPage: React.FC = () => {
 	const navigate = useNavigate()
 	const { loginPatient } = useAuth()
 	const [email, setEmail] = useState('')
@@ -103,4 +103,4 @@ const LoginPage: React.FC = () => {
 	)
 }
 
-export default LoginPage
+export default PatientLoginPage

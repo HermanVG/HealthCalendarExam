@@ -2,13 +2,13 @@
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import HomePage from './home/HomePage'
-import EventCalendar from './patientComponents/EventCalendar'
+import EventCalendarPage from './patientComponents/EventCalendarPage'
 import WorkerCalendar from './workerComponents/WorkerCalendar'
-import LoginPage from './auth/LoginPage'
-import RegistrationPage from './auth/RegistrationPage'
+import PatientLoginPage from './auth/PatientLoginPage'
+import PatientRegistrationPage from './auth/PatientRegistrationPage'
 import WorkerLoginPage from './auth/WorkerLoginPage'
-import RegisterHealthcareWorker from './admin/RegisterHealthcareWorker'
-import ManageHealthcareWorkers from './admin/ManageHealthcareWorkers'
+import WorkerRegistrationPage from './admin/WorkerRegistrationPage'
+import UserManagePage from './admin/UserManagePage'
 import ProtectedRoute from './auth/ProtectedRoute'
 import { AuthProvider } from './auth/AuthContext'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
@@ -24,7 +24,7 @@ const App: React.FC = () => {
             path='/patient'
             element={
               <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
-                <EventCalendar />
+                <EventCalendarPage />
               </ProtectedRoute>
             }
           />
@@ -32,7 +32,7 @@ const App: React.FC = () => {
             path='/patient/EventCalendar'
             element={
               <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
-                <EventCalendar />
+                <EventCalendarPage />
               </ProtectedRoute>
             }
           />
@@ -41,12 +41,12 @@ const App: React.FC = () => {
             path='/patient/events'
             element={
               <ProtectedRoute allowedRoles={['Patient']} redirectPrefix='/patient'>
-                <EventCalendar />
+                <EventCalendarPage />
               </ProtectedRoute>
             }
           />
-          <Route path='/patient/login' element={<LoginPage />} />
-          <Route path='/register' element={<RegistrationPage />} />
+          <Route path='/patient/login' element={<PatientLoginPage />} />
+          <Route path='/register' element={<PatientRegistrationPage />} />
           <Route path='/worker/login' element={<WorkerLoginPage />} />
           <Route
             path='/worker/WorkerCalendar'
@@ -79,7 +79,7 @@ const App: React.FC = () => {
             path='/admin/register-worker'
             element={
               <ProtectedRoute allowedRoles={['Usermanager']} redirectPrefix='/worker'>
-                <RegisterHealthcareWorker />
+                <WorkerRegistrationPage />
               </ProtectedRoute>
             }
           />
@@ -87,7 +87,7 @@ const App: React.FC = () => {
             path='/admin/manage'
             element={
               <ProtectedRoute allowedRoles={['Usermanager']} redirectPrefix='/worker'>
-                <ManageHealthcareWorkers />
+                <UserManagePage />
               </ProtectedRoute>
             }
           />

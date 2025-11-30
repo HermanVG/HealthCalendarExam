@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerPatient } from './AuthService'
-import '../styles/RegistrationPage.css'
+import '../styles/PatientRegistrationPage.css'
 import NavBar from '../shared/NavBar'
 
-const RegistrationPage: React.FC = () => {
+const PatientRegistrationPage: React.FC = () => {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -116,4 +116,4 @@ const RegistrationPage: React.FC = () => {
   )
 }
 
-export default RegistrationPage
+export default PatientRegistrationPage

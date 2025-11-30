@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { userService } from '../services/userService'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
-import '../styles/RegistrationPage.css'
+import '../styles/PatientRegistrationPage.css'
 import '../styles/ManageHealthcareWorkers.css'
 import '../styles/EventCalendar.css'
 
-const RegisterHealthcareWorker: React.FC = () => {
+const WorkerRegistrationPage: React.FC = () => {
   const navigate = useNavigate()
   const { showSuccess, showError } = useToast()
   const { logout } = useAuth()
@@ -175,4 +175,4 @@ const RegisterHealthcareWorker: React.FC = () => {
   )
 }
 
-export default RegisterHealthcareWorker
+export default WorkerRegistrationPage

@@ -50,7 +50,7 @@ function convertISOtoDay(iso: string) {
   return dayOfWeekMap[dayOfWeek]
 }
 
-export default function EventCalendar() {
+export default function EventCalendarPage() {
   const { showSuccess, showError } = useToast()
   const { logout, user } = useAuth()
   const [events, setEvents] = useState<Event[]>([])

@@ -1,5 +1,5 @@
 /* Registration page reuses the auth styles; we import a separate file for clarity and future overrides */
-@import './LoginPage.css';
+@import './PatientLoginPage.css';
 
 /* Keep the title on a single line for Registration */
 .auth-title--nowrap {
