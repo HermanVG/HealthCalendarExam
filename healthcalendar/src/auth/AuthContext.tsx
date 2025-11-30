@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Do not commit token for wrong role
             throw new Error('Please use the patient login for this account.');
         }
-        // Store token and update state on successful worker/usermanager login
+        // Store token and update state on successful worker/Admin login
         localStorage.setItem('hc_token', token);
         setUser(decodedUser);
         setToken(token);
