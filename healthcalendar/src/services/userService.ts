@@ -1,4 +1,4 @@
-// API service layer for User Management (Admin/Usermanager operations)
+// API service layer for User Management (Admin operations)
 
 export interface UserDTO {
   Id: string;

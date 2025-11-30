@@ -68,10 +68,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return decodedUser;
     };
 
-    // Worker/Usermanager-only login from worker form
+    // Worker/Admin-only login from worker form
     const loginWorker = async (credentials: LoginDto): Promise<JwtUser> => {
         const { token, decodedUser } = await loginRaw(credentials);
-        if (decodedUser.role !== 'Worker' && decodedUser.role !== 'Usermanager') {
+        if (decodedUser.role !== 'Worker' && decodedUser.role !== 'Admin') {
             // Do not commit token for wrong role
             throw new Error('Please use the patient login for this account.');
         }
