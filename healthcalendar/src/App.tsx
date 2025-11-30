@@ -7,6 +7,8 @@ import WorkerCalendar from './workerComponents/WorkerCalendar'
 import LoginPage from './auth/LoginPage'
 import RegistrationPage from './auth/RegistrationPage'
 import WorkerLoginPage from './auth/WorkerLoginPage'
+import RegisterHealthcareWorker from './admin/RegisterHealthcareWorker'
+import ManageHealthcareWorkers from './admin/ManageHealthcareWorkers'
 import ProtectedRoute from './auth/ProtectedRoute'
 import { AuthProvider } from './auth/AuthContext'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
@@ -69,6 +71,23 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['Usermanager']} redirectPrefix='/worker'>
                 <WorkerCalendar />
+              </ProtectedRoute>
+            }
+          />
+          {/* Admin routes for user management */}
+          <Route
+            path='/admin/register-worker'
+            element={
+              <ProtectedRoute allowedRoles={['Usermanager']} redirectPrefix='/worker'>
+                <RegisterHealthcareWorker />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/admin/manage'
+            element={
+              <ProtectedRoute allowedRoles={['Usermanager']} redirectPrefix='/worker'>
+                <ManageHealthcareWorkers />
               </ProtectedRoute>
             }
           />
