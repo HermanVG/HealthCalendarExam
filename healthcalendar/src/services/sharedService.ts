@@ -145,6 +145,25 @@ export const sharedService = {
 		}
 	},
 
+    // Delete Events by list of EventIds
+	async deleteEventsByIds(eventIds: number[]): Promise<void> {
+		try {
+			const queryParams = new URLSearchParams();
+			eventIds.forEach(id => queryParams.append('eventIds', id.toString()));
+			
+			const response = await fetch(
+				`${API_BASE_URL}/Event/deleteEventsByIds?${queryParams.toString()}`,
+				{
+					method: 'DELETE',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
     // Delete schedules by event ID
 	// Step 1 of delete event workflow: removes all schedule links for this event
 	// Frees up the availability slots so other patients can book them
@@ -171,25 +190,6 @@ export const sharedService = {
 			
 			const response = await fetch(
 				`${API_BASE_URL}/Schedule/deleteSchedulesByEventIds?${queryParams.toString()}`,
-				{
-					method: 'DELETE',
-					headers: getHeaders()
-				}
-			);
-			await handleResponse<any>(response);
-		} catch (err) {
-			throw normalizeError(err);
-		}
-	},
-
-    // Delete availability by list of AvailabilityIds
-	async deleteAvailabilityByIds(availabilityIds: number[]): Promise<void> {
-		try {
-			const queryParams = new URLSearchParams();
-			availabilityIds.forEach(id => queryParams.append('availabilityIds', id.toString()));
-			
-			const response = await fetch(
-				`${API_BASE_URL}/Availability/deleteAvailabilityByIds?${queryParams.toString()}`,
 				{
 					method: 'DELETE',
 					headers: getHeaders()
