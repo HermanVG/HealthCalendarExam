@@ -8,7 +8,7 @@ import { API_BASE_URL, getHeaders } from './sharedService'
 
 // Authenticate user and retrieve JWT token
 export const login = async (credentials: LoginDto): Promise<{ token: string }> => {
-    const response = await fetch(`${API_BASE_URL}/api/Auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(credentials),
@@ -29,7 +29,7 @@ export const login = async (credentials: LoginDto): Promise<{ token: string }> =
 
 // Register a new patient account
 export const registerPatient = async (userData: RegisterUserDto): Promise<any> => {
-    const response = await fetch(`${API_BASE_URL}/api/Auth/registerPatient`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/registerPatient`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(userData),
@@ -81,7 +81,7 @@ export const logout = async () => {
     // Include authorization header if token exists
     if (token) headers['Authorization'] = `Bearer ${token}`
 
-    const response = await fetch(`${API_BASE_URL}/api/Auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}/Auth/logout`, {
         method: 'POST',
         headers: headers
     });
