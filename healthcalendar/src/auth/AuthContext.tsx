@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { JwtUser } from '../types/user';
 import type { LoginDto } from '../types/auth';
-import * as authService from './AuthService';
+import * as authService from '../services/authService';
 
 // Authentication context provider for managing user authentication state
 

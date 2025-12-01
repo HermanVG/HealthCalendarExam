@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { sharedService, type UserDTO  } from '../services/sharedService'
-import { userService } from '../services/userService'
+import { adminService } from '../services/adminService'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import '../styles/UserManagement.css'
@@ -45,7 +45,7 @@ const UserManagePage: React.FC = () => {
   // Fetch all healthcare workers from the backend
   const loadWorkers = async () => {
     try {
-      const data = await userService.getAllWorkers()
+      const data = await adminService.getAllWorkers()
       setWorkers(data)
     } catch (err: any) {
       showError(err?.message || 'Failed to load healthcare workers')
@@ -55,7 +55,7 @@ const UserManagePage: React.FC = () => {
   // Fetch all patients not currently assigned to any worker
   const loadUnassignedPatients = async () => {
     try {
-      const data = await userService.getUnassignedPatients()
+      const data = await adminService.getUnassignedPatients()
       setUnassignedPatients(data)
     } catch (err: any) {
       showError(err?.message || 'Failed to load unassigned patients')
@@ -100,7 +100,7 @@ const UserManagePage: React.FC = () => {
 
     try {
       setLoading(true)
-      await userService.assignPatientsToWorker(selectedPatientIds, selectedWorker.UserName)
+      await adminService.assignPatientsToWorker(selectedPatientIds, selectedWorker.UserName)
       showSuccess(`Assigned ${selectedPatientIds.length} patient(s) to ${selectedWorker.Name}`)
       
       // Refresh lists to reflect the changes
@@ -118,7 +118,7 @@ const UserManagePage: React.FC = () => {
   const handleUnassignPatient = async (patientId: string) => {
     try {
       setLoading(true)
-      await userService.unassignPatientFromWorker(patientId)
+      await adminService.unassignPatientFromWorker(patientId)
       showSuccess('Patient unassigned successfully')
       
       // Refresh lists to show updated assignments
@@ -147,7 +147,7 @@ const UserManagePage: React.FC = () => {
       setLoading(true)
       setShowDeleteConfirm(false)
       
-      await userService.deleteUser(workerToDelete.Id)
+      await adminService.deleteUser(workerToDelete.Id)
       showSuccess(`Worker ${workerToDelete.Name} has been removed`)
       
       // Clear selection if the deleted worker was currently selected

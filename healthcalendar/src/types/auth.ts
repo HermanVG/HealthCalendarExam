@@ -3,7 +3,7 @@ export interface LoginDto {
   password: string;
 }
 
-export interface RegisterPatientDto {
+export interface RegisterUserDto {
   Name: string;
   Email: string;
   Password: string;

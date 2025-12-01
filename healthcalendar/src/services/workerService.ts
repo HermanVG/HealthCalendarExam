@@ -2,7 +2,7 @@ import type { Availability } from '../types/event';
 // imports DTOs shared with other services
 import type { UserDTO } from './sharedService.ts';
 // Imports constants and functions shared with other services
-import { API_BASE_URL, getHeaders, handleResponse, fromAvailabilityDTO } from './sharedService.ts'
+import { API_BASE_URL, getHeaders, handleResponse, normalizeError, fromAvailabilityDTO } from './sharedService.ts'
 
 interface AvailabilityDTO {
 	AvailabilityId?: number;
@@ -61,8 +61,8 @@ export const workerService = {
 			);
 			const users = await handleResponse<UserDTO[]>(response);
 			return users;
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -87,8 +87,8 @@ export const workerService = {
 				endTime: (dto.To || dto.to).substring(0, 5),
 				patientName: dto.OwnerName || dto.ownerName
 			}));
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
     
@@ -105,8 +105,8 @@ export const workerService = {
 				}
 			);
 			await handleResponse<any>(response);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -122,8 +122,8 @@ export const workerService = {
 			);
 			const dtos = await handleResponse<any[]>(response);
 			return dtos.map(fromAvailabilityDTO);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -139,8 +139,8 @@ export const workerService = {
 			);
 			const dtos = await handleResponse<any[]>(response);
 			return dtos.map(fromAvailabilityDTO);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -155,8 +155,8 @@ export const workerService = {
 				}
 			);
 			await handleResponse<any>(response);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -174,8 +174,8 @@ export const workerService = {
 				}
 			);
 			await handleResponse<any>(response);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
 
@@ -190,26 +190,10 @@ export const workerService = {
 				}
 			);
 			return await handleResponse<number>(response);
-		} catch (e) {
-			throw e as Error;
+		} catch (err) {
+			throw normalizeError(err);
 		}
 	},
-
-	// Delete event by ID
-	async deleteEvent(eventId: number): Promise<void> {
-		try {
-			const response = await fetch(
-				`${API_BASE_URL}/Event/deleteEvent/${eventId}`,
-				{
-					method: 'DELETE',
-					headers: getHeaders()
-				}
-			);
-			await handleResponse<any>(response);
-		} catch (e) {
-			throw e as Error;
-		}
-	}
 };
 
 export type { Availability, NewAvailabilityInput, UserDTO };

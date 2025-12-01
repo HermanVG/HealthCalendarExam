@@ -1,6 +1,8 @@
-import type { LoginDto, RegisterPatientDto } from '../types/auth';
+import type { LoginDto, RegisterUserDto } from '../types/auth';
 import type { JwtUser } from '../types/user';
 import { jwtDecode } from 'jwt-decode';
+// Imports constants and functions shared with other services
+import { API_BASE_URL, getHeaders } from './sharedService'
 
 // Authentication service for handling login, registration, and JWT token operations
 
@@ -29,11 +31,32 @@ export const login = async (credentials: LoginDto): Promise<{ token: string }> =
 // Patient registration endpoint (role enforcement handled by AuthContext)
 
 // Register a new patient account
-export const registerPatient = async (userData: RegisterPatientDto): Promise<any> => {
+export const registerPatient = async (userData: RegisterUserDto): Promise<any> => {
     const response = await fetch(`${API_URL}/api/Auth/registerPatient`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(userData),
+    });
+    if (!response.ok) {
+        try {
+            // Parse backend validation errors if available
+            const errorData = await response.json();
+            if (Array.isArray(errorData)) {
+                const messages = errorData.map((e: any) => e?.description || e?.Description || String(e)).join(', ');
+                throw new Error(messages || 'Registration failed');
+            }
+        } catch {}
+        throw new Error('Registration failed');
+    }
+    return response.json();
+};
+
+// Register a new healthcare worker
+export const registerWorker = async (userData: RegisterUserDto): Promise<any> => {
+    const response = await fetch(`${API_BASE_URL}/Auth/registerWorker`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(userData),
     });
     if (!response.ok) {
         try {

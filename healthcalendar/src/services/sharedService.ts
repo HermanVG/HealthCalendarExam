@@ -48,6 +48,7 @@ export function normalizeError(err: unknown): Error {
 	return new Error('Unknown error occurred');
 }
 
+
 // Backend DTO to JS format
 export function fromAvailabilityDTO(dto: any): Availability {
 	const dayOfWeekMap: { [key: number]: string } = {

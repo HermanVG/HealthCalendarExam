@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Event, Availability } from '../types/event'
 import type { WorkerUser } from '../types/user'
+import { sharedService } from '../services/sharedService.ts'
 import { workerService } from '../services/workerService.ts'
 import WorkerCalendarGrid from './WorkerCalendarGrid'
 import '../styles/WorkerCalendar.css'
@@ -259,7 +260,7 @@ export default function EventCalendar() {
 
 		try {
 			// Delete the event first
-			await workerService.deleteEvent(pendingDeletion.eventId)
+			await sharedService.deleteEvent(pendingDeletion.eventId)
 
 			// If masking, create masking availability
 			if (pendingDeletion.action === 'mask' && user?.nameid) {

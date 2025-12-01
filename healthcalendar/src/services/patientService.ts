@@ -1,6 +1,6 @@
-import type { Event, Availability, NewEventInput, UpdateEventInput } from '../types/event';
+import type { Event, Availability, NewEventInput, UpdateEventInput } from '../types/event.ts';
 // Imports functions shared with other services
-import { API_BASE_URL, getHeaders, handleResponse, fromAvailabilityDTO, normalizeError } from './sharedService.ts'
+import { API_BASE_URL, getHeaders, handleResponse, normalizeError } from './sharedService.ts'
 
 // Convert frontend Event format to backend EventDTO format
 function toEventDTO(event: Event | NewEventInput, userId: string): any {
@@ -32,7 +32,7 @@ function fromEventDTO(dto: any): Event {
 }
 
 // Public API surface
-export const apiService = {
+export const patientService = {
 	// Get patient's events for a specific week
 	// Used in EventCalendarPage to load patient's own events
 	async getWeeksEventsByUserId(userId: string, monday: string): Promise<Event[]> {

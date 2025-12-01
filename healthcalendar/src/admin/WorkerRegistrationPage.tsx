@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { userService } from '../services/userService'
+import { registerWorker } from '../services/authService'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import '../styles/PatientRegistrationPage.css'
@@ -54,7 +54,7 @@ const WorkerRegistrationPage: React.FC = () => {
     if (emailIsValid) {
       try {
         setLoading(true)
-        await userService.registerWorker({ Name: name, Email: email, Password: password })
+        await registerWorker({ Name: name, Email: email, Password: password })
         if (!hasError) {
           showSuccess('Healthcare worker registered successfully!')
           setName('')

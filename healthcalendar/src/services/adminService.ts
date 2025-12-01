@@ -5,25 +5,8 @@ import type { UserDTO } from './sharedService.ts';
 // Imports constants and functions shared with other services
 import { API_BASE_URL, getHeaders, handleResponse } from './sharedService.ts'
 
-// Data required to register a new healthcare worker
-export interface RegisterWorkerDto {
-  Name: string;            
-  Email: string;           
-  Password: string;       
-}
-
 // Public API surface for User Management
-export const userService = {
-  // Register a new healthcare worker
-  async registerWorker(userData: RegisterWorkerDto): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/Auth/registerWorker`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(userData),
-    });
-    return handleResponse(response);
-  },
-
+export const adminService = {
   // Get all healthcare workers, used in Admin dashboard for worker management
   async getAllWorkers(): Promise<UserDTO[]> {
     const response = await fetch(`${API_BASE_URL}/User/getAllWorkers`, {

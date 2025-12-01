@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import type { Event, Availability } from '../types/event'
 import type { PatientUser } from '../types/user'
 import { sharedService } from '../services/sharedService'
-import { apiService } from '../services/eventService'
+import { patientService } from '../services/patientService'
 import CalendarGrid from '../components/CalendarGrid'
 import '../styles/EventCalendarPage.css'
 import { useToast } from '../shared/toastContext'
@@ -102,7 +102,7 @@ export default function EventCalendarPage() {
       
       try {
         // Step 1: Fetch this patient's events for the week
-        const patientsEventsData = await apiService.getWeeksEventsByUserId(user.nameid, weekStartISO)
+        const patientsEventsData = await patientService.getWeeksEventsByUserId(user.nameid, weekStartISO)
         setEvents(patientsEventsData)
         
         // Step 2: Fetch worker's availability for the week
@@ -114,7 +114,7 @@ export default function EventCalendarPage() {
         const othersUserIds = userIds.filter(id => id !== user.nameid)
         
         // Step 4: Fetch events of other patients assigned to the same worker
-        const othersEventsData = await apiService.getWeeksEventsByUserIds(othersUserIds, weekStartISO)
+        const othersEventsData = await patientService.getWeeksEventsByUserIds(othersUserIds, weekStartISO)
         
         // Step 5: Filter availability to exclude time slots occupied by other patients
         // Only show slots that are available for this patient to book
@@ -147,18 +147,18 @@ export default function EventCalendarPage() {
       const userIds = await sharedService.getIdsByWorkerId(workerId)
 
       // Step 2: Validate event doesn't overlap with other patients' events
-      await apiService.validateEventForCreate(e, user.nameid, userIds)
+      await patientService.validateEventForCreate(e, user.nameid, userIds)
       
       // Step 3: Check worker availability and get matching availability IDs
       // Throws error if worker is not available during requested time
-      const availabilityIds = await apiService.checkAvailabilityForCreate(e, workerId)
+      const availabilityIds = await patientService.checkAvailabilityForCreate(e, workerId)
       
       // Step 4: Create the event in the database
-      const created = await apiService.createEvent(e, user.nameid)
+      const created = await patientService.createEvent(e, user.nameid)
       
       // Step 5: Create schedules to link event with availability blocks
       if (availabilityIds.length > 0) {
-        await apiService.createSchedules(created.eventId, e.date, availabilityIds)
+        await patientService.createSchedules(created.eventId, e.date, availabilityIds)
       }
       
       // Step 6: Update local state with the new event for immediate UI feedback
@@ -195,11 +195,11 @@ export default function EventCalendarPage() {
       const userIds = await sharedService.getIdsByWorkerId(workerId)
       
       // Step 2: Validate updated event doesn't overlap with other patients
-      await apiService.validateEventForUpdate(updatedEvent, user.nameid, userIds)
+      await patientService.validateEventForUpdate(updatedEvent, user.nameid, userIds)
       
       // Step 3: Compare original and updated event to determine schedule changes needed
       // Returns lists of availability IDs for create, delete, and update operations
-      const availabilityLists = await apiService.checkAvailabilityForUpdate(
+      const availabilityLists = await patientService.checkAvailabilityForUpdate(
         updatedEvent,
         originalEvent.date,
         originalEvent.startTime,
@@ -208,11 +208,11 @@ export default function EventCalendarPage() {
       )
       
       // Step 4: Update the event in the database
-      await apiService.updateEvent(updatedEvent, user.nameid)
+      await patientService.updateEvent(updatedEvent, user.nameid)
       
       // Step 5: Create new schedules for newly covered availability blocks
       if (availabilityLists.forCreateSchedules.length > 0) {
-        await apiService.createSchedules(
+        await patientService.createSchedules(
           updatedEvent.eventId,
           updatedEvent.date,
           availabilityLists.forCreateSchedules
@@ -221,7 +221,7 @@ export default function EventCalendarPage() {
       
       // Step 6: Delete schedules for availability blocks no longer covered
       if (availabilityLists.forDeleteSchedules.length > 0) {
-        await apiService.deleteSchedulesByAvailabilityIds(
+        await patientService.deleteSchedulesByAvailabilityIds(
           updatedEvent.eventId,
           availabilityLists.forDeleteSchedules
         )
@@ -229,7 +229,7 @@ export default function EventCalendarPage() {
       
       // Step 7: Update existing schedules with new event details
       if (availabilityLists.forUpdateSchedules.length > 0) {
-        await apiService.updateScheduledEvent(
+        await patientService.updateScheduledEvent(
           updatedEvent.eventId,
           availabilityLists.forUpdateSchedules
         )
