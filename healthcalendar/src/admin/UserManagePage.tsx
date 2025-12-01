@@ -121,8 +121,7 @@ const UserManagePage: React.FC = () => {
     try {
       setLoading(true)
       await adminService.unassignPatientFromWorker(patientId)
-      showSuccess('Patient unassigned successfully')
-      
+            showSuccess('Patient unassigned successfully')
       // Refresh lists to show updated assignments
       if (selectedWorker) {
         await loadAssignedPatients(selectedWorker.Id)
@@ -258,35 +257,33 @@ const UserManagePage: React.FC = () => {
             {selectedWorker && (
               <div className="manage-card">
                 <h2 className="manage-card-title">Assign Patients</h2>
-                <label>
-                  {/* List of unassigned patients with checkboxes */}
-                  <div className="manage-checkbox-list">
-                    {unassignedPatients.length === 0 ? (
-                      <p className="manage-empty">No unassigned patients available</p>
-                    ) : (
-                      unassignedPatients.map(patient => (
-                        <div key={patient.Id} className="manage-checkbox-item">
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={selectedPatientIds.includes(patient.Id)}
-                              onChange={() => handlePatientToggle(patient.Id)}
-                            />
-                            <span>{patient.Name} ({patient.UserName})</span>
-                          </label>
-                          <button
-                            className="btn btn--danger btn--small"
-                            onClick={() => handleDeletePatientClick(patient)}
-                            disabled={loading}
-                            title="Delete this patient"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </label>
+                {/* List of unassigned patients with checkboxes */}
+                <div className="manage-checkbox-list">
+                  {unassignedPatients.length === 0 ? (
+                    <p className="manage-empty">No unassigned patients available</p>
+                  ) : (
+                    unassignedPatients.map(patient => (
+                      <div key={patient.Id} className="manage-checkbox-item">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedPatientIds.includes(patient.Id)}
+                            onChange={() => handlePatientToggle(patient.Id)}
+                          />
+                          <span>{patient.Name} ({patient.UserName})</span>
+                        </label>
+                        <button
+                          className="btn btn--danger btn--small"
+                          onClick={() => handleDeletePatientClick(patient)}
+                          disabled={loading}
+                          title="Delete this patient"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
                 {/* Assign button (disabled when no patients selected) */}
                 <button 
                   className="btn btn--primary" 

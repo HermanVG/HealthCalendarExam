@@ -20,19 +20,21 @@
 }
 
 .admin-logout-header {
-  padding: 1.5rem 2rem;
+  padding: 3rem 2rem;
   display: flex;
   justify-content: flex-end;
+  padding-right: 4rem;
+
 }
 
 .admin-logout-header .logout-btn {
-  padding: 0.6rem 1rem;
-  font-size: 1.05rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.1rem;
 }
 
 .admin-logout-header .logout-btn img {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 /* Admin registration form container */
@@ -41,7 +43,7 @@
   flex-direction: column;
   max-width: 550px;
   margin: 0 auto;
-  padding: 0 2rem 2rem;
+  padding: 3rem 2rem 2rem;
 }
 
 .admin-form-content {
@@ -66,13 +68,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  margin-top: 4rem;
+  margin-top: 3rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
 .manage-title {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 800;
   color: #1f2937;
   margin: 0;
@@ -109,7 +111,7 @@
 }
 
 .manage-card-title {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--primary-strong);
   margin: 0 0 1rem 0;
@@ -139,7 +141,7 @@
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   margin-top: 0.5rem;
   background: #fff;
   cursor: pointer;
@@ -175,6 +177,7 @@
   flex: 1;
   display: flex;
   align-items: center;
+  gap: 0.3rem;
 }
 
 .manage-checkbox-item .btn {
@@ -193,14 +196,14 @@
 
 .manage-checkbox-item span {
   flex: 1;
-  font-size: 0.95rem;
+  font-size: 1.0625rem;
   color: #374151;
 }
 
 .manage-empty {
   text-align: center;
   color: #9ca3af;
-  font-size: 0.95rem;
+  font-size: 1.0625rem;
   padding: 1rem;
   margin: 0;
 }
@@ -228,12 +231,13 @@
 
 .manage-patient-name {
   font-weight: 600;
+  font-size: 1.0625rem;
   color: #1f2937;
   margin-bottom: 0.25rem;
 }
 
 .manage-patient-email {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #6b7280;
 }
 
@@ -247,12 +251,13 @@
 /* Button Styles */
 .btn {
   padding: 0.75rem 1.5rem;
-  border: none;
+  border: 2px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  background: #ffffff;
 }
 
 .btn:disabled {
@@ -263,6 +268,7 @@
 .btn--primary {
   background: var(--primary);
   color: #fff;
+  border: none;
 }
 
 .btn--primary:hover:not(:disabled) {
@@ -272,6 +278,7 @@
 .btn--secondary {
   background: var(--primary-strong);
   color: #fff;
+  border: none;
 }
 
 .btn--secondary:hover:not(:disabled) {
@@ -281,6 +288,7 @@
 .btn--danger {
   background: #ef4444;
   color: #fff;
+  border: none;
 }
 
 .btn--danger:hover:not(:disabled) {
@@ -290,6 +298,7 @@
 .btn--grey {
   background: #848993;
   color: #fff;
+  border: none;
 }
 
 .btn--grey:hover:not(:disabled) {
@@ -297,7 +306,7 @@
 }
 
 .btn--small {
-  padding: 0.5rem 1rem;
+  padding: 0.65rem 1rem;
   font-size: 0.9rem;
 }
 

@@ -135,7 +135,7 @@
 /* Buttons */
 .btn {
     background: #ffffff;
-    border: 1px solid #d1d5db;
+    border: 2px solid #d1d5db;
     padding: .7rem 1.1rem;
     border-radius: 10px;
     font-weight: 600;
