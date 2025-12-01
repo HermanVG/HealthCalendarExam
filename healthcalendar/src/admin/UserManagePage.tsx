@@ -251,17 +251,6 @@ const UserManagePage: React.FC = () => {
                     </option>
                   ))}
                 </select>
-                {/* Delete button appears only when a worker is selected */}
-                {selectedWorker && (
-                  <button
-                    className="btn btn--danger btn--small"
-                    onClick={() => handleDeleteWorkerClick(selectedWorker)}
-                    disabled={loading}
-                    title="Remove this healthcare worker"
-                  >
-                    Delete
-                  </button>
-                )}
               </div>
             </div>
 
@@ -277,7 +266,7 @@ const UserManagePage: React.FC = () => {
                     ) : (
                       unassignedPatients.map(patient => (
                         <div key={patient.Id} className="manage-checkbox-item">
-                          <label style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                          <label>
                             <input
                               type="checkbox"
                               checked={selectedPatientIds.includes(patient.Id)}
@@ -290,7 +279,6 @@ const UserManagePage: React.FC = () => {
                             onClick={() => handleDeletePatientClick(patient)}
                             disabled={loading}
                             title="Delete this patient"
-                            style={{ marginLeft: '8px' }}
                           >
                             Delete
                           </button>
@@ -314,11 +302,23 @@ const UserManagePage: React.FC = () => {
           {/* Right Side: Assigned Patients List */}
           <section className="manage-section manage-section--right">
             <div className="manage-card">
-              <h2 className="manage-card-title">
-                {selectedWorker 
-                  ? `Patients Assigned to ${selectedWorker.Name}` 
-                  : 'Select a worker to view assigned patients'}
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 className="manage-card-title" style={{ margin: 0 }}>
+                  {selectedWorker 
+                    ? `Patients Assigned to ${selectedWorker.Name}` 
+                    : 'Select a worker to view assigned patients'}
+                </h2>
+                {selectedWorker && (
+                  <button
+                    className="btn btn--danger btn--small"
+                    onClick={() => handleDeleteWorkerClick(selectedWorker)}
+                    disabled={loading}
+                    title="Delete this healthcare worker"
+                  >
+                    Delete Worker
+                  </button>
+                )}
+              </div>
               {/* Display assigned patients with unassign buttons */}
               {selectedWorker && (
                 <div className="manage-patient-list">
@@ -331,9 +331,9 @@ const UserManagePage: React.FC = () => {
                           <div className="manage-patient-name">{patient.Name}</div>
                           <div className="manage-patient-email">{patient.UserName}</div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div className="manage-button-actions">
                           <button 
-                            className="btn btn--danger btn--small" 
+                            className="btn btn--grey btn--small" 
                             onClick={() => handleUnassignPatient(patient.Id)}
                             disabled={loading}
                           >
