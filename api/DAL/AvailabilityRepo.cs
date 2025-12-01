@@ -79,12 +79,12 @@ public class AvailabilityRepo : IAvailabilityRepo
 
     // method for retreiving Availability by DayOfWeek and From properties
     public async Task<(List<Availability>, OperationStatus)> 
-        getAvailabilityByDoW(DayOfWeek dayOfWeek, TimeOnly from)
+        getAvailabilityByDoW(string userId, DayOfWeek dayOfWeek, TimeOnly from)
     {
         try
         {
             var availability = await _db.Availability
-                .Where(a => a.DayOfWeek == dayOfWeek && a.From == from)
+                .Where(a => a.UserId == userId && a.DayOfWeek == dayOfWeek && a.From == from)
                 .ToListAsync();
             return (availability, OperationStatus.Ok);
         }
@@ -92,7 +92,8 @@ public class AvailabilityRepo : IAvailabilityRepo
         {
             _logger.LogError("[AvailabilityRepo] Error from getAvailabilityByDoW(): \n" +
                              "Something went wrong when retreiving Availability where " +
-                            $"DayOfWeek = {dayOfWeek} and From = {from}, Error message: {e}");
+                            $"where UserID = {userId}, DayOfWeek = {dayOfWeek} and From = {from}, " +
+                            $"Error message: {e}");
             return ([], OperationStatus.Error);
         }
     }

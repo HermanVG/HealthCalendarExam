@@ -22,6 +22,17 @@
     cursor: pointer;
 }
 
+.btn-toggle {
+    background: #2562E8; /* Explicit blue */
+    width: 180px;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.3rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 .btn-logout {
     display: flex;
     align-items: center;

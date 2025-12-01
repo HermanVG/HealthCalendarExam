@@ -6,6 +6,7 @@ import { sharedService } from '../services/sharedService.ts'
 import { workerService } from '../services/workerService.ts'
 import WorkerCalendarGrid from './WorkerCalendarGrid'
 import '../styles/WorkerCalendar.css'
+import '../styles/EventCalendarPage.css'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import ViewEvent from './ViewEvent'
@@ -46,6 +47,7 @@ export default function EventCalendar() {
 	const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
 	const [viewing, setViewing] = useState<Event | null>(null)
 	const [isAvailabilityMode, setIsAvailabilityMode] = useState(false)
+	const [isContinuousMode, setIsContinuousMode] = useState(false)
 	const navigate = useNavigate()
 
 	// Helper function to get the week range text
@@ -130,6 +132,12 @@ export default function EventCalendar() {
 
 	const handleAvailabilityToggle = () => {
 		setIsAvailabilityMode(!isAvailabilityMode)
+		// Reset continuous mode when exiting availability mode
+		if (isAvailabilityMode) setIsContinuousMode(false)
+	}
+
+	const handleContinuousToggle = () => {
+		setIsContinuousMode(!isContinuousMode)
 	}
 
 	// Confirmation modal state
@@ -164,6 +172,10 @@ export default function EventCalendar() {
 		// End time string in HH:MM format
 		const endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
 
+		// Convert dayName to dayOfWeek number
+		const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+		const dayOfWeek = days.indexOf(dayName)
+
 		try {
 			// New data to ensure latest state
 			const workerId = (user as WorkerUser).nameid
@@ -186,12 +198,36 @@ export default function EventCalendar() {
 				Number(a.startTime.split(':')[0]) * 60 + Number(a.startTime.split(':')[1]) === time
 			)
 
+			// Continuous mode logic
+			if (isContinuousMode) {
+				if (matchingContinuous) {
+					// Delete continuous availability
+					// Check for any linked events across all dates
+					const eventIds = await workerService.getScheduledEventIds(matchingContinuous.id)
+					if (eventIds.length > 0) {
+						// Warn user if events are linked
+						setPendingDeletion({
+							availabilityId: matchingContinuous.id,
+							eventId: eventIds[0],
+							action: 'delete'
+						})
+						setShowConfirmModal(true)
+						return
+					}
+					await workerService.deleteAvailabilityByDoW(matchingContinuous.id,)
+				} else {
+					// Create continuous availability (date: null)
+					await workerService.createAvailability({
+						startTime: timeStr,
+						endTime: endTimeStr,
+						dayOfWeek,
+						date: null, // Continuous
+					}, user.nameid)
+				}
+			}
+			// Specific date
 			// If slot is currently displayed as available (continuous): create specific availability to mask it (make unavailable)
-			if (matchingContinuous && !matchingSpecific) {
-				// Convert dayName to dayOfWeek number
-				const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-				const dayOfWeek = days.indexOf(dayName)
-
+			else if (matchingContinuous && !matchingSpecific) {
 				// Check for linked events, if any, ask worker for confirmation
 				const eventId = await workerService.findScheduledEventId(matchingContinuous.id, date)
 				if (eventId > 0) {
@@ -236,9 +272,6 @@ export default function EventCalendar() {
 			}
 			// If slot is unavailable (empty): create specific record (make available)
 			else {
-				const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-				const dayOfWeek = days.indexOf(dayName)
-
 				await workerService.createAvailability({
 					startTime: timeStr,
 					endTime: endTimeStr,
@@ -316,6 +349,17 @@ export default function EventCalendar() {
 						</button>
 
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+							{isAvailabilityMode && (
+								<>
+									<button
+										className={isContinuousMode ? 'btn-static-g' : 'btn-toggle'}
+										onClick={handleContinuousToggle}
+										title="Toggle between continuous and specific date availability"
+									>
+										{isContinuousMode ? 'Weekly' : 'Daily'}
+									</button>
+								</>
+							)}
 							<button
 								className={isAvailabilityMode ? 'btn-static-g' : 'btn-static'}
 								onClick={handleAvailabilityToggle}

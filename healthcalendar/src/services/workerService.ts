@@ -161,13 +161,13 @@ export const workerService = {
 	},
 
 	// Delete availability by day of week and from
-	async deleteAvailabilityByDoW(dayOfWeek: number, from: string): Promise<void> {
+	async deleteAvailabilityByDoW(userId: string, dayOfWeek: number, from: string): Promise<void> {
 		try {
 			// Fixes HH:MM:SS format
 			const fromTime = from.length === 5 ? `${from}:00` : from;
 			
 			const response = await fetch(
-				`${API_BASE_URL}/Availability/deleteAvailabilityByDoW?dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
+				`${API_BASE_URL}/Availability/deleteAvailabilityByDoW?userId=${encodeURIComponent(userId)}&dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
 				{
 					method: 'DELETE',
 					headers: getHeaders()
@@ -196,13 +196,13 @@ export const workerService = {
 	},
 
 	// Gets Ids of all Availability in a specific timeslot on a specific day of the week
-	async getAvailabilityIdsByDoW(dayOfWeek: number, from: string): Promise<number[]> {
+	async getAvailabilityIdsByDoW(userId: string, dayOfWeek: number, from: string): Promise<number[]> {
 		try {
 			// Fixes HH:MM:SS format
 			const fromTime = from.length === 5 ? `${from}:00` : from;
 			
 			const response = await fetch(
-				`${API_BASE_URL}/Availability/getAvailabilityIdsByDoW?dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
+				`${API_BASE_URL}/Availability/getAvailabilityIdsByDoW?userId=${encodeURIComponent(userId)}&dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
 				{
 					method: 'GET',
 					headers: getHeaders()

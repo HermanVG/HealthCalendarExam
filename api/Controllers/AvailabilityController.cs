@@ -173,13 +173,13 @@ namespace HealthCalendar.Controllers
         [HttpGet("getAvailabilityIdsByDoW")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> 
-            getAvailabilityIdsByDoW([FromQuery] DayOfWeek dayOfWeek,[FromQuery] TimeOnly from)
+            getAvailabilityIdsByDoW([FromQuery] string userId, [FromQuery] DayOfWeek dayOfWeek, [FromQuery] TimeOnly from)
         {
             try
             {
                 // retreives list of Availability
                 var (availabilityRange, status) = await _availabilityRepo
-                    .getAvailabilityByDoW(dayOfWeek, from);
+                    .getAvailabilityByDoW(userId,dayOfWeek, from);
                 // In case getAvailabilityByDoW() did not succeed
                 if (status == OperationStatus.Error)
                 {
@@ -593,13 +593,13 @@ namespace HealthCalendar.Controllers
         [HttpDelete("deleteAvailabilityByDoW")]
         [Authorize(Roles="Worker")]
         public async Task<IActionResult> 
-            deleteAvailabilityByDoW([FromQuery] DayOfWeek dayOfWeek, [FromQuery] TimeOnly from)
+            deleteAvailabilityByDoW([FromQuery] string userId, [FromQuery] DayOfWeek dayOfWeek, [FromQuery] TimeOnly from)
         {
             try
             {
                 // retreives range of Availability that should be deleted
                 var (availabilityRange, getStatus) = 
-                    await _availabilityRepo.getAvailabilityByDoW(dayOfWeek, from);
+                    await _availabilityRepo.getAvailabilityByDoW(userId, dayOfWeek, from);
                 // In case getAvailabilityByDoW() did not succeed
                 if (getStatus == OperationStatus.Error)
                 {
@@ -626,7 +626,8 @@ namespace HealthCalendar.Controllers
             {
                 _logger.LogError("[AvailabilityController] Error from deleteAvailabilityByDoW(): \n" +
                                  "Something went wrong when trying to delete range of Availability " + 
-                                $"where DayOfWeek = {dayOfWeek} and From = {from}, Error message: {e}");
+                                $"where UserID = {userId}, DayOfWeek = {dayOfWeek} and From = {from}, " +
+                                $"Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
         }
