@@ -171,11 +171,11 @@
 
 .cal-grid__slot--interactive {
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.05s;
 }
 
 .cal-grid__slot--interactive:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.01);
 }
 
 .cal-grid__event--passthrough {

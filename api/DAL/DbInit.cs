@@ -23,6 +23,10 @@ public static class DbInit
         // an HealthCalendarDbContext, used to do db operations
         HealthCalendarDbContext context = scope.ServiceProvider.GetRequiredService<HealthCalendarDbContext>();
 
+        // Makes sure database is created before seeding
+        await authContext.Database.EnsureCreatedAsync();
+        await context.Database.EnsureCreatedAsync();
+
         /* ----- Seeding User table: ----- */
 
         // Only seeds if User table is empty
@@ -134,21 +138,9 @@ public static class DbInit
                                                DayOfWeek.Thursday, null, worker1!);
             context.AddRange(availabilityRange4);
             var availabilityRange5 = 
-                generateContinuousAvailability(TimeOnly.Parse("10:00:00"), TimeOnly.Parse("14:00:00"),
+                generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Friday, DateOnly.Parse("5/12/2025"), worker1!);
             context.AddRange(availabilityRange5);
-            var availabilityRange6 = 
-                generateContinuousAvailability(TimeOnly.Parse("10:00:00"), TimeOnly.Parse("11:00:00"),
-                                               DayOfWeek.Wednesday, DateOnly.Parse("10/12/2025"), worker1!);
-            context.AddRange(availabilityRange6);
-            var availabilityRange7 = 
-                generateContinuousAvailability(TimeOnly.Parse("10:00:00"), TimeOnly.Parse("11:00:00"),
-                                               DayOfWeek.Thursday, DateOnly.Parse("11/12/2025"), worker1!);
-            context.AddRange(availabilityRange7);
-            var availabilityRange8 = 
-                generateContinuousAvailability(TimeOnly.Parse("13:00:00"), TimeOnly.Parse("15:00:00"),
-                                               DayOfWeek.Friday, DateOnly.Parse("12/12/2025"), worker1!);
-            context.AddRange(availabilityRange8);
 
             // generates availability for Worker "Arne"
             var worker2 = await userManager.FindByNameAsync("ddd@ddd.ddd");

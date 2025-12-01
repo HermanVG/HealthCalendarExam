@@ -46,7 +46,7 @@ interface AvailabilityDTO {
 	From: string;          // HH:MM:SS
 	To: string;            // HH:MM:SS
 	DayOfWeek: number;     // 0 = sunday, 1 = monday, etc
-	Date?: string | null;  // YYYY-MM-DD or null
+	Date?: string | null;  // YYYY-MM-DD
 	UserId: string;
 }
 
@@ -54,7 +54,7 @@ interface NewAvailabilityInput {
 	startTime: string;     // HH:MM
 	endTime: string;       // HH:MM
 	dayOfWeek: number;     // 0-6
-	date?: string | null;  // YYYY-MM-DD or null
+	date?: string | null;  // YYYY-MM-DD
 }
 
 // Helper to convert Availability to AvailabilityDTO
@@ -101,7 +101,8 @@ function fromAvailabilityDTO(dto: any): Availability {
 		id: dto.AvailabilityId || dto.availabilityId,
 		day: dayOfWeekMap[dto.DayOfWeek ?? dto.dayOfWeek] || 'Monday',
 		startTime: (dto.From || dto.from).substring(0, 5), // "HH:MM:SS" -> "HH:MM"
-		endTime: (dto.To || dto.to).substring(0, 5)
+		endTime: (dto.To || dto.to).substring(0, 5),
+		date: dto.Date || dto.date || undefined
 	};
 }
 
@@ -176,11 +177,28 @@ export const workerService = {
 		}
 	},
 
-	// Get week's availability for a user
-	async getWeeksAvailabilityProper(userId: string, monday: string): Promise<Availability[]> {
+	// Get all availability for a week (including overlaps)
+	async getAllWeeksAvailability(workerId: string, monday: string): Promise<Availability[]> {
 		try {
 			const response = await fetch(
-				`${API_BASE}/Availability/getWeeksAvailabilityProper?userId=${encodeURIComponent(userId)}&monday=${monday}`,
+				`${API_BASE}/Availability/getAllWeeksAvailability?userId=${workerId}&monday=${monday}`,
+				{
+					method: 'GET',
+					headers: getHeaders()
+				}
+			);
+			const dtos = await handleResponse<any[]>(response);
+			return dtos.map(fromAvailabilityDTO);
+		} catch (e) {
+			throw e as Error;
+		}
+	},
+
+	// Get availability for a week (overlaps removed)
+	async getWeeksAvailabilityProper(workerId: string, monday: string): Promise<Availability[]> {
+		try {
+			const response = await fetch(
+				`${API_BASE}/Availability/getWeeksAvailabilityProper?userId=${workerId}&monday=${monday}`,
 				{
 					method: 'GET',
 					headers: getHeaders()
@@ -217,6 +235,38 @@ export const workerService = {
 			
 			const response = await fetch(
 				`${API_BASE}/Availability/deleteAvailabilityByDoW?dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
+				{
+					method: 'DELETE',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (e) {
+			throw e as Error;
+		}
+	},
+
+	// Find scheduled eventID for an availability on a specific date
+	async findScheduledEventId(availabilityId: number, date: string): Promise<number> {
+		try {
+			const response = await fetch(
+				`${API_BASE}/Schedule/findScheduledEventId?availabilityId=${availabilityId}&date=${date}`,
+				{
+					method: 'GET',
+					headers: getHeaders()
+				}
+			);
+			return await handleResponse<number>(response);
+		} catch (e) {
+			throw e as Error;
+		}
+	},
+
+	// Delete event by ID
+	async deleteEvent(eventId: number): Promise<void> {
+		try {
+			const response = await fetch(
+				`${API_BASE}/Event/deleteEvent/${eventId}`,
 				{
 					method: 'DELETE',
 					headers: getHeaders()

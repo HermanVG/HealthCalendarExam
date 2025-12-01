@@ -46,7 +46,7 @@ namespace HealthCalendar.Controllers
                     To = eventt.To,
                     Date = eventt.Date,
                     Title = eventt.Title,
-                    Location = eventt.Title,
+                    Location = eventt.Location,
                     UserId = eventt.UserId
                 };
                 return Ok(eventDTO);
@@ -88,7 +88,7 @@ namespace HealthCalendar.Controllers
                     To = e.To,
                     Date = e.Date,
                     Title = e.Title,
-                    Location = e.Title,
+                    Location = e.Location,
                     UserId = userId
                 });
 
@@ -133,7 +133,7 @@ namespace HealthCalendar.Controllers
                     To = e.To,
                     Date = e.Date,
                     Title = e.Title,
-                    Location = e.Title,
+                    Location = e.Location,
                     UserId = e.UserId
                 });
 
@@ -189,7 +189,7 @@ namespace HealthCalendar.Controllers
                         To = e.To,
                         Date = e.Date,
                         Title = e.Title,
-                        Location = e.Title,
+                        Location = e.Location,
                         UserId = userId,
                         OwnerName = patient.Name
                     });

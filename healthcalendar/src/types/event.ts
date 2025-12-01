@@ -19,6 +19,7 @@ export interface Availability {
   day: string;     
   startTime: ISOTime;
   endTime: ISOTime;
+  date?: ISODate;    // Specific date for non-continuous availability
 }
 
 export type UserRole = 'patient' | 'worker' | 'admin';

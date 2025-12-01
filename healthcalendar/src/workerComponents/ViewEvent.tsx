@@ -1,7 +1,7 @@
+// Modal component for workers to view event details
 import type { Event } from '../types/event'
 import '../styles/WorkerViewEvent.css'
 
-// Modal for workers to view event details
 type Props = {
   event: Event
   onClose: () => void

@@ -9,46 +9,46 @@ import NavBar from '../shared/NavBar'
 const WorkerLoginPage: React.FC = () => {
   const navigate = useNavigate()
   const { loginWorker } = useAuth()
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  
+
   // Validation error state for each field
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
-  
+
   const [loading, setLoading] = useState(false)
-  
+
   // Form-level error state for authentication failures
   const [formError, setFormError] = useState<string | null>(null)
 
   // Handle form submission and worker/Admin authentication
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Clear previous validation errors
     setEmailError(null)
     setPasswordError(null)
     let hasError = false
-    
+
     // Client-side validation
     if (!email) { setEmailError('Email is required.'); hasError = true }
     if (!password) { setPasswordError('Password is required.'); hasError = true }
-    
+
     // Stop submission if validation errors exist
     if (hasError) return
-    
+
     try {
       setLoading(true)
       setFormError(null)
-      
+
       // Authenticate using worker login endpoint
       const decoded = await loginWorker({ email, password })
-      
+
       // Route user based on their role (handles Worker, Admin, or wrong login form)
       const role = decoded?.role
-  if (role === 'Admin') navigate('/admin/manage', { replace: true })
-  else if (role === 'Worker') navigate('/worker/WorkerCalendar', { replace: true })
+      if (role === 'Admin') navigate('/admin/manage', { replace: true })
+      else if (role === 'Worker') navigate('/worker/WorkerCalendar', { replace: true })
       else if (role === 'Patient') navigate('/patient/EventCalendar', { replace: true })
       else navigate('/worker/login', { replace: true })
     } catch (err: any) {
@@ -65,7 +65,7 @@ const WorkerLoginPage: React.FC = () => {
       <main className="auth-main">
         {/* Left side with image */}
         <section className="auth-left">
-          <img src="/images/register_login.png" alt="Worker Login" className="auth-image" />
+          <img src="/images/worker_login.png" alt="Worker Login" className="auth-image" />
         </section>
         {/* Right side with login form */}
         <section className="auth-right">
