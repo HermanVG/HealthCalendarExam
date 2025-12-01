@@ -258,7 +258,7 @@ export const workerService = {
 	async getScheduledEventIds(availabilityId: number): Promise<number[]> {
 		try {
 			const response = await fetch(
-				`${API_BASE_URL}/Schedule/getScheduledEventIds?availabilityId=${availabilityId}}`,
+				`${API_BASE_URL}/Schedule/getScheduledEventIds?availabilityId=${availabilityId}`,
 				{
 					method: 'GET',
 					headers: getHeaders()
