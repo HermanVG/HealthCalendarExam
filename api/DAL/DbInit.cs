@@ -117,11 +117,11 @@ public static class DbInit
             // generates availability for Worker "Bob"
             var worker1 = await userManager.FindByNameAsync("aaa@aaa.aaa");
             
+            /*
             var availabilityRange1 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Monday, null, worker1!);
             context.AddRange(availabilityRange1);
-            /*
             var availabilityRange2 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Tuesday, null, worker1!);
@@ -133,11 +133,11 @@ public static class DbInit
             var availabilityRange4 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Thursday, null, worker1!);
-            context.AddRange(availabilityRange4);
+            context.AddRange(availabilityRange4);*/
             var availabilityRange5 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Friday, null, worker1!);
-            context.AddRange(availabilityRange5);
+            context.AddRange(availabilityRange5);/*
 
             // generates availability for Worker "Arne"
             var worker2 = await userManager.FindByNameAsync("ddd@ddd.ddd");
