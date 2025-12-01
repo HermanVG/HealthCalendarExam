@@ -26,6 +26,8 @@ const UserManagePage: React.FC = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [workerToDelete, setWorkerToDelete] = useState<UserDTO | null>(null)
+  const [showDeletePatientConfirm, setShowDeletePatientConfirm] = useState(false)
+  const [patientToDelete, setPatientToDelete] = useState<UserDTO | null>(null)
 
   // Load all workers on mount
   useEffect(() => {
@@ -168,6 +170,40 @@ const UserManagePage: React.FC = () => {
     }
   }
 
+  // Open confirmation modal for deleting a patient
+  const handleDeletePatientClick = (patient: UserDTO) => {
+    setPatientToDelete(patient)
+    setShowDeletePatientConfirm(true)
+  }
+
+  // Execute patient deletion after confirmation
+  const handleDeletePatientConfirm = async () => {
+    if (!patientToDelete) return
+
+    try {
+      setLoading(true)
+      setShowDeletePatientConfirm(false)
+      
+      await adminService.deleteUser(patientToDelete.Id)
+      showSuccess(`Patient ${patientToDelete.Name} has been deleted`)
+      
+      // Clear patient selection if they were in the selected list
+      setSelectedPatientIds(prev => prev.filter(id => id !== patientToDelete.Id))
+      
+      // Refresh lists to show updated data
+      if (selectedWorker) {
+        await loadAssignedPatients(selectedWorker.Id)
+      }
+      await loadUnassignedPatients()
+      
+      setPatientToDelete(null)
+    } catch (err: any) {
+      showError(err?.message || 'Failed to delete patient')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="manage-page">
       {/* Logout button in header */}
@@ -240,14 +276,25 @@ const UserManagePage: React.FC = () => {
                       <p className="manage-empty">No unassigned patients available</p>
                     ) : (
                       unassignedPatients.map(patient => (
-                        <label key={patient.Id} className="manage-checkbox-item">
-                          <input
-                            type="checkbox"
-                            checked={selectedPatientIds.includes(patient.Id)}
-                            onChange={() => handlePatientToggle(patient.Id)}
-                          />
-                          <span>{patient.Name} ({patient.UserName})</span>
-                        </label>
+                        <div key={patient.Id} className="manage-checkbox-item">
+                          <label style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                            <input
+                              type="checkbox"
+                              checked={selectedPatientIds.includes(patient.Id)}
+                              onChange={() => handlePatientToggle(patient.Id)}
+                            />
+                            <span>{patient.Name} ({patient.UserName})</span>
+                          </label>
+                          <button
+                            className="btn btn--danger btn--small"
+                            onClick={() => handleDeletePatientClick(patient)}
+                            disabled={loading}
+                            title="Delete this patient"
+                            style={{ marginLeft: '8px' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       ))
                     )}
                   </div>
@@ -284,13 +331,23 @@ const UserManagePage: React.FC = () => {
                           <div className="manage-patient-name">{patient.Name}</div>
                           <div className="manage-patient-email">{patient.UserName}</div>
                         </div>
-                        <button 
-                          className="btn btn--danger btn--small" 
-                          onClick={() => handleUnassignPatient(patient.Id)}
-                          disabled={loading}
-                        >
-                          Unassign
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="btn btn--danger btn--small" 
+                            onClick={() => handleUnassignPatient(patient.Id)}
+                            disabled={loading}
+                          >
+                            Unassign
+                          </button>
+                          <button 
+                            className="btn btn--danger btn--small" 
+                            onClick={() => handleDeletePatientClick(patient)}
+                            disabled={loading}
+                            title="Delete this patient"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -358,6 +415,42 @@ const UserManagePage: React.FC = () => {
                 type="button" 
                 className="btn btn--danger" 
                 onClick={handleDeleteWorkerConfirm}
+                disabled={loading}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Patient deletion confirmation modal */}
+      {showDeletePatientConfirm && patientToDelete && (
+        <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="delete-patient-title" aria-describedby="delete-patient-desc">
+          <div className="modal confirm-modal">
+            <header className="modal__header">
+              <h2 id="delete-patient-title">Confirm Delete</h2>
+              <button className="icon-btn" onClick={() => {
+                setShowDeletePatientConfirm(false)
+                setPatientToDelete(null)
+              }} aria-label="Close confirmation">
+                <img src="/images/exit.png" alt="Close" />
+              </button>
+            </header>
+            <div id="delete-patient-desc" className="confirm-body">
+              Are you sure you want to delete this patient?
+              <br /><br />
+              <strong>{patientToDelete.Name}</strong> ({patientToDelete.UserName})
+            </div>
+            <div className="confirm-actions">
+              <button type="button" className="btn" onClick={() => {
+                setShowDeletePatientConfirm(false)
+                setPatientToDelete(null)
+              }}>Cancel</button>
+              <button 
+                type="button" 
+                className="btn btn--danger" 
+                onClick={handleDeletePatientConfirm}
                 disabled={loading}
               >
                 Delete
