@@ -289,8 +289,41 @@ namespace HealthCalendar.Controllers
             try
             {
                 var patient = await _userManager.FindByIdAsync(userId);
+                
+                if (patient == null)
+                {
+                    _logger.LogError("[UserController] Error from unassignPatientFromWorker(): Patient not found");
+                    return NotFound("Patient not found");
+                }
+                
+                // Delete all events and schedules for this patient
+                var patientEvents = await _db.Events
+                    .Where(e => e.UserId == userId)
+                    .ToListAsync();
+                
+                // Delete schedules for each event
+                foreach (var evt in patientEvents)
+                {
+                    var schedules = await _db.Schedule
+                        .Where(s => s.EventId == evt.EventId)
+                        .ToListAsync();
+                    
+                    if (schedules.Any())
+                    {
+                        _db.Schedule.RemoveRange(schedules);
+                    }
+                }
+                
+                // Delete all events for this patient
+                if (patientEvents.Any())
+                {
+                    _db.Events.RemoveRange(patientEvents);
+                    await _db.SaveChangesAsync();
+                    _logger.LogInformation($"[UserController] Deleted {patientEvents.Count} events and their schedules for patient {userId}");
+                }
+                
                 // Nulls out Patient's Worker related parameters
-                patient!.WorkerId = null;
+                patient.WorkerId = null;
                 patient.Worker = null;
                 // Update table with patient
                 var result = await _userManager.UpdateAsync(patient);
@@ -379,9 +412,50 @@ namespace HealthCalendar.Controllers
                     return NotFound("User not found");
                 }
 
-                // If user is a Worker, unassign all their patients and delete availability records
+                // If user is a Worker, delete all related data before deleting the worker
                 if (user.Role == Roles.Worker)
                 {
+                    // Get all patients assigned to this worker
+                    var assignedPatients = await _userManager.Users
+                        .Where(u => u.WorkerId == userId)
+                        .ToListAsync();
+                    
+                    // Delete events and schedules for each patient
+                    foreach (var patient in assignedPatients)
+                    {
+                        // Get all events for this patient
+                        var patientEvents = await _db.Events
+                            .Where(e => e.UserId == patient.Id)
+                            .ToListAsync();
+                        
+                        // Delete schedules for each event
+                        foreach (var evt in patientEvents)
+                        {
+                            var schedules = await _db.Schedule
+                                .Where(s => s.EventId == evt.EventId)
+                                .ToListAsync();
+                            
+                            if (schedules.Any())
+                            {
+                                _db.Schedule.RemoveRange(schedules);
+                            }
+                        }
+                        
+                        // Delete all events for this patient
+                        if (patientEvents.Any())
+                        {
+                            _db.Events.RemoveRange(patientEvents);
+                        }
+                        
+                        // Unassign patient from worker
+                        patient.WorkerId = null;
+                        patient.Worker = null;
+                        await _userManager.UpdateAsync(patient);
+                    }
+                    
+                    await _db.SaveChangesAsync();
+                    _logger.LogInformation($"[UserController] Deleted events and schedules for {assignedPatients.Count} patients of worker {userId}");
+                    
                     // Delete all availability records for this worker
                     var availabilities = await _db.Availability
                         .Where(a => a.UserId == userId)
@@ -393,20 +467,6 @@ namespace HealthCalendar.Controllers
                         await _db.SaveChangesAsync();
                         _logger.LogInformation($"[UserController] Deleted {availabilities.Count} availability records for worker {userId}");
                     }
-                    
-                    // Unassign all patients from this worker
-                    var assignedPatients = await _userManager.Users
-                        .Where(u => u.WorkerId == userId)
-                        .ToListAsync();
-                    
-                    foreach (var patient in assignedPatients)
-                    {
-                        patient.WorkerId = null;
-                        patient.Worker = null;
-                        await _userManager.UpdateAsync(patient);
-                    }
-                    
-                    _logger.LogInformation($"[UserController] Unassigned {assignedPatients.Count} patients from worker {userId}");
                 }
                 
                 // deletes user from table
