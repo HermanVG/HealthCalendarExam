@@ -12,7 +12,7 @@ import '../styles/EventCalendarPage.css'
 const UserManagePage: React.FC = () => {
   const navigate = useNavigate()
   const { showSuccess, showError } = useToast()
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
   
   // State for managing workers and patients
   const [workers, setWorkers] = useState<UserDTO[]>([])

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import type { Event, Availability } from '../types/event'
 import type { PatientUser } from '../types/user'
 import { sharedService } from '../services/sharedService'
@@ -56,14 +55,14 @@ export default function EventCalendar() {
   const { logout, user } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [availability, setAvailability] = useState<Availability[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
   const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
   const [showNew, setShowNew] = useState(false)
   const [editing, setEditing] = useState<Event | null>(null)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [newFormError, setNewFormError] = useState<string | null>(null)
   const [editFormError, setEditFormError] = useState<string | null>(null)
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const weekRangeText = useMemo(() => {
     const startDate = new Date(weekStartISO)
