@@ -160,7 +160,7 @@ export const workerService = {
 		}
 	},
 
-	// Delete availability by day of week
+	// Delete availability by day of week and from
 	async deleteAvailabilityByDoW(dayOfWeek: number, from: string): Promise<void> {
 		try {
 			// Fixes HH:MM:SS format
@@ -194,6 +194,83 @@ export const workerService = {
 			throw normalizeError(err);
 		}
 	},
+
+	// Gets Ids of all Availability in a specific timeslot on a specific day of the week
+	async getAvailabilityIdsByDoW(dayOfWeek: number, from: string): Promise<number[]> {
+		try {
+			// Fixes HH:MM:SS format
+			const fromTime = from.length === 5 ? `${from}:00` : from;
+			
+			const response = await fetch(
+				`${API_BASE_URL}/Availability/getAvailabilityIdsByDoW?dayOfWeek=${dayOfWeek}&from=${encodeURIComponent(fromTime)}`,
+				{
+					method: 'GET',
+					headers: getHeaders()
+				}
+			);
+			const availabilityIds = await handleResponse<number[]>(response);
+			return availabilityIds;
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
+	// Update schedules with new availability
+	async updateScheduledAvailability(oldAvailabilityIds: number[], newAvailabilityId: number): Promise<void> {
+		try {
+			const queryParams = new URLSearchParams();
+			oldAvailabilityIds.forEach(id => queryParams.append('oldAvailabilityIds', id.toString()));
+			queryParams.append('newAvailabilityId', newAvailabilityId.toString());
+
+			const response = await fetch(
+				`${API_BASE_URL}/Schedule/updateScheduledAvailability?${queryParams.toString()}`,
+				{
+					method: 'PUT',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
+	// Delete availability by list of AvailabilityIds
+	async deleteAvailabilityByIds(availabilityIds: number[]): Promise<void> {
+		try {
+			const queryParams = new URLSearchParams();
+			availabilityIds.forEach(id => queryParams.append('availabilityIds', id.toString()));
+			
+			const response = await fetch(
+				`${API_BASE_URL}/Availability/deleteAvailabilityByIds?${queryParams.toString()}`,
+				{
+					method: 'DELETE',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
+	// Gets EventIds of events related to specific availability
+	async getScheduledEventIds(availabilityId: number): Promise<number[]> {
+		try {
+			const response = await fetch(
+				`${API_BASE_URL}/Schedule/getScheduledEventIds?availabilityId=${availabilityId}}`,
+				{
+					method: 'GET',
+					headers: getHeaders()
+				}
+			);
+			const eventIds = await handleResponse<number[]>(response);
+			return eventIds;
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
 };
 
 export type { Availability, NewAvailabilityInput, UserDTO };

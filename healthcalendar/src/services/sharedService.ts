@@ -162,4 +162,42 @@ export const sharedService = {
 			throw normalizeError(err);
 		}
 	},
+
+    // Delete availability by list of AvailabilityIds
+	async deleteSchedulesByEventIds(eventIds: number[]): Promise<void> {
+		try {
+			const queryParams = new URLSearchParams();
+			eventIds.forEach(id => queryParams.append('eventIds', id.toString()));
+			
+			const response = await fetch(
+				`${API_BASE_URL}/Schedule/deleteSchedulesByEventIds?${queryParams.toString()}`,
+				{
+					method: 'DELETE',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
+
+    // Delete availability by list of AvailabilityIds
+	async deleteAvailabilityByIds(availabilityIds: number[]): Promise<void> {
+		try {
+			const queryParams = new URLSearchParams();
+			availabilityIds.forEach(id => queryParams.append('availabilityIds', id.toString()));
+			
+			const response = await fetch(
+				`${API_BASE_URL}/Availability/deleteAvailabilityByIds?${queryParams.toString()}`,
+				{
+					method: 'DELETE',
+					headers: getHeaders()
+				}
+			);
+			await handleResponse<any>(response);
+		} catch (err) {
+			throw normalizeError(err);
+		}
+	},
 }
