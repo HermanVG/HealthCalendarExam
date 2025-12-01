@@ -1,16 +1,9 @@
 // API service layer for User Management (Admin operations)
 
-// Imports functions shared with other services
+// imports DTOs shared with other services
+import type { UserDTO } from './sharedService.ts';
+// Imports constants and functions shared with other services
 import { API_BASE_URL, getHeaders, handleResponse } from './sharedService.ts'
-
-// Represents a user (Patient, Worker, or Admin) in the system
-export interface UserDTO {
-  Id: string;             
-  UserName: string;       
-  Name: string;            
-  Role: string;            // User role: "Patient", "Worker", or "Admin"
-  WorkerId?: string;       // ID of assigned worker (only for patients)
-}
 
 // Data required to register a new healthcare worker
 export interface RegisterWorkerDto {
@@ -52,15 +45,6 @@ export const userService = {
   // Get unassigned patients (patients without a worker)
   async getUnassignedPatients(): Promise<UserDTO[]> {
     const response = await fetch(`${API_BASE_URL}/User/getUnassignedPatients`, {
-      method: 'GET',
-      headers: getHeaders(),
-    });
-    return handleResponse<UserDTO[]>(response);
-  },
-
-  // Get patients assigned to a specific worker
-  async getUsersByWorkerId(workerId: string): Promise<UserDTO[]> {
-    const response = await fetch(`${API_BASE_URL}/User/getUsersByWorkerId?workerId=${encodeURIComponent(workerId)}`, {
       method: 'GET',
       headers: getHeaders(),
     });

@@ -1,6 +1,8 @@
 import type { Availability } from '../types/event';
-// Imports functions shared with other services
-import { API_BASE_URL, getHeaders, handleResponse } from './sharedService.ts'
+// imports DTOs shared with other services
+import type { UserDTO } from './sharedService.ts';
+// Imports constants and functions shared with other services
+import { API_BASE_URL, getHeaders, handleResponse, fromAvailabilityDTO } from './sharedService.ts'
 
 interface AvailabilityDTO {
 	AvailabilityId?: number;
@@ -44,36 +46,6 @@ function toAvailabilityDTO(availability: NewAvailabilityInput | Availability, us
 		Date: ('date' in availability && availability.date) ? availability.date : null,
 		UserId: userId
 	};
-}
-
-// Backend DTO to JS format
-function fromAvailabilityDTO(dto: any): Availability {
-	const dayOfWeekMap: { [key: number]: string } = {
-		0: 'Sunday',
-		1: 'Monday',
-		2: 'Tuesday',
-		3: 'Wednesday',
-		4: 'Thursday',
-		5: 'Friday',
-		6: 'Saturday'
-	};
-	
-	return {
-		id: dto.AvailabilityId || dto.availabilityId,
-		day: dayOfWeekMap[dto.DayOfWeek ?? dto.dayOfWeek] || 'Monday',
-		startTime: (dto.From || dto.from).substring(0, 5), // "HH:MM:SS" -> "HH:MM"
-		endTime: (dto.To || dto.to).substring(0, 5),
-		date: dto.Date || dto.date || undefined
-	};
-}
-
-// UserDTO interface matching backend structure
-interface UserDTO {
-	Id: string;
-	UserName: string;
-	Name: string;
-	Role: string;
-	WorkerId?: string;
 }
 
 export const workerService = {

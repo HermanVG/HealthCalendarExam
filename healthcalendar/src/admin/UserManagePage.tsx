@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { userService, type UserDTO } from '../services/userService'
+import { sharedService, type UserDTO  } from '../services/sharedService'
+import { userService } from '../services/userService'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import '../styles/UserManagement.css'
@@ -64,7 +65,7 @@ const UserManagePage: React.FC = () => {
   // Fetch all patients assigned to a specific worker
   const loadAssignedPatients = async (workerId: string) => {
     try {
-      const data = await userService.getUsersByWorkerId(workerId)
+      const data = await sharedService.getUsersByWorkerId(workerId)
       setAssignedPatients(data)
     } catch (err: any) {
       showError(err?.message || 'Failed to load assigned patients')
