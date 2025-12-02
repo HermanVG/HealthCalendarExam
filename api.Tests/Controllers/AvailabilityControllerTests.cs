@@ -141,6 +141,107 @@ public class AvailabilityControllerTests
         );
     }
 
+    // Tests function where AvailabilityIds are retreived
+    // Test for deleting Availability by several ids
+    [Fact]
+    public async Task TestGetAvailabilityIdsByDoW()
+    {
+        // Arrange
+        var userId = "id1";
+        var dayOfWeek = DayOfWeek.Monday;
+        var from = new TimeOnly(10,30);
+
+        var availabilityRange = new List<Availability>() {
+            new Availability
+            {
+                AvailabilityId = 1,
+                From = new TimeOnly(10,30),
+                To = new TimeOnly(11,0),
+                DayOfWeek = DayOfWeek.Monday,
+                Date = null,
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 2,
+                From = new TimeOnly(10,30),
+                To = new TimeOnly(11,0),
+                DayOfWeek = DayOfWeek.Monday,
+                Date = new DateOnly(2025, 12, 29),
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 3,
+                From = new TimeOnly(10,30),
+                To = new TimeOnly(11,0),
+                DayOfWeek = DayOfWeek.Monday,
+                Date = new DateOnly(2026, 1, 5),
+                UserId = "id1"
+            },
+        };
+
+        int[] availabilityIds = [1, 2, 3];
+
+        var mockAvailabilityRepo = new Mock<IAvailabilityRepo>();
+        mockAvailabilityRepo
+            .Setup(repo => repo.getAvailabilityRangeByDoW(userId, dayOfWeek, from))
+            .ReturnsAsync((availabilityRange, OperationStatus.Ok));
+        var mockLogger = new Mock<ILogger<AvailabilityController>>();
+        var availabilityController = new AvailabilityController(mockAvailabilityRepo.Object, mockLogger.Object);
+
+        // Act
+        var result = await availabilityController.getAvailabilityIdsByDoW(userId, dayOfWeek, from);
+    
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var availabilityIdsResult = Assert.IsAssignableFrom<IEnumerable<int>>(okResult.Value).ToArray();
+        Assert.Equal(3, availabilityIdsResult.Count());
+        Assert.Equal(availabilityIds, availabilityIdsResult);
+    }
+
+    // Test for when error occurs while creating Availability
+    [Fact]
+    public async Task TestCreateAvailabilityNotOk()
+    {
+        // Arrange
+        var availabilityDTO = new AvailabilityDTO {
+            From = new TimeOnly(10,0),
+            To = new TimeOnly(10,30),
+            DayOfWeek = DayOfWeek.Monday,
+            Date = new DateOnly(2025, 12, 29),
+            UserId = "id1"
+        };
+        var availability = new Availability {
+            From = new TimeOnly(10,0),
+            To = new TimeOnly(10,30),
+            DayOfWeek = DayOfWeek.Monday,
+            Date = new DateOnly(2025, 12, 29),
+            UserId = "id1"
+        };
+
+        var mockAvailabilityRepo = new Mock<IAvailabilityRepo>();
+        mockAvailabilityRepo
+            .Setup(repo => repo.createAvailability(
+                It.Is<Availability>(a => 
+                    a.From == availability.From &&
+                    a.To == availability.To &&
+                    a.DayOfWeek == availability.DayOfWeek &&
+                    a.Date == availability.Date &&
+                    a.UserId == availability.UserId
+                )
+            )).ReturnsAsync(OperationStatus.Error);
+        var mockLogger = new Mock<ILogger<AvailabilityController>>();
+        var availabilityController = new AvailabilityController(mockAvailabilityRepo.Object, mockLogger.Object);
+
+        // Act
+        var result = await availabilityController.createAvailability(availabilityDTO);
+    
+        // Assert
+        var errorResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(500, errorResult.StatusCode);
+    }
+
     // Tests what happens if relevant Availability is not continuous when creating Event
     [Fact]
     public async Task TestCheckAvailabilityForCreateNotContinuous()
