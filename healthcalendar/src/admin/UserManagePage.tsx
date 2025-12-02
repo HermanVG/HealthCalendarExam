@@ -199,7 +199,13 @@ const UserManagePage: React.FC = () => {
     try {
       setLoading(true)
       setShowDeletePatientConfirm(false)
-      
+
+      // step 1: retreive ids from all of patient's events
+      const eventIds = await adminService.getEventIdsByUserId(patientToDelete.Id)
+      // step 2: delete all patient's events and related schedules
+      await sharedService.deleteSchedulesByEventIds(eventIds)
+      await sharedService.deleteEventsByIds(eventIds)
+      // step 3: delete the patient
       await adminService.deleteUser(patientToDelete.Id)
       showSuccess(`Patient ${patientToDelete.Name} has been deleted`)
       
