@@ -132,12 +132,12 @@ public class AvailabilityControllerTests
         var result = await availabilityController.getWeeksAvailabilityProper(userId, monday);
     
         // Assert
-        var viewResult = Assert.IsType<OkObjectResult>(result);
-        var viewAvailabilityDTOs = Assert.IsAssignableFrom<IEnumerable<AvailabilityDTO>>(viewResult.Value).ToList();
-        Assert.Equal(4, viewAvailabilityDTOs.Count());
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var availabilityDTOsResult = Assert.IsAssignableFrom<IEnumerable<AvailabilityDTO>>(okResult.Value).ToList();
+        Assert.Equal(4, availabilityDTOsResult.Count());
         Assert.Equal(
             weeksAvailabilityDTOs.Select(a => (a.AvailabilityId, a.From, a.To, a.DayOfWeek, a.Date, a.UserId)), 
-            viewAvailabilityDTOs.Select(a => (a.AvailabilityId, a.From, a.To, a.DayOfWeek, a.Date, a.UserId))
+            availabilityDTOsResult.Select(a => (a.AvailabilityId, a.From, a.To, a.DayOfWeek, a.Date, a.UserId))
         );
     }
 
@@ -217,8 +217,8 @@ public class AvailabilityControllerTests
         var result = await availabilityController.checkAvailabilityForCreate(eventDTO, userId);
     
         // Assert
-        var viewResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(406, viewResult.StatusCode);
+        var NotAcceptableResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(406, NotAcceptableResult.StatusCode);
     }
 
     // Test for when relevant Availability is continuous when updating Event
@@ -363,14 +363,128 @@ public class AvailabilityControllerTests
             .checkAvailabilityForUpdate(updatedEventDTO, date, oldFrom, oldTo, userId);
     
         // Assert
-        var viewResult = Assert.IsType<OkObjectResult>(result);
-        var viewEventUpdateListsDTO = Assert.IsAssignableFrom<EventUpdateListsDTO>(viewResult.Value);
-        Assert.Equal(3, viewEventUpdateListsDTO.ForCreateSchedules.Count());
-        Assert.Equal(2, viewEventUpdateListsDTO.ForDeleteSchedules.Count());
-        Assert.Equal(2, viewEventUpdateListsDTO.ForUpdateSchedules.Count());
-        Assert.Equal(eventUpdateListsDTO.ForCreateSchedules, viewEventUpdateListsDTO.ForCreateSchedules);
-        Assert.Equal(eventUpdateListsDTO.ForDeleteSchedules, viewEventUpdateListsDTO.ForDeleteSchedules);
-        Assert.Equal(eventUpdateListsDTO.ForUpdateSchedules, viewEventUpdateListsDTO.ForUpdateSchedules);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var eventUpdateListsDTOresult = Assert.IsAssignableFrom<EventUpdateListsDTO>(okResult.Value);
+        Assert.Equal(3, eventUpdateListsDTOresult.ForCreateSchedules.Count());
+        Assert.Equal(2, eventUpdateListsDTOresult.ForDeleteSchedules.Count());
+        Assert.Equal(2, eventUpdateListsDTOresult.ForUpdateSchedules.Count());
+        Assert.Equal(eventUpdateListsDTO.ForCreateSchedules, eventUpdateListsDTOresult.ForCreateSchedules);
+        Assert.Equal(eventUpdateListsDTO.ForDeleteSchedules, eventUpdateListsDTOresult.ForDeleteSchedules);
+        Assert.Equal(eventUpdateListsDTO.ForUpdateSchedules, eventUpdateListsDTOresult.ForUpdateSchedules);
+    }
 
+    // Test for when error occurs while deleting Availability
+    [Fact]
+    public async Task TestDeleteAvailabilityNotOk()
+    {
+        // Arrange
+        var availabilityId = 1;
+
+        var availability = new Availability {
+            AvailabilityId = 1,
+            From = new TimeOnly(10,0),
+            To = new TimeOnly(10,30),
+            DayOfWeek = DayOfWeek.Wednesday,
+            Date = null,
+            UserId = "id1"
+        };
+
+        var mockAvailabilityRepo = new Mock<IAvailabilityRepo>();
+        mockAvailabilityRepo
+            .Setup(repo => repo.getAvailabilityById(availabilityId))
+            .ReturnsAsync((availability, OperationStatus.Ok));
+        mockAvailabilityRepo
+            .Setup(repo => repo.deleteAvailability(availability))
+            .ReturnsAsync(OperationStatus.Error);
+        var mockLogger = new Mock<ILogger<AvailabilityController>>();
+        var availabilityController = new AvailabilityController(mockAvailabilityRepo.Object, mockLogger.Object);
+
+        // Act
+        var result = await availabilityController.deleteAvailability(availabilityId);
+    
+        // Assert
+        var errorResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(500, errorResult.StatusCode);
+    }
+
+    // Test for deleting Availability by several ids
+    [Fact]
+    public async Task deleteAvailabilityByIds()
+    {
+        // Arrange
+        int[] availabilityIds = [1, 2, 3, 4, 5, 6];
+
+        var availabilityRange = new List<Availability>() {
+            new Availability
+            {
+                AvailabilityId = 1,
+                From = new TimeOnly(10,30),
+                To = new TimeOnly(11,0),
+                DayOfWeek = DayOfWeek.Monday,
+                Date = null,
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 2,
+                From = new TimeOnly(11,0),
+                To = new TimeOnly(11,30),
+                DayOfWeek = DayOfWeek.Monday,
+                Date = null,
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 3,
+                From = new TimeOnly(10,30),
+                To = new TimeOnly(11,0),
+                DayOfWeek = DayOfWeek.Tuesday,
+                Date = null,
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 4,
+                From = new TimeOnly(11,0),
+                To = new TimeOnly(11,30),
+                DayOfWeek = DayOfWeek.Tuesday,
+                Date = null,
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 5,
+                From = new TimeOnly(11,0),
+                To = new TimeOnly(11,30),
+                DayOfWeek = DayOfWeek.Tuesday,
+                Date = new DateOnly(2025, 12, 30),
+                UserId = "id1"
+            },
+            new Availability
+            {
+                AvailabilityId = 6,
+                From = new TimeOnly(11,30),
+                To = new TimeOnly(12,0),
+                DayOfWeek = DayOfWeek.Tuesday,
+                Date = new DateOnly(2025, 12, 30),
+                UserId = "id1"
+            }
+        };
+
+        var mockAvailabilityRepo = new Mock<IAvailabilityRepo>();
+        mockAvailabilityRepo
+            .Setup(repo => repo.getAvailabilityByIds(availabilityIds))
+            .ReturnsAsync((availabilityRange, OperationStatus.Ok));
+        mockAvailabilityRepo
+            .Setup(repo => repo.deleteAvailabilityRange(availabilityRange))
+            .ReturnsAsync(OperationStatus.Ok);
+        var mockLogger = new Mock<ILogger<AvailabilityController>>();
+        var availabilityController = new AvailabilityController(mockAvailabilityRepo.Object, mockLogger.Object);
+
+        // Act
+        var result = await availabilityController.deleteAvailabilityByIds(availabilityIds);
+    
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
     }
 }
