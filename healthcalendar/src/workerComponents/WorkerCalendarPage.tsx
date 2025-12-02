@@ -48,7 +48,7 @@ export default function EventCalendar() {
 	const [viewing, setViewing] = useState<Event | null>(null)
 	const [isAvailabilityMode, setIsAvailabilityMode] = useState(false)
 	const [isContinuousMode, setIsContinuousMode] = useState(false)
-	const navigate = useNavigate()
+	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
 	// Helper function to get the week range text
 	const weekRangeText = useMemo(() => {
@@ -185,7 +185,7 @@ export default function EventCalendar() {
 			if (isContinuousMode) {
 				if (matchingContinuous) {
 					// Delete continuous availability
-					await deleteContinuous(matchingContinuous.id, workerId, dayOfWeek, timeStr)		
+					await deleteContinuous(matchingContinuous.id, workerId, dayOfWeek, timeStr)
 				} else {
 					// Create continuous availability
 					await createContinuous(workerId, dayOfWeek, timeStr, endTimeStr)
@@ -219,12 +219,12 @@ export default function EventCalendar() {
 	}
 
 	// calculates Parameters for create or delete operation
-	const getAndValidateParameters = async (date: string, time: number, dayName: string): 
-									   Promise<[string, number, string, string]> => {
-		
+	const getAndValidateParameters = async (date: string, time: number, dayName: string):
+		Promise<[string, number, string, string]> => {
+
 		// Retreives Worker's Id
 		const workerId = (user as WorkerUser).nameid
-		
+
 		// Convert dayName to dayOfWeek number
 		const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 		const dayOfWeek = days.indexOf(dayName)
@@ -278,8 +278,8 @@ export default function EventCalendar() {
 	}
 
 	// Workflow for properly creating masked specific availability
-	const createMask = async (avId: number, workerId: string, dayOfWeek: number, 
-							  date: string, timeStr: string, endTimeStr: string) => {
+	const createMask = async (avId: number, workerId: string, dayOfWeek: number,
+		date: string, timeStr: string, endTimeStr: string) => {
 		// Check for linked events, if any, ask worker for confirmation
 		const eventId = await workerService.findScheduledEventId(avId, date)
 		if (eventId) {
@@ -330,7 +330,7 @@ export default function EventCalendar() {
 	const createContinuous = async (workerId: string, dayOfWeek: number, timeStr: string, endTimeStr: string) => {
 		// Gets list of availability for relevant slot
 		const oldAvailabilityIds = await workerService.getAvailabilityIdsByDoW(workerId, dayOfWeek, timeStr)
-					
+
 		// Create continuous availability (date: null)
 		await workerService.createAvailability({
 			startTime: timeStr,
@@ -355,8 +355,8 @@ export default function EventCalendar() {
 	}
 
 	// Workflow for creating specific availability
-	const createSingular = async (workerId: string, dayOfWeek: number, date: string, 
-								  timeStr: string, endTimeStr: string) => {
+	const createSingular = async (workerId: string, dayOfWeek: number, date: string,
+		timeStr: string, endTimeStr: string) => {
 		await workerService.createAvailability({
 			startTime: timeStr,
 			endTime: endTimeStr,
@@ -421,10 +421,7 @@ export default function EventCalendar() {
 					<div className="event-header__right">
 						<button
 							className="btn-logout"
-							onClick={() => {
-								logout();
-								navigate('/worker/login', { replace: true });
-							}}
+							onClick={() => setShowLogoutConfirm(true)}
 						>
 							<img src="/images/logout.png" alt="Logout" />
 							<span>Log Out</span>
@@ -492,6 +489,34 @@ export default function EventCalendar() {
 					setPendingDeletion(null)
 				}}
 			/>
+			{showLogoutConfirm && (
+				<div className="overlay" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-desc">
+					<div className="modal confirm-modal">
+						<header className="modal__header">
+							<h2 id="logout-confirm-title">Confirm Logout</h2>
+							<button className="icon-btn" onClick={() => setShowLogoutConfirm(false)} aria-label="Close confirmation">
+								<img src="/images/exit.png" alt="Close" />
+							</button>
+						</header>
+						<div id="logout-confirm-desc" className="confirm-body">
+							Are you sure you want to log out?
+						</div>
+						<div className="confirm-actions">
+							<button type="button" className="btn" onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
+							<button
+								type="button"
+								className="btn btn--primary"
+								onClick={() => {
+									logout();
+									window.location.href = '/';
+								}}
+							>
+								Confirm
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }
