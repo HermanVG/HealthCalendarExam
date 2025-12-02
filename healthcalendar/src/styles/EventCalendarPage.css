@@ -129,8 +129,19 @@
 }
 
 @media (max-width:750px) {
+
+    /* buttons */
+    .add-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .logout-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
     .event-main {
-        /* padding: 3rem clamp(2rem,4vw,5rem) 2.5rem; */
         padding: 2rem;
     }
 
@@ -140,7 +151,7 @@
 
     .event-week__range {
         min-width: 200px;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .event-header__right {

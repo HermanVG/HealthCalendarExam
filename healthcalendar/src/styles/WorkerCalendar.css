@@ -113,16 +113,21 @@ input:checked + .slider:before {
 }
 
 /* For smaller screens */
-@media (max-width: 850px) {
+@media (max-width: 750px) {
     .btn-logout {
         margin-left: 0;
     }
-}
 
-@media (max-width: 850px) {
     .event-header__actions {
         flex-direction: column-reverse;
         align-items: flex-end;
         gap: 0.5rem;
+    }
+
+    .btn-toggle {
+        font-size: 0.8rem;
+    }
+    .btn-static-blue {
+        font-size: 0.8rem;
     }
 }
