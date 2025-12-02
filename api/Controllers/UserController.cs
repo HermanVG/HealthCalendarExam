@@ -15,13 +15,11 @@ namespace HealthCalendar.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly ILogger<UserController> _logger;
-        private readonly HealthCalendarDbContext _db;
 
-        public UserController(UserManager<User> userManager, ILogger<UserController> logger, HealthCalendarDbContext db)
+        public UserController(UserManager<User> userManager, ILogger<UserController> logger)
         {
             _userManager = userManager;
             _logger = logger;
-            _db = db;
         }
 
         // HTTP GET functions
@@ -244,42 +242,6 @@ namespace HealthCalendar.Controllers
 
         // HTTP PUT functions
 
-        // Assigns Patient to Worker
-        [HttpPut("assignPatientToWorker")]
-        [Authorize(Roles="Admin")]
-        public async Task<IActionResult> 
-            assignPatientsToWorker([FromQuery] string patientId, [FromQuery] string workerId)
-        {
-            try
-            {
-                var worker = await _userManager.FindByIdAsync(workerId);
-                var patient = await _userManager.FindByIdAsync(patientId);
-                // Adds Worker to Patient's Worker related parameters
-                patient!.WorkerId = workerId;
-                patient.Worker = worker;
-                // Update table with patient
-                var result = await _userManager.UpdateAsync(patient);
-                // In case update did not succeed
-                if (!result.Succeeded)
-                {
-                    _logger.LogError("[UserController] Error from assignPatientToWorker(): \n" +
-                                    $"User {@patient} was not updated");
-                    return StatusCode(500, "Something went wrong when assigning Patient to Worker");
-                }
-
-                return Ok(new { Message = "Patient has been assigned" });
-
-            }
-            catch (Exception e) // In case of unexpected exception
-            {
-                _logger.LogError("[UserController] Error from assignPatientToWorker(): \n" +
-                                 "Something went wrong when trying to assign User " + 
-                                $"with Id = {patientId} to User with Id = {workerId}," + 
-                                $"Error message: {e}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
         // Unassigns Patient from their Worker
         [HttpPut("unassignPatientFromWorker/{userId}")]
         [Authorize(Roles="Admin")]
@@ -294,32 +256,6 @@ namespace HealthCalendar.Controllers
                 {
                     _logger.LogError("[UserController] Error from unassignPatientFromWorker(): Patient not found");
                     return NotFound("Patient not found");
-                }
-                
-                // Delete all events and schedules for this patient
-                var patientEvents = await _db.Events
-                    .Where(e => e.UserId == userId)
-                    .ToListAsync();
-                
-                // Delete schedules for each event
-                foreach (var evt in patientEvents)
-                {
-                    var schedules = await _db.Schedule
-                        .Where(s => s.EventId == evt.EventId)
-                        .ToListAsync();
-                    
-                    if (schedules.Any())
-                    {
-                        _db.Schedule.RemoveRange(schedules);
-                    }
-                }
-                
-                // Delete all events for this patient
-                if (patientEvents.Any())
-                {
-                    _db.Events.RemoveRange(patientEvents);
-                    await _db.SaveChangesAsync();
-                    _logger.LogInformation($"[UserController] Deleted {patientEvents.Count} events and their schedules for patient {userId}");
                 }
                 
                 // Nulls out Patient's Worker related parameters
@@ -346,16 +282,66 @@ namespace HealthCalendar.Controllers
             }
         }
 
+        // Unassigns Patients from their Worker
+        [HttpPut("unassignPatientsFromWorker")]
+        [Authorize(Roles="Admin")]
+        public async Task<IActionResult> unassignPatientsFromWorker([FromQuery] string[] userIds)
+        {
+            try
+            {
+                
+                var patients = await _userManager.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToListAsync();
+                
+                if (!patients.Any())
+                {
+                    _logger.LogError("[UserController] Error from unassignPatientsFromWorker(): Patients not found");
+                    return NotFound("Patients not found");
+                }
+                
+                // Nulls out Patients Worker related parameters one at a time
+                foreach (var patient in patients)
+                {
+                    patient.WorkerId = null;
+                    patient.Worker = null;
+                    // Update table with patient
+                    var result = await _userManager.UpdateAsync(patient);
+                    // In case update did not succeed
+                    if (!result.Succeeded)
+                    {
+                        _logger.LogWarning("[UserController] Warning from " + 
+                                           "unassignPatientsFromWorker(): \n" +
+                                          $"User {@patient} was not updated");
+                        // Error code is not returned since patients need to be updated one at a time
+                        // Returning something would stop the entire operation
+                    }
+                }
+
+                return Ok(new { Message = "Patients have been unassigned" });
+            }
+            catch (Exception e) // In case of unexpected exception
+            {
+                // makes string listing all UserIds
+                var userIdsString = String.Join(", ", userIds);
+
+                _logger.LogError("[UserController] Error from unassignPatientsFromWorker(): \n" +
+                                 "Something went wrong when trying to unassign User " + 
+                                $"with Ids {userIds} from their Worker, Error message: {e}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Assigns Patients to Worker with given Username
         [HttpPut("assignPatientsToWorker")]
         [Authorize(Roles="Admin")]
         public async Task<IActionResult> 
-        assignPatientsToWorker([FromQuery] string[] userIds, [FromQuery] string username)
+        assignPatientsToWorker([FromQuery] string[] userIds, [FromQuery] string workerId)
         {
             try
             {
                 // retreives Worker and Patients
-                var worker = await _userManager.FindByNameAsync(username);
+                var worker = await _userManager.FindByIdAsync(workerId);
                 var patients = await _userManager.Users
                     .Where(u => userIds.Contains(u.Id))
                     .ToListAsync();
@@ -387,8 +373,8 @@ namespace HealthCalendar.Controllers
 
                 _logger.LogError("[UserController] Error from assignPatientsToWorker(): \n" +
                                  "Something went wrong when trying to assign Users " + 
-                                $"with Ids {userIdsString} to User with UserName = " + 
-                                $"{username}, Error message: {e}");
+                                $"with Ids {userIdsString} to User with Id = " + 
+                                $"{workerId}, Error message: {e}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -410,63 +396,6 @@ namespace HealthCalendar.Controllers
                     _logger.LogError("[UserController] Error from deleteUser(): \n" +
                                      "User not found");
                     return NotFound("User not found");
-                }
-
-                // If user is a Worker, delete all related data before deleting the worker
-                if (user.Role == Roles.Worker)
-                {
-                    // Get all patients assigned to this worker
-                    var assignedPatients = await _userManager.Users
-                        .Where(u => u.WorkerId == userId)
-                        .ToListAsync();
-                    
-                    // Delete events and schedules for each patient
-                    foreach (var patient in assignedPatients)
-                    {
-                        // Get all events for this patient
-                        var patientEvents = await _db.Events
-                            .Where(e => e.UserId == patient.Id)
-                            .ToListAsync();
-                        
-                        // Delete schedules for each event
-                        foreach (var evt in patientEvents)
-                        {
-                            var schedules = await _db.Schedule
-                                .Where(s => s.EventId == evt.EventId)
-                                .ToListAsync();
-                            
-                            if (schedules.Any())
-                            {
-                                _db.Schedule.RemoveRange(schedules);
-                            }
-                        }
-                        
-                        // Delete all events for this patient
-                        if (patientEvents.Any())
-                        {
-                            _db.Events.RemoveRange(patientEvents);
-                        }
-                        
-                        // Unassign patient from worker
-                        patient.WorkerId = null;
-                        patient.Worker = null;
-                        await _userManager.UpdateAsync(patient);
-                    }
-                    
-                    await _db.SaveChangesAsync();
-                    _logger.LogInformation($"[UserController] Deleted events and schedules for {assignedPatients.Count} patients of worker {userId}");
-                    
-                    // Delete all availability records for this worker
-                    var availabilities = await _db.Availability
-                        .Where(a => a.UserId == userId)
-                        .ToListAsync();
-                    
-                    if (availabilities.Any())
-                    {
-                        _db.Availability.RemoveRange(availabilities);
-                        await _db.SaveChangesAsync();
-                        _logger.LogInformation($"[UserController] Deleted {availabilities.Count} availability records for worker {userId}");
-                    }
                 }
                 
                 // deletes user from table

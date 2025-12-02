@@ -102,7 +102,7 @@ const UserManagePage: React.FC = () => {
 
     try {
       setLoading(true)
-      await adminService.assignPatientsToWorker(selectedPatientIds, selectedWorker.UserName)
+      await adminService.assignPatientsToWorker(selectedPatientIds, selectedWorker.Id)
       showSuccess(`Assigned ${selectedPatientIds.length} patient(s) to ${selectedWorker.Name}`)
       
       // Refresh lists to reflect the changes
@@ -120,6 +120,12 @@ const UserManagePage: React.FC = () => {
   const handleUnassignPatient = async (patientId: string) => {
     try {
       setLoading(true)
+      // step 1: retreive ids from all of patient's events
+      const eventIds = await adminService.getEventIdsByUserId(patientId)
+      // step 2: delete all patient's events and related schedules
+      await sharedService.deleteSchedulesByEventIds(eventIds)
+      await sharedService.deleteEventsByIds(eventIds)
+      // step 3: unassign patient from their worker
       await adminService.unassignPatientFromWorker(patientId)
             showSuccess('Patient unassigned successfully')
       // Refresh lists to show updated assignments
@@ -147,7 +153,18 @@ const UserManagePage: React.FC = () => {
     try {
       setLoading(true)
       setShowDeleteConfirm(false)
-      
+      // step 1: retreive ids from all patients assigned to worker
+      const patientIds = await sharedService.getIdsByWorkerId(workerToDelete.Id)
+      // step 2: unassign all patients from worker
+      await adminService.unassignPatientsFromWorker(patientIds)
+      // step 3: retreive ids from all of patients events
+      const eventIds = await adminService.getEventIdsByUserIds(patientIds)
+      // step 4: delete all patients events and related schedules
+      await sharedService.deleteSchedulesByEventIds(eventIds)
+      await sharedService.deleteEventsByIds(eventIds)
+      // step 5: delete all worker's availability
+      await adminService.deleteAvailabilityByUserId(workerToDelete.Id)
+      // step 6: delete the worker
       await adminService.deleteUser(workerToDelete.Id)
       showSuccess(`Worker ${workerToDelete.Name} has been removed`)
       
@@ -182,7 +199,13 @@ const UserManagePage: React.FC = () => {
     try {
       setLoading(true)
       setShowDeletePatientConfirm(false)
-      
+
+      // step 1: retreive ids from all of patient's events
+      const eventIds = await adminService.getEventIdsByUserId(patientToDelete.Id)
+      // step 2: delete all patient's events and related schedules
+      await sharedService.deleteSchedulesByEventIds(eventIds)
+      await sharedService.deleteEventsByIds(eventIds)
+      // step 3: delete the patient
       await adminService.deleteUser(patientToDelete.Id)
       showSuccess(`Patient ${patientToDelete.Name} has been deleted`)
       
