@@ -6,6 +6,7 @@ import { sharedService } from '../services/sharedService.ts'
 import { workerService } from '../services/workerService.ts'
 import WorkerCalendarGrid from './WorkerCalendarGrid'
 import '../styles/WorkerCalendar.css'
+import '../styles/EventCalendarPage.css'
 import { useToast } from '../shared/toastContext'
 import { useAuth } from '../auth/AuthContext'
 import ViewEvent from './ViewEvent'
@@ -46,6 +47,7 @@ export default function EventCalendar() {
 	const [weekStartISO, setWeekStartISO] = useState(startOfWeekMondayISO(new Date()))
 	const [viewing, setViewing] = useState<Event | null>(null)
 	const [isAvailabilityMode, setIsAvailabilityMode] = useState(false)
+	const [isContinuousMode, setIsContinuousMode] = useState(false)
 	const navigate = useNavigate()
 
 	// Helper function to get the week range text
@@ -130,14 +132,21 @@ export default function EventCalendar() {
 
 	const handleAvailabilityToggle = () => {
 		setIsAvailabilityMode(!isAvailabilityMode)
+		// Reset continuous mode when exiting availability mode
+		if (isAvailabilityMode) setIsContinuousMode(false)
+	}
+
+	const handleContinuousToggle = () => {
+		setIsContinuousMode(!isContinuousMode)
 	}
 
 	// Confirmation modal state
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const [pendingDeletion, setPendingDeletion] = useState<{
-		availabilityId: number,
-		eventId: number,
-		action: 'delete' | 'mask',
+		availabilityId?: number,
+		eventIds: number[],
+		action: 'deleteSingle' | 'mask' | 'deleteContinuous',
+		workerId?: string,
 		date?: string,
 		startTime?: string,
 		endTime?: string,
@@ -164,6 +173,10 @@ export default function EventCalendar() {
 		// End time string in HH:MM format
 		const endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
 
+		// Convert dayName to dayOfWeek number
+		const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+		const dayOfWeek = days.indexOf(dayName)
+
 		try {
 			// New data to ensure latest state
 			const workerId = (user as WorkerUser).nameid
@@ -186,19 +199,47 @@ export default function EventCalendar() {
 				Number(a.startTime.split(':')[0]) * 60 + Number(a.startTime.split(':')[1]) === time
 			)
 
-			// If slot is currently displayed as available (continuous): create specific availability to mask it (make unavailable)
-			if (matchingContinuous && !matchingSpecific) {
-				// Convert dayName to dayOfWeek number
-				const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-				const dayOfWeek = days.indexOf(dayName)
+			// Continuous mode logic
+			if (isContinuousMode) {
+				if (matchingContinuous) {
+					// Delete continuous availability
+					// Check for any linked events across all dates
+					const eventIds = await workerService.getScheduledEventIds(matchingContinuous.id)
+					if (eventIds.length > 0) {
+						// Warn user if events are linked
+						setPendingDeletion({
+							eventIds: eventIds,
+							workerId: workerId,
+							dayOfWeek: dayOfWeek,
+							startTime: timeStr,
+							action: 'deleteContinuous'
+						})
+						setShowConfirmModal(true)
+						return
+					}
 
+					await workerService.deleteAvailabilityByDoW(workerId, dayOfWeek, timeStr);
+
+				} else {
+					// Create continuous availability (date: null)
+					await workerService.createAvailability({
+						startTime: timeStr,
+						endTime: endTimeStr,
+						dayOfWeek,
+						date: null, // Continuous
+					}, user.nameid)
+				}
+			}
+			// Specific date
+			// If slot is currently displayed as available (continuous): create specific availability to mask it (make unavailable)
+			else if (matchingContinuous && !matchingSpecific) {
 				// Check for linked events, if any, ask worker for confirmation
 				const eventId = await workerService.findScheduledEventId(matchingContinuous.id, date)
 				if (eventId > 0) {
 					// Delete the event + create a specific availability to mask the continuous one
 					setPendingDeletion({
 						availabilityId: matchingContinuous.id,
-						eventId,
+						eventIds: [eventId],
 						action: 'mask',
 						date: date,
 						startTime: timeStr,
@@ -222,7 +263,11 @@ export default function EventCalendar() {
 				// Check for linked events, if any, ask worker for confirmation
 				const eventId = await workerService.findScheduledEventId(matchingSpecific.id, date)
 				if (eventId > 0) {
-					setPendingDeletion({ availabilityId: matchingSpecific.id, eventId, action: 'delete' })
+					setPendingDeletion({
+						availabilityId: matchingSpecific.id,
+						eventIds: [eventId],
+						action: 'deleteSingle'
+					})
 					setShowConfirmModal(true)
 					return
 				}
@@ -236,9 +281,6 @@ export default function EventCalendar() {
 			}
 			// If slot is unavailable (empty): create specific record (make available)
 			else {
-				const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-				const dayOfWeek = days.indexOf(dayName)
-
 				await workerService.createAvailability({
 					startTime: timeStr,
 					endTime: endTimeStr,
@@ -259,23 +301,33 @@ export default function EventCalendar() {
 		if (!pendingDeletion) return
 
 		try {
-			// Delete the event first
-			await sharedService.deleteEvent(pendingDeletion.eventId)
+			await sharedService.deleteSchedulesByEventIds(pendingDeletion.eventIds);
+			await sharedService.deleteEventsByIds(pendingDeletion.eventIds)
 
-			// If masking, create masking availability
-			if (pendingDeletion.action === 'mask' && user?.nameid) {
-				if (pendingDeletion.startTime && pendingDeletion.endTime && pendingDeletion.dayOfWeek !== undefined) {
-					await workerService.createAvailability({
-						startTime: pendingDeletion.startTime,
-						endTime: pendingDeletion.endTime,
-						dayOfWeek: pendingDeletion.dayOfWeek,
-						date: pendingDeletion.date,
-					}, user.nameid)
-				}
-			} else {
-				// Remove availability
-				await workerService.deleteAvailability(pendingDeletion.availabilityId)
+			// If deleting singular availability
+			if (pendingDeletion.action === 'deleteSingle') {
+				await workerService.deleteAvailability(pendingDeletion.availabilityId!)
 			}
+			// If masking, create masking availability
+			else if (pendingDeletion.action === 'mask') {
+				await workerService.createAvailability({
+					startTime: pendingDeletion.startTime!,
+					endTime: pendingDeletion.endTime!,
+					dayOfWeek: pendingDeletion.dayOfWeek!,
+					date: pendingDeletion.date,
+				}, user!.nameid)
+			}
+			// If deleting continuous availability, delete all availability in relevant slot
+			else {
+				await workerService.deleteAvailabilityByDoW(pendingDeletion.workerId!, pendingDeletion.dayOfWeek!, pendingDeletion.startTime!);
+			}
+
+
+			// FOR LATER:
+			/*if (pendingDeletion.action === 'mask' && user?.nameid) {
+				if (pendingDeletion.startTime && pendingDeletion.endTime && pendingDeletion.dayOfWeek !== undefined) {
+				}
+			}*/
 
 			// Reset state
 			setShowConfirmModal(false)
@@ -316,6 +368,17 @@ export default function EventCalendar() {
 						</button>
 
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+							{isAvailabilityMode && (
+								<>
+									<button
+										className={isContinuousMode ? 'btn-static-g' : 'btn-toggle'}
+										onClick={handleContinuousToggle}
+										title="Toggle between continuous and specific date availability"
+									>
+										{isContinuousMode ? 'Weekly' : 'Daily'}
+									</button>
+								</>
+							)}
 							<button
 								className={isAvailabilityMode ? 'btn-static-g' : 'btn-static'}
 								onClick={handleAvailabilityToggle}

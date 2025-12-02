@@ -117,6 +117,7 @@ public static class DbInit
             // generates availability for Worker "Bob"
             var worker1 = await userManager.FindByNameAsync("aaa@aaa.aaa");
             
+            /*
             var availabilityRange1 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Monday, null, worker1!);
@@ -132,11 +133,11 @@ public static class DbInit
             var availabilityRange4 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Thursday, null, worker1!);
-            context.AddRange(availabilityRange4);
+            context.AddRange(availabilityRange4);*/
             var availabilityRange5 = 
                 generateContinuousAvailability(TimeOnly.Parse("09:00:00"), TimeOnly.Parse("15:00:00"),
                                                DayOfWeek.Friday, null, worker1!);
-            context.AddRange(availabilityRange5);
+            context.AddRange(availabilityRange5);/*
 
             // generates availability for Worker "Arne"
             var worker2 = await userManager.FindByNameAsync("ddd@ddd.ddd");
@@ -172,7 +173,7 @@ public static class DbInit
             var availabilityRange16 = 
                 generateContinuousAvailability(TimeOnly.Parse("08:00:00"), TimeOnly.Parse("10:00:00"),
                                                DayOfWeek.Wednesday, DateOnly.Parse("10/12/2025"), worker2!);
-            context.AddRange(availabilityRange16);
+            context.AddRange(availabilityRange16);*/
             
             await context.SaveChangesAsync();
         }
@@ -193,7 +194,7 @@ public static class DbInit
                 Location = "Outside",
                 UserId = patient1!.Id
             };
-            context.Add(event1);
+            context.Add(event1);/*
             var event2 = new Event
             {
                 From = TimeOnly.Parse("11:00:00"),
@@ -309,11 +310,11 @@ public static class DbInit
                 Location = "The kitchen",
                 UserId = patient5!.Id
             };
-            context.Add(event11);
+            context.Add(event11);*/
             
             await context.SaveChangesAsync();
 
-            await addSchedules(context, event1, patient1.WorkerId!);
+            await addSchedules(context, event1, patient1.WorkerId!);/*
             await addSchedules(context, event2, patient1.WorkerId!);
             await addSchedules(context, event3, patient2.WorkerId!);
             await addSchedules(context, event4, patient2.WorkerId!);
@@ -323,7 +324,7 @@ public static class DbInit
             await addSchedules(context, event8, patient4.WorkerId!);
             await addSchedules(context, event9, patient4.WorkerId!);
             await addSchedules(context, event10, patient5.WorkerId!);
-            await addSchedules(context, event11, patient5.WorkerId!);
+            await addSchedules(context, event11, patient5.WorkerId!);*/
 
             await context.SaveChangesAsync();
         }
