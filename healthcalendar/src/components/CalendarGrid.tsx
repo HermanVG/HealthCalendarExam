@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import type { Event, Availability } from '../types/event';
+import { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import type { Event } from '../types/event';
+import type { Availability } from '../types/availability'
 import '../styles/CalendarGrid.css';
 
 // Calendar grid component that displays events in a weekly view with time slots
@@ -66,17 +67,17 @@ export default function CalendarGrid({
 
   // Generate array of 7 days starting from weekStartISO (Monday)
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStartISO, i));
-  
+
   const now = new Date();
   const todayISO = toLocalISO(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
 
   const dayNamesMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  
+
   // Check if a specific time slot is available for a given day based on worker availability
   const isSlotAvailable = (dayISO: string, slotStartMins: number, slotEndMins: number): boolean => {
     const dateObj = new Date(dayISO + 'T00:00:00');
     const dayName = dayNamesMap[dateObj.getDay()];
-    
+
     return availability.some(a => {
       if (a.day !== dayName) return false;
       const availStart = toMinutes(a.startTime);
@@ -104,7 +105,7 @@ export default function CalendarGrid({
     for (let colIdx = 0; colIdx < cols.length; colIdx++) {
       const col = cols[colIdx];
       const colRect = col.getBoundingClientRect();
-      
+
       const slotEls = Array.from(col.querySelectorAll<HTMLDivElement>('.cal-grid__slot'));
       if (slotEls.length === 0) continue;
 
@@ -157,7 +158,7 @@ export default function CalendarGrid({
     if (columnContainerRef.current) ro.observe(columnContainerRef.current);
 
     window.addEventListener('resize', update);
-    
+
     const id = window.setTimeout(update, 50);
 
     // Cleanup observers and listeners
