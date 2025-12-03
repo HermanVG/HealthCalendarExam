@@ -41,7 +41,6 @@ export default function NewEventForm({ availableDays, availability, existingEven
   const [titleError, setTitleError] = useState<string | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
   const [dateError, setDateError] = useState<string | null>(null)
-  const [conflictError, setConflictError] = useState<string | null>(null)
   
   // UI state for save operation
   const [saving, setSaving] = useState(false)

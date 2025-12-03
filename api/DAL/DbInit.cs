@@ -188,7 +188,6 @@ public static class DbInit
             await addSchedules(context, event3, patient2.WorkerId!);
             await context.SaveChangesAsync();
             await addSchedules(context, event4, patient2.WorkerId!);
-
             await context.SaveChangesAsync();
         }
     }
