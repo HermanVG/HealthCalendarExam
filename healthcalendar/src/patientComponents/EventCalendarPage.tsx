@@ -40,15 +40,6 @@ function addDaysISO(iso: string, days: number) {
   return toLocalISO(date)
 }
 
-// Calculate today's date in ISO format (YYYY-MM-DD) for filtering past dates
-async function getTodayISO() {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
 // Convert ISO date string to day name
 function convertISOtoDay(iso: string) {
   const dayOfWeekMap: { [key: number]: string } = {
@@ -103,6 +94,15 @@ export default function EventCalendarPage() {
     Array.from({ length: 7 }, (_, i) => addDaysISO(weekStartISO, i))
   ), [weekStartISO])
 
+  // Calculate today's date in ISO format (YYYY-MM-DD) for filtering past dates
+	const todayISO = useMemo(() => {
+		const now = new Date()
+		const y = now.getFullYear()
+		const m = String(now.getMonth() + 1).padStart(2, '0')
+		const d = String(now.getDate()).padStart(2, '0')
+		return `${y}-${m}-${d}`
+	}, [])
+
   // Load patient's events and worker's available time slots for the current week
   // Availability is filtered to exclude slots already booked by other patients
   useEffect(() => {
@@ -112,8 +112,7 @@ export default function EventCalendarPage() {
       try {
         // Step 1: Fetch this patient's events for the week
         const patientsEventsData = await patientService.getWeeksEventsByUserId(user.nameid, weekStartISO)
-        const todayISO = await getTodayISO()
-        const validEvents = patientsEventsData.filter(e => e.date >= todayISO)
+        const validEvents = patientsEventsData.filter(e => !(e.date < todayISO))
         setEvents(validEvents)
 
 

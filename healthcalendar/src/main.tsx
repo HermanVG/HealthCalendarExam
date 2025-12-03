@@ -5,9 +5,7 @@ import App from './App.tsx'
 import { ToastProvider } from './shared/Toast'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ToastProvider>
-      <App />
-    </ToastProvider>
-  </StrictMode>,
+  <ToastProvider>
+    <App />
+  </ToastProvider>,
 )

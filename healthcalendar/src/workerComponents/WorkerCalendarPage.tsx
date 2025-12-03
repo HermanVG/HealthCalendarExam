@@ -80,7 +80,7 @@ export default function EventCalendar() {
 			// Get worker's events from the worker's assigned users
 			const userList = await sharedService.getUsersByWorkerId(user.nameid)
 			const eventsData = await workerService.getWeeksEventsForWorker(userList, weekStartISO)
-			const validEvents = eventsData.filter(e => e.date >= todayISO)
+			const validEvents = eventsData.filter(e => !(e.date < todayISO))
 			setEvents(validEvents)
 
 			// Delete events set for a date before current date
@@ -91,7 +91,6 @@ export default function EventCalendar() {
 				await sharedService.deleteSchedulesByEventIds(outdatedEventsIds)
 				await sharedService.deleteEventsByIds(outdatedEventsIds)
 			}
-			setEvents(eventsData)
 
 			// Get worker's availability (all records including overlaps)
 			const workerId = (user as WorkerUser).nameid
