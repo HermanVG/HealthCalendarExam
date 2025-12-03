@@ -18,7 +18,7 @@ type Props = {
   onClearError?: () => void                                // Callback to clear error message
 }
 
-export default function EditEventForm({ event, availableDays, availability, onClose, onSave, onDelete, error, onClearError }: Props) {
+export default function EditEventForm({ event, availableDays, availability, onClose, onSave, onDelete, error }: Props) {
   // Form field state - initialized with existing event values
   const [title, setTitle] = useState(event.title)
   const [location, setLocation] = useState(event.location)
@@ -30,7 +30,6 @@ export default function EditEventForm({ event, availableDays, availability, onCl
   const [titleError, setTitleError] = useState<string | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
   const [dateError, setDateError] = useState<string | null>(null)
-  const [conflictError, setConflictError] = useState<string | null>(null)
   
   // UI state for save/delete operations and confirmation dialog
   const [saving, setSaving] = useState(false)

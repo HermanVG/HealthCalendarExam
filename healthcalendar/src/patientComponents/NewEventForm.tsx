@@ -15,7 +15,7 @@ type Props = {
   onClearError?: () => void                                    // Callback to clear error message
 }
 
-export default function NewEventForm({ availableDays, availability, onClose, onSave, error, onClearError }: Props) {
+export default function NewEventForm({ availableDays, availability, onClose, onSave, error }: Props) {
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState('')
   
@@ -40,7 +40,6 @@ export default function NewEventForm({ availableDays, availability, onClose, onS
   const [titleError, setTitleError] = useState<string | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
   const [dateError, setDateError] = useState<string | null>(null)
-  const [conflictError, setConflictError] = useState<string | null>(null)
   
   // UI state for save operation
   const [saving, setSaving] = useState(false)
