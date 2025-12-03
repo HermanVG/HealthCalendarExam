@@ -48,8 +48,8 @@ public static class DbInit
 
             var worker2 = new User
             {
-                Name = "Karl",
-                UserName = "karl@gmail.com",
+                Name = "olav",
+                UserName = "olav@gmail.com",
                 // Password = "Aaaa4@"
                 Role = Roles.Worker
             };
@@ -194,8 +194,11 @@ public static class DbInit
             // Generates relevant schedules
 
             await addSchedules(context, event1, patient1.WorkerId!);
+            await context.SaveChangesAsync();
             await addSchedules(context, event2, patient1.WorkerId!);
+            await context.SaveChangesAsync();
             await addSchedules(context, event3, patient2.WorkerId!);
+            await context.SaveChangesAsync();
             await addSchedules(context, event4, patient2.WorkerId!);
 
             await context.SaveChangesAsync();
