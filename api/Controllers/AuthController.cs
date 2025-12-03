@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using HealthCalendar.DTOs;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
+using HealthCalendar.DAL;
 
 
 
@@ -18,16 +18,13 @@ namespace HealthCalendar.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly IAuthRepo _authRepo;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager,
-                              IConfiguration configuration, ILogger<AuthController> logger)
+        public AuthController(IAuthRepo authRepo, IConfiguration configuration, ILogger<AuthController> logger)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _authRepo = authRepo;
             _configuration = configuration;
             _logger = logger;
         }
@@ -46,21 +43,22 @@ namespace HealthCalendar.Controllers
                     Role = Roles.Patient
                 };
 
-                // Attempts to create new user, automatically hashes passoword
-                var result = await _userManager.CreateAsync(patient, registerDTO.Password);
-
-                // For when registration succeeds
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("[AuthController] Information from registerPatient(): \n " +
-                                          $"Registration succeeded for Patient: {patient.Name}");
-                    return Ok(new { Message = "Patient has been registered" });
-                }
+                // Attempts to create new user
+                var (status, errors) = await _authRepo.registerUser(patient, registerDTO.Password);
 
                 // For when registration doesn't succeed
-                _logger.LogWarning("[AuthController] Warning from RegisterPatient(): \n" +
-                                  $"Registration failed for Patient: {patient.Name}");
-                return BadRequest(result.Errors);
+                if (status == OperationStatus.Error)
+                {
+                    // For when registration doesn't succeed
+                    _logger.LogWarning("[AuthController] Warning from RegisterPatient(): \n" +
+                                       "registerUser from AuthRepo could not register " + 
+                                      $"Patient: {patient.Name}");
+                    return BadRequest(errors);
+                }
+                // For when registration succeeds
+                _logger.LogInformation("[AuthController] Information from registerPatient(): \n " +
+                                          $"Registration succeeded for Patient: {patient.Name}");
+                return Ok(new { Message = "Patient has been registered" });
             }
             catch (Exception e) // In case of unexpected exception
             {
@@ -86,21 +84,22 @@ namespace HealthCalendar.Controllers
                     Role = Roles.Worker
                 };
 
-                // Attempts to create new user, automatically hashes passoword
-                var result = await _userManager.CreateAsync(worker, registerDTO.Password);
-
-                // For when registration succeeds
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("[AuthController] Information from registerWorker(): \n " +
-                                          $"Registration succeeded for Worker: {worker.Name}");
-                    return Ok(new { Message = "Worker has been registered" });
-                }
+                // Attempts to create new user
+                var (status, errors) = await _authRepo.registerUser(worker, registerDTO.Password);
 
                 // For when registration doesn't succeed
-                _logger.LogWarning("[AuthController] Warning from registerWorker(): \n" +
-                                  $"Registration failed for Worker: {worker.Name}");
-                return BadRequest(result.Errors);
+                if (status == OperationStatus.Error)
+                {
+                    // For when registration doesn't succeed
+                    _logger.LogWarning("[AuthController] Warning from RegisterWorker(): \n" +
+                                       "registerUser from AuthRepo could not register " + 
+                                      $"Worker: {worker.Name}");
+                    return BadRequest(errors);
+                }
+                // For when registration succeeds
+                _logger.LogInformation("[AuthController] Information from RegisterWorker(): \n " +
+                                      $"Registration succeeded for Worker: {worker.Name}");
+                return Ok(new { Message = "Worker has been registered" });
             }
             catch (Exception e) // In case of unexpected exception
             {
@@ -117,22 +116,47 @@ namespace HealthCalendar.Controllers
         {
             try
             {
-                var user = await _userManager.FindByNameAsync(loginDTO.Email);
-
-                // Checks if login succeeds
-                if (user != null && await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+                // retreives User
+                var (user, getStatus) = await _authRepo.getUserByUsername(loginDTO.Email);
+                // In case of server error
+                if (getStatus == OperationStatus.Error)
                 {
-                    _logger.LogInformation("[AuthController] Information from Login(): \n " +
-                                          $"User {user.Name} was authorized");
-                    // Generates and returns JWT Token
-                    var token = generateJwtToken(user);
-                    return Ok(new { Token = token });
+                    _logger.LogError("[AuthController] Error from login(): \n" +
+                                     "Could not retreive User with getUserByUsername() " + 
+                                    $"from AuthRepo");
+                    return StatusCode(500, "Internal server error");
                 }
-                
-                // For when login doesn't succeed
-                _logger.LogWarning("[AuthController] Warning from Login(): \n " +
-                                   "User was unauthorized");
-                return Unauthorized(new { Message = "User was unauthorized" });
+                // In case user was not retreived
+                if (user == null)
+                {
+                    _logger.LogWarning("[AuthController] Warning from Login(): \n " +
+                                       "User was unauthorized");
+                    return Unauthorized(new { Message = "User was unauthorized" });
+                }
+
+                // checks User's password
+                var checkStatus = await _authRepo.checkPassword(user, loginDTO.Password);
+                // In case of server error
+                if (checkStatus == OperationStatus.Error)
+                {
+                    _logger.LogError("[AuthController] Error from login(): \n" +
+                                     "Could not check password with checkPassword() " + 
+                                    $"from AuthRepo");
+                    return StatusCode(500, "Internal server error");
+                }
+                // In case user was not retreived
+                if (checkStatus == OperationStatus.Unauthorized)
+                {
+                    _logger.LogWarning("[AuthController] Warning from Login(): \n " +
+                                       "User was unauthorized");
+                    return Unauthorized(new { Message = "User was unauthorized" });
+                }
+
+                _logger.LogInformation("[AuthController] Information from Login(): \n " +
+                                      $"User {user.Name} was authorized");
+                // Generates and returns JWT Token
+                var token = generateJwtToken(user);
+                return Ok(new { Token = token });
             }
             catch (Exception e) // In case of unexpected exception
             {
@@ -150,7 +174,16 @@ namespace HealthCalendar.Controllers
         {
             try
             {
-                await _signInManager.SignOutAsync();
+                var status = await _authRepo.logout();
+                // In case of server error
+                if (status == OperationStatus.Error)
+                {
+                    _logger.LogError("[AuthController] Error from logout(): \n" +
+                                     "Could not log out User with logout() " + 
+                                    $"from AuthRepo");
+                    return StatusCode(500, "Internal server error");
+                }
+
                 _logger.LogInformation("[AuthController] Information from Logout(): \n " +
                                        "Logout was successful");
                 return Ok(new { Message = "Logout was successful" });
