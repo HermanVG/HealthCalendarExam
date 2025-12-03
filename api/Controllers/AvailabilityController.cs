@@ -53,7 +53,7 @@ namespace HealthCalendar.Controllers
                 if (getDateStatus == OperationStatus.Error)
                 {
                     _logger.LogError("[AvailabilityController] Error from getAllWeeksAvailability(): \n" +
-                                    "Could not retreive Availability with getAllWeeksDateAvailability() " + 
+                                    "Could not retreive Availability with getWeeksDateAvailability() " + 
                                     "from AvailabilityRepo.");
                     return StatusCode(500, "Something went wrong when retreiving Week's Date Availability");
                 }
@@ -486,7 +486,7 @@ namespace HealthCalendar.Controllers
             }
             catch (Exception e) // In case of unexpected exception
             {   
-                _logger.LogError("[AvailabilityController] Error from checkAvailabilityForCreate(): \n" +
+                _logger.LogError("[AvailabilityController] Error from checkAvailabilityForUpdate(): \n" +
                                  "Something went wrong when trying to check if there " + 
                                  "was continuous Availability so table can be updated with " + 
                                 $"Event {@updatedEventDTO} by checking it against old Event's " + 
@@ -682,7 +682,7 @@ namespace HealthCalendar.Controllers
                 // In case getTimeslotsAvailability() did not succeed
                 if (getStatus == OperationStatus.Error)
                 {
-                    _logger.LogError("[AvailabilityController] Error from getAndCheckAvailability(): \n" +
+                    _logger.LogError("[AvailabilityController] Error from getContinuousAvailabilityIds(): \n" +
                                      "Could not retreive Availability with getTimeslotsAvailability() " + 
                                      "from AvailabilityController.");
                     return ([], getStatus);
@@ -812,8 +812,8 @@ namespace HealthCalendar.Controllers
                         // Check if the time slots overlap
                         if (dateAvail.From == doWAvail.From && dateAvail.To == doWAvail.To)
                         {
-                            _logger.LogWarning($"[AvailabilityController] checkAvailability: Conflict - " +
-                                $"date-specific and DoW availability both exist for {dateAvail.From}-{dateAvail.To}");
+                            _logger.LogWarning($"[AvailabilityController] checkAvailability(): Conflict - " +
+                                $"date-specific and DoW Availability both exist for {dateAvail.From}-{dateAvail.To}");
                             return ([], OperationStatus.NotAcceptable);
                         }
                     }
@@ -843,7 +843,7 @@ namespace HealthCalendar.Controllers
                 {
                     if (!availabilityMap.ContainsKey(currentTime))
                     {
-                        _logger.LogWarning($"[AvailabilityController] checkAvailability: Missing slot at {currentTime}");
+                        _logger.LogWarning($"[AvailabilityController] checkAvailability(): Missing slot at {currentTime}");
                         return ([], OperationStatus.NotAcceptable);
                     }
                     
