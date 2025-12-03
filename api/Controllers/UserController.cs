@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using HealthCalendar.DTOs;
-using HealthCalendar.Models;
-using Microsoft.EntityFrameworkCore;
 using HealthCalendar.Shared;
 using HealthCalendar.DAL;
 

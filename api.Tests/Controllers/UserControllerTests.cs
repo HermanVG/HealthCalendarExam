@@ -6,7 +6,6 @@ using HealthCalendar.Controllers;
 using HealthCalendar.Models;
 using HealthCalendar.Shared;
 using HealthCalendar.DTOs;
-using System.Threading.Tasks;
 
 public class UserControllerTests
 {
@@ -206,7 +205,7 @@ public class UserControllerTests
         var result = await userController.unassignPatientsFromWorker(patientIds);
     
         // Assert
-        var errorResult = Assert.IsType<NotFoundObjectResult>(result);
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
     }
     // Test for Assigning list of Patients to Worker
     [Fact]
