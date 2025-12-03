@@ -1,16 +1,5 @@
 /* Additional classes to the EventCalendar.css for the worker page */
 
-/* .btn-static {
-    background: var(--primary-strong);
-    width: 190px;
-    color: #fff;
-    border: none;
-    padding: 0.8rem 1.3rem;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-} */
-
 .btn-static-blue {
     background: var(--primary-strong);
     width: 170px;
@@ -21,17 +10,6 @@
     font-weight: 700;
     cursor: pointer;
 }
-
-/* .btn-toggle {
-    background: #565656;
-    width: 150px;
-    color: #fff;
-    border: none;
-    padding: 0.8rem 1.3rem;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-} */
 
 .availability-notification {
     position: fixed;
