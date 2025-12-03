@@ -69,7 +69,7 @@ export default function EventCalendar() {
 
 		try {
 			// Get worker's events from the worker's assigned users
-			const userList = await workerService.getUsersByWorkerId(user.nameid)
+			const userList = await sharedService.getUsersByWorkerId(user.nameid)
 			const eventsData = await workerService.getWeeksEventsForWorker(userList, weekStartISO)
 			setEvents(eventsData)
 
