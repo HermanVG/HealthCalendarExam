@@ -101,8 +101,8 @@ public class AuthControllerTests
 
         var mockAuthRepo = new Mock<IAuthRepo>();
         mockAuthRepo
-            .Setup(repo => repo.logout()
-            ).ReturnsAsync(OperationStatus.Ok);
+            .Setup(repo => repo.logout())
+            .ReturnsAsync(OperationStatus.Ok);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockLogger = new Mock<ILogger<AuthController>>();
         var authController = new AuthController(mockAuthRepo.Object, mockConfiguration.Object, 
