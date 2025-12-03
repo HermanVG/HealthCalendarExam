@@ -23,11 +23,12 @@ public static class DbInit
         // an HealthCalendarDbContext, used to do db operations
         HealthCalendarDbContext context = scope.ServiceProvider.GetRequiredService<HealthCalendarDbContext>();
 
-        /* ----- Seeding User table: ----- */
-
         // Only seeds if User table is empty
-        if (!authContext.Users.Any())
+        if (!authContext.Users.Any() && !context.Availability.Any() && !context.Events.Any())
         {
+            
+            /* ----- Seeding User table: ----- */
+            
             var admin = new User
             {
                 Name = "Baifan",
@@ -87,60 +88,50 @@ public static class DbInit
                 Worker = null
             };
             await addUser(userManager, patient3, "Aaaa4@");
-        }
 
-        /* ----- Seeding Availability table: ----- */
-        if (!context.Availability.Any())
-        {
-            // generates availability for Worker "Bob"
-            var worker1 = await userManager.FindByNameAsync("bong@gmail.com");
+
+            /* Seeding Availability table: */
             
             var availabilityRange1 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Monday, null, worker1!);
+                                               DayOfWeek.Monday, null, worker1);
             context.AddRange(availabilityRange1);
             var availabilityRange2 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Tuesday, null, worker1!);
+                                               DayOfWeek.Tuesday, null, worker1);
             context.AddRange(availabilityRange2);
             var availabilityRange3 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Wednesday, null, worker1!);
+                                               DayOfWeek.Wednesday, null, worker1);
             context.AddRange(availabilityRange3);
             var availabilityRange4 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Thursday, null, worker1!);
+                                               DayOfWeek.Thursday, null, worker1);
             context.AddRange(availabilityRange4);
             var availabilityRange5 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Friday, null, worker1!);
+                                               DayOfWeek.Friday, null, worker1);
             context.AddRange(availabilityRange5);
             var availabilityRange6 = 
                 generateContinuousAvailability(new TimeOnly(8, 0), new TimeOnly(9, 0),
-                                               DayOfWeek.Wednesday, new DateOnly(2025, 12, 17), worker1!);
+                                               DayOfWeek.Wednesday, new DateOnly(2025, 12, 17), worker1);
             context.AddRange(availabilityRange6);
             var availabilityRange7 = 
                 generateContinuousAvailability(new TimeOnly(15, 0), new TimeOnly(16, 0),
-                                               DayOfWeek.Wednesday, new DateOnly(2025, 12, 17), worker1!);
+                                               DayOfWeek.Wednesday, new DateOnly(2025, 12, 17), worker1);
             context.AddRange(availabilityRange7);
             var availabilityRange8 = 
                 generateContinuousAvailability(new TimeOnly(9, 0), new TimeOnly(10, 0),
-                                               DayOfWeek.Tuesday, new DateOnly(2025, 12, 18), worker1!);
+                                               DayOfWeek.Tuesday, new DateOnly(2025, 12, 18), worker1);
             context.AddRange(availabilityRange8);
             var availabilityRange9 = 
                 generateContinuousAvailability(new TimeOnly(14, 0), new TimeOnly(15, 0),
-                                               DayOfWeek.Tuesday, new DateOnly(2025, 12, 18), worker1!);
+                                               DayOfWeek.Tuesday, new DateOnly(2025, 12, 18), worker1);
             context.AddRange(availabilityRange9);
             
             await context.SaveChangesAsync();
-        }
 
-        /* ----- Seeding Events and Schedules table: ----- */
-
-        if (!context.Events.Any())
-        {
-            // generates Events for Patient "Lars"
-            var patient1 = await userManager.FindByNameAsync("lars@gmail.com");
+            /* ----- Seeding Events table: ----- */
 
             var event1 = new Event
             {
@@ -163,9 +154,6 @@ public static class DbInit
                 UserId = patient1!.Id
             };
             context.Add(event2);
-
-            // generates Events for Patient "Karl"
-            var patient2 = await userManager.FindByNameAsync("karl@gmail.com");
 
             var event3 = new Event
             {
@@ -191,7 +179,7 @@ public static class DbInit
             
             await context.SaveChangesAsync();
 
-            // Generates relevant schedules
+            /* ----- Seeding Schedules table: ----- */
 
             await addSchedules(context, event1, patient1.WorkerId!);
             await context.SaveChangesAsync();
