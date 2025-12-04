@@ -17,6 +17,8 @@ const PatientRegistrationPage: React.FC = () => {
   const [nameError, setNameError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+
   
   const [loading, setLoading] = useState(false)
 
@@ -54,7 +56,7 @@ const PatientRegistrationPage: React.FC = () => {
       navigate('/patient/login')
     } catch (err: any) {
       console.debug('Registration failed', err)
-      setPasswordError(err?.message || 'Registration failed')
+      setFormError(err?.message || 'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -71,6 +73,8 @@ const PatientRegistrationPage: React.FC = () => {
         {/* Right side with registration form */}
         <section className="auth-right">
           <h1 className="auth-title auth-title--nowrap">Create your account</h1>
+          {/* Display form-level errors (authentication failures) */}
+					{formError && <div role="alert" className="form-error-banner">{formError}</div>}
           <form className="auth-form" onSubmit={onSubmit} noValidate>
             {/* Name input field */}
             <label>

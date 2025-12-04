@@ -21,6 +21,7 @@ const WorkerRegistrationPage: React.FC = () => {
   const [nameError, setNameError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
 
   // UI state
   const [loading, setLoading] = useState(false)
@@ -71,10 +72,7 @@ const WorkerRegistrationPage: React.FC = () => {
         }
       } catch (err: any) {
         console.debug('Worker registration failed', err)
-        const errorMessage = err?.message || ''
-        if (errorMessage.includes('DuplicateUserName') || errorMessage.includes('already taken')) {
-          setEmailError('This email is already in use.')
-        }
+        setFormError(err?.message || 'Registration failed')
       } finally {
         setLoading(false)
       }
@@ -86,6 +84,8 @@ const WorkerRegistrationPage: React.FC = () => {
       <main className="admin-form-container">
         <section className="admin-form-content">
           <h1 className="auth-title">Register Healthcare Worker</h1>
+          {/* Display form-level errors (authentication failures) */}
+					{formError && <div role="alert" className="form-error-banner">{formError}</div>}
           <form className="auth-form" onSubmit={onSubmit} noValidate>
             {/* Name input field */}
             <label>
