@@ -271,7 +271,7 @@ namespace HealthCalendar.Controllers
                 {
                     _logger.LogError("[UserController] Error from unassignPatientFromWorker(): \n" +
                                     $"User was not updated with updateUser() from UserRepo");
-                    return StatusCode(500, "Something went wrong when assigning Patient to Worker");
+                    return StatusCode(500, "Something went wrong when unassigning Patient from Worker");
                 }
 
                 return Ok(new { Message = "Patient has been unassigned" });
@@ -435,6 +435,5 @@ namespace HealthCalendar.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
     }
 }

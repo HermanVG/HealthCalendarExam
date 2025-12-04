@@ -140,7 +140,7 @@ public static class DbInit
                 Date = new DateOnly(2025, 12, 17),
                 Title = "I wanna take a walk.",
                 Location = "Streetname 11",
-                UserId = patient1!.Id
+                UserId = patient1.Id
             };
             context.Add(event1);
 
@@ -151,7 +151,7 @@ public static class DbInit
                 Date = new DateOnly(2025, 12, 18),
                 Title = "Help me clean the house.",
                 Location = "HouseAddress 1",
-                UserId = patient1!.Id
+                UserId = patient1.Id
             };
             context.Add(event2);
 
@@ -162,7 +162,7 @@ public static class DbInit
                 Date = new DateOnly(2025, 12, 15),
                 Title = "Help me buy groceries",
                 Location = "MallStreet 23",
-                UserId = patient2!.Id
+                UserId = patient2.Id
             };
             context.Add(event3);
 
@@ -173,7 +173,7 @@ public static class DbInit
                 Date = new DateOnly(2025, 12, 17),
                 Title = "Help me exercise",
                 Location = "HouseAddress 2",
-                UserId = patient2!.Id
+                UserId = patient2.Id
             };
             context.Add(event4);
             
@@ -181,13 +181,13 @@ public static class DbInit
 
             /* ----- Seeding Schedules table: ----- */
 
-            await addSchedules(context, event1, patient1.WorkerId!);
+            await addSchedules(context, event1, patient1.WorkerId);
             await context.SaveChangesAsync();
-            await addSchedules(context, event2, patient1.WorkerId!);
+            await addSchedules(context, event2, patient1.WorkerId);
             await context.SaveChangesAsync();
-            await addSchedules(context, event3, patient2.WorkerId!);
+            await addSchedules(context, event3, patient2.WorkerId);
             await context.SaveChangesAsync();
-            await addSchedules(context, event4, patient2.WorkerId!);
+            await addSchedules(context, event4, patient2.WorkerId);
             await context.SaveChangesAsync();
         }
     }
