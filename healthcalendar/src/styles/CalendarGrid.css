@@ -113,10 +113,6 @@
     :root { --slot-h: clamp(50px, 8vh, 64px); }
 }
 
-/* @media (max-height: 750px) {
-    :root { --slot-h: clamp(38px, 6vh, 50px); }
-} */
-
 .cal-grid__event {
     position: absolute;
     left: 6px;
@@ -136,30 +132,15 @@
 .cal-grid__event-title {
     font-weight: 800;
     color: #1f2937;
-    /* font-size: 0.8rem; */
     font-size: clamp(0.6rem, 1vw, 0.8rem);
 }
 
 .cal-grid__event-undertitle {
-    /* font-size: 0.8rem; */
     font-size: clamp(0.5rem, 0.9vw, 0.8rem);
     color: #334155; 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.cal-grid__event-location {
-    font-size: 0.8rem;
-    color: #334155; 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cal-grid__event-meta {
-    font-size: 0.90rem;
-    color: #374151;
 }
 
 .cal-grid__event-edit {

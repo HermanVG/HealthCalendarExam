@@ -126,35 +126,3 @@ a.home-cta:hover {
     display: none;
   }
 }
-/* 
-@media (max-width: 850px) {
-  .home-main {
-    padding: 1.5rem 1.2rem 2rem;
-    gap: 1.5rem;
-  }
-  .home-main__right {
-    margin-bottom: 1rem;
-  }
-  .home-title {
-    font-size: clamp(2rem, 7vw, 2.5rem);
-    letter-spacing: -0.5px;
-    margin-bottom: 1rem;
-    line-height: 1.1;
-  }
-  .home-subtitle {
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 1.5rem;
-  }
-  .home-cta {
-    padding: 0.9rem 2rem;
-    font-size: 1.1rem;
-    border-radius: 10px;
-  }
-  .home-image {
-    max-width: 100%;
-    border-radius: 10px;
-  }
-}
- */
