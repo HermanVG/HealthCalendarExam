@@ -36,6 +36,9 @@ const WorkerRegistrationPage: React.FC = () => {
 
     // Client-side validation
     if (!name) { setNameError('Name is required.'); hasError = true }
+    else if (name.length > 30) {
+      setNameError('Name must have 30 characters or less.'); hasError = true 
+    }
     if (!email) { setEmailError('Email is required.'); hasError = true }
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError('Enter a valid email address (e.g., name@example.com).');
@@ -46,10 +49,17 @@ const WorkerRegistrationPage: React.FC = () => {
       setPasswordError('Password must be at least 6 characters long.');
       hasError = true
     }
+    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(password)) {
+      setPasswordError('Password must have at least one small letter, one big letter, one number and one special character.');
+      hasError = true
+    }
 
-    // Attempt registration if email format is valid (backend will check for duplicates)
+    // Attempt registration if name, email and password format is valid (backend will check for duplicates)
+    const nameIsValid = name && name.length <= 30
     const emailIsValid = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    if (emailIsValid) {
+    const passwordIsValid = password && password.length >= 6 && 
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(password)
+    if (nameIsValid && emailIsValid && passwordIsValid) {
       try {
         setLoading(true)
         await registerWorker({ Name: name, Email: email, Password: password })
@@ -87,8 +97,9 @@ const WorkerRegistrationPage: React.FC = () => {
                 onChange={e => {
                   const v = e.target.value
                   setName(v)
+                  const lengthOk = v.length <= 30
                   // Clear error when user starts typing a valid value
-                  if (nameError && v.trim()) setNameError(null)
+                  if (nameError && v.trim() && lengthOk) setNameError(null)
                 }}
                 className="auth-input"
                 aria-invalid={!!nameError}
@@ -130,9 +141,10 @@ const WorkerRegistrationPage: React.FC = () => {
                 onChange={e => {
                   const v = e.target.value
                   setPassword(v)
-                  // Clear error when password meets minimum length
+                  const patternOk = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(v)
+                  // Clear error when password meets minimum length and pattern is matched
                   if (passwordError) {
-                    if (v.length >= 6) setPasswordError(null)
+                    if (v.length >= 6 && patternOk) setPasswordError(null)
                   }
                 }}
                 className="auth-input"

@@ -162,7 +162,13 @@ export default function NewEventForm({ availableDays, availability, existingEven
     
     // Validate required fields
     if (!title) { setTitleError('Title is required.'); hasError = true }
+    else if (title.length > 30 ) { 
+      setTitleError('Title must have 30 characters or less.'); hasError = true 
+    }
     if (!location) { setLocationError('Location is required.'); hasError = true }
+    else if (location.length > 30 ) { 
+      setLocationError('Location must have 30 characters or less.'); hasError = true 
+    }
     if (!date) { setDateError('Please select a date.'); hasError = true }
     
     // Validate time selection (worker must be available)
@@ -209,8 +215,9 @@ export default function NewEventForm({ availableDays, availability, existingEven
               onChange={e => {
                 const v = e.target.value
                 setTitle(v)
-                // Clear error when user starts typing
-                if (titleError && v.trim()) setTitleError(null)
+                const lengthOk = v.length <= 30
+                // Clear error when user starts typing a valid value
+                if (titleError && v.trim() && lengthOk) setTitleError(null)
               }}
               placeholder="e.g., Medication Reminder"
               aria-invalid={!!titleError}
@@ -225,8 +232,9 @@ export default function NewEventForm({ availableDays, availability, existingEven
               onChange={e => {
                 const v = e.target.value
                 setLocation(v)
-                // Clear error when user starts typing
-                if (locationError && v.trim()) setLocationError(null)
+                const lengthOk = v.length <= 30
+                // Clear error when user starts typing a valid value
+                if (locationError && v.trim() && lengthOk) setLocationError(null)
               }}
               placeholder="e.g., Home"
               aria-invalid={!!locationError}

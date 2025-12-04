@@ -104,7 +104,13 @@ export default function EditEventForm({ event, availableDays, availability, onCl
     let hasError = false
     
     if (!title) { setTitleError('Title is required.'); hasError = true }
+    else if (title.length > 30 ) { 
+      setTitleError('Title must have 30 characters or less.'); hasError = true 
+    }
     if (!location) { setLocationError('Location is required.'); hasError = true }
+    else if (location.length > 30 ) { 
+      setLocationError('Location must have 30 characters or less.'); hasError = true 
+    }
     if (!date) { setDateError('Please select a date.'); hasError = true }
     
     if (!startTime || !endTime) {
@@ -169,7 +175,9 @@ export default function EditEventForm({ event, availableDays, availability, onCl
                 onChange={e => {
                   const v = e.target.value
                   setTitle(v)
-                  if (titleError && v.trim()) setTitleError(null)
+                  const lengthOk = v.length <= 30
+                  // Clear error when user starts typing a valid value
+                  if (titleError && v.trim() && lengthOk) setTitleError(null)
                 }}
                 aria-invalid={!!titleError}
               />
@@ -183,7 +191,9 @@ export default function EditEventForm({ event, availableDays, availability, onCl
                 onChange={e => {
                   const v = e.target.value
                   setLocation(v)
-                  if (locationError && v.trim()) setLocationError(null)
+                  const lengthOk = v.length <= 30
+                  // Clear error when user starts typing a valid value
+                  if (locationError && v.trim() && lengthOk) setLocationError(null)
                 }}
                 aria-invalid={!!locationError}
               />

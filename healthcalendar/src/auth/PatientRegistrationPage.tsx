@@ -32,10 +32,17 @@ const PatientRegistrationPage: React.FC = () => {
     
 		// Client-side validation
     if (!name) { setNameError('Name is required.'); hasError = true }
+    else if (name.length > 30) {
+      setNameError('Name must have 30 characters or less.'); hasError = true 
+    }
     if (!email) { setEmailError('Email is required.'); hasError = true }
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Enter a valid email address (e.g., name@example.com).'); hasError = true }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Enter a valid email address (e.g., name@example.com).'); hasError = true }
     if (!password) { setPasswordError('Password is required.'); hasError = true }
-  else if (password.length < 6) { setPasswordError('Password must be at least 6 characters long.'); hasError = true }
+    else if (password.length < 6) { setPasswordError('Password must be at least 6 characters long.'); hasError = true }
+    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(password)) {
+      setPasswordError('Password must have at least one small letter, one big letter, one number and one special character.');
+      hasError = true
+    }
     
     // Stop submission if validation errors exist
     if (hasError) return
@@ -75,8 +82,9 @@ const PatientRegistrationPage: React.FC = () => {
                 onChange={e => {
                   const v = e.target.value
                   setName(v)
+                  const lengthOk = v.length <= 30
                   // Clear error when user starts typing valid input
-                  if (nameError && v.trim()) setNameError(null)
+                  if (nameError && v.trim() && lengthOk) setNameError(null)
                 }}
                 className="auth-input"
                 aria-invalid={!!nameError}
@@ -115,8 +123,9 @@ const PatientRegistrationPage: React.FC = () => {
                 onChange={e => {
                   const v = e.target.value
                   setPassword(v)
+                  const patternOk = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(v)
                   if (passwordError) {
-                    if (v.length >= 6) setPasswordError(null)
+                    if (v.length >= 6 && patternOk) setPasswordError(null)
                   }
                 }}
                 className="auth-input"
