@@ -22,6 +22,12 @@ The project now runs at `http://localhost:5173`
 | Worker  | bong@gmail.com   | Aaaa4@   |
 | Admin   | baifan@gmail.com | Aaaa4@   |
 
+### Testing
+```bash
+cd api.Tests
+dotnet test
+```
+
 ### Functionality
 **Patients** can book events to an assigned healthcare-worker. An event can only be booked in a time period the healthcare-worker has set themselves to available. The patient can see all their booked events in a calendar view, including full CRUD operations. <br>
 
