@@ -52,7 +52,7 @@ public class ScheduleRepo : IScheduleRepo
             var availabilityIdsString = String.Join(", ", availabilityIds);
 
             _logger.LogError("[ScheduleRepo] Error from getSchedulesByAvailabilityIds(): \n" +
-                             "Something went wrong when retreiving Schedules with list of" +
+                             "Something went wrong when retreiving Schedules with list of " +
                             $"AvailabilityIds {availabilityIdsString}, Error message: {e}");
             return ([], OperationStatus.Error);
         }
@@ -93,7 +93,7 @@ public class ScheduleRepo : IScheduleRepo
             var eventIdsString = String.Join(", ", eventIds);
 
             _logger.LogError("[ScheduleRepo] Error from getSchedulesByEventIds(): \n" +
-                             "Something went wrong when retreiving Scheduless with list of " +
+                             "Something went wrong when retreiving Schedules with list of " +
                             $"EventIds {eventIdsString}, Error message: {e}");
             return ([], OperationStatus.Error);
         }
@@ -115,7 +115,7 @@ public class ScheduleRepo : IScheduleRepo
             var availabilityIdsString = String.Join(", ", availabilityIds);
 
             _logger.LogError("[ScheduleRepo] Error from getSchedulesAfterEventUpdate(): \n" +
-                             "Something went wrong when retreiving Scheduless with " +
+                             "Something went wrong when retreiving Schedules with " +
                             $"EventId {eventId} and AvailabilityIds {availabilityIdsString}, " + 
                             $"Error message: {e}");
             return ([], OperationStatus.Error);
