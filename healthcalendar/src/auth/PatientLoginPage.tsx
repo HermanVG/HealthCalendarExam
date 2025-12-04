@@ -31,7 +31,16 @@ const PatientLoginPage: React.FC = () => {
 		
 		// Client-side validation
 		if (!email) { setEmailError('Email is required.'); hasError = true }
+		else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { 
+			setEmailError('Enter a valid email address (e.g., name@example.com).'); hasError = true 
+		}
 		if (!password) { setPasswordError('Password is required.'); hasError = true }
+		else if (password.length < 6) { setPasswordError('Password must be at least 6 characters long.'); hasError = true }
+		else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(password)) {
+		setPasswordError('Password must have at least one small letter, one big letter, one number and one special character.');
+		hasError = true
+		}
+
 		if (hasError) return
 			try {
 				setLoading(true)
@@ -81,8 +90,9 @@ const PatientLoginPage: React.FC = () => {
 							onChange={e => {
 								const v = e.target.value
 								setEmail(v)
+								const patternOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
 								// Clear error when user starts typing valid input
-								if (emailError && v.trim()) setEmailError(null)
+								if (emailError && v.trim() && patternOk) setEmailError(null)
 							}}
 								className="auth-input"
 								aria-invalid={!!emailError}
@@ -100,8 +110,9 @@ const PatientLoginPage: React.FC = () => {
 							onChange={e => {
 								const v = e.target.value
 								setPassword(v)
-								// Clear error when user starts typing
-								if (passwordError && v.trim()) setPasswordError(null)
+                  				const patternOk = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/.test(v)
+								// Clear error when user starts typing valid input
+								if (passwordError && v.length >= 6 && patternOk) setPasswordError(null)
 							}}
 								className="auth-input"
 								aria-invalid={!!passwordError}

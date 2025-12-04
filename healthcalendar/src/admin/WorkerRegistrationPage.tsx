@@ -97,9 +97,8 @@ const WorkerRegistrationPage: React.FC = () => {
                 onChange={e => {
                   const v = e.target.value
                   setName(v)
-                  const lengthOk = v.length <= 30
                   // Clear error when user starts typing a valid value
-                  if (nameError && v.trim() && lengthOk) setNameError(null)
+                  if (nameError && v.length <= 30) setNameError(null)
                 }}
                 className="auth-input"
                 aria-invalid={!!nameError}

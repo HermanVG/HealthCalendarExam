@@ -175,9 +175,8 @@ export default function EditEventForm({ event, availableDays, availability, onCl
                 onChange={e => {
                   const v = e.target.value
                   setTitle(v)
-                  const lengthOk = v.length <= 30
                   // Clear error when user starts typing a valid value
-                  if (titleError && v.trim() && lengthOk) setTitleError(null)
+                  if (titleError && v.length <= 30) setTitleError(null)
                 }}
                 aria-invalid={!!titleError}
               />
@@ -191,9 +190,8 @@ export default function EditEventForm({ event, availableDays, availability, onCl
                 onChange={e => {
                   const v = e.target.value
                   setLocation(v)
-                  const lengthOk = v.length <= 30
                   // Clear error when user starts typing a valid value
-                  if (locationError && v.trim() && lengthOk) setLocationError(null)
+                  if (locationError && v.length <= 30) setLocationError(null)
                 }}
                 aria-invalid={!!locationError}
               />
