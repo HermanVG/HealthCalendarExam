@@ -29,8 +29,8 @@ dotnet test
 ```
 
 ### Functionality
-**Patients** can book events to an assigned healthcare-worker. An event can only be booked in a time period the healthcare-worker has set themselves to available. The patient can see all their booked events in a calendar view, including full CRUD operations. <br>
+**Patients** can book/create events in a time period their healthcare worker has set themselves to available. The patient can also see, update and delete their booked events in a calendar view (full CRUD operations). <br>
 
-**Workers** can see events their patients have booked with them in the calendar view. A worker can click the 'change availability' button, to then click on individual time boxes, toggling their availability. If the worker clicks the 'repeat weekly' toggle, the availability will repeat forever weekly. Clicking on an event gives the worker more details.
+**Workers** can view events their patients have booked in a calendar view. A worker can click the 'change availability' button, to then click on individual time boxes, toggling their availability. If the worker clicks the 'repeat weekly' toggle, the availability will repeat forever weekly. Clicking on an event gives the worker more details. This fulfills CRUD for worker (Create, view, update, and delete availability schedules).
 
-**Admins**  can see a list of every healthcare-worker, as well as which patients have been assigned to them. The admin can change which patients are assigned to each worker, as well as assigning unassigned patients to a worker.
+**Admins** can view all users in the system, manage patients-worker relationships, and delete users. Admin can also register healthcare workers.
